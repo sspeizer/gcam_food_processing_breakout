@@ -1,0 +1,202 @@
+<queries>
+    <aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="industry share-weights by subsector">
+                        <axis1 name="subsector">subsector</axis1>
+                        <axis2 name="Year">share-weight</axis2>
+                        <xPath buildList="true" dataName="Price" group="false" sumAll="false">*[@type='sector' and (@name='industry' or (exists(child::keyword[@final-energy='industry'])))]/
+               *[@type='subsector']/share-weight/text()</xPath>
+                        <comments/>
+          </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="industry share-weights by tech">
+                        <axis1 name="technology">technology</axis1>
+                        <axis2 name="Year">technology</axis2>
+                        <xPath buildList="true" dataName="Share-weight" group="false" sumAll="false">*[@type='sector' and (@name='industry' or (exists(child::keyword[@final-energy='industry'])))]/
+               *[@type='subsector']/*[@type='technology']/share-weight/node()</xPath>
+                        <comments/>
+          </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="industry primary output by sector">
+                        <axis1 name="sector">sector</axis1>
+                        <axis2 name="Year">physical-output[@vintage]</axis2>
+                        <xPath buildList="true" dataName="output" group="false" sumAll="false">*[@type='sector' and (@name='industry' or (exists(child::keyword[@final-energy='industry'])))]//
+               output-primary/physical-output/node()</xPath>
+                        <comments/>
+         </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="industry final energy by tech and fuel">
+                        <axis1 name="technology">technology</axis1>
+                        <axis2 name="Year">demand-physical[@vintage]</axis2>
+                        <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and (@name='industry' or (exists(child::keyword[@final-energy='industry'])))]/
+               *[@type='subsector']/*[@type='technology']/
+               *[@type='input' and (@name='delivered biomass' or @name='delivered coal' or
+               @name='H2 wholesale delivery' or @name='H2 wholesale dispensing' or @name='H2 industrial' or
+               @name='elect_td_ind' or @name='wholesale gas' or
+               @name='refined liquids industrial')]/demand-physical/node()</xPath>
+                        <comments/>
+          </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="industry cogeneration by fuel">
+                        <axis1 name="technology">technology</axis1>
+                        <axis2 name="Year">physical-output[@vintage]</axis2>
+                        <xPath buildList="true" dataName="output" group="false" sumAll="false">*[@type='sector']//*[@type='technology']/secondary-output[@name='electricity' and @type='output']/
+               physical-output/node()</xPath>
+                        <comments/>
+         </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="industry water withdrawals and consumption">
+                        <axis1 name="input">input</axis1>
+                        <axis2 name="Year">demand-physical[@vintage]</axis2>
+                        <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector']//*[@type='input' and contains(@name,'water_td_ind')]/demand-physical/node()</xPath>
+                        <comments/>
+         </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="food consumption by type (specific)">
+                <axis1 name="technology">technology</axis1>
+                <axis2 name="Year">physical-output[@vintage]</axis2>
+                <xPath buildList="true" dataName="output" group="false" sumAll="false">*[@type='sector' (:collapse:) and (@name='FoodDemand_Staples' or @name='FoodDemand_NonStaples')]//
+            *[@type='subsector']//*[@type='technology']/
+            *[@type='output' (:collapse:)]/physical-output/node()</xPath>
+                <comments/>
+            </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="demand balances by crop commodity">
+                <axis1 name="sector">sector</axis1>
+                <axis2 name="Year">demand-physical[@vintage]</axis2>
+                <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector']//*[@type='input' and
+            (@name='regional corn' or @name='regional fibercrop' or @name='regional fruits' or @name='regional legumes'
+               or @name='regional misccrop' or @name='regional nuts_seeds' or @name='regional oilcrop' or @name='regional othergrain'
+               or @name='regional palmfruit' or @name='regional rice' or @name='regional root_tuber'
+               or @name='regional soybean' or @name='regional sugarcrop' or @name='regional vegetables' or @name='regional wheat'
+               or @name='FodderGrass' or @name='FodderHerb' or @name='Forest' or @name='Pasture')]/
+               demand-physical/node()</xPath>
+                <comments/>
+            </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="demand balances by meat and dairy commodity">
+                <axis1 name="sector">sector</axis1>
+                <axis2 name="Year">demand-physical[@vintage]</axis2>
+                <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector']//*[@type='input' and
+            (@name='Beef' or @name='Pork' or @name='Poultry' or @name='SheepGoat' or @name='OtherMeat_Fish')]/
+            demand-physical/node()</xPath>
+                <comments/>
+            </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="food demand prices">
+                <axis1 name="input">input[@name]</axis1>
+                <axis2 name="Year">price-paid[@vintage]</axis2>
+                <xPath buildList="true" dataName="price" group="false" sumAll="false">gcam-consumer[@name='FoodDemand']//*[@type='input']/price-paid/node()</xPath>
+                <comments/>
+            </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="food demand">
+                <axis1 name="input">input[@name]</axis1>
+                <axis2 name="Year">demand-physical[@vintage]</axis2>
+                <xPath buildList="true" dataName="demand" group="false" sumAll="false">gcam-consumer[@name='FoodDemand']//*[@type='input']/demand-physical/node()</xPath>
+                <comments/>
+          </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="ag regional prices">
+    			<axis1 name="sector">sector</axis1>
+    			<axis2 name="Year">cost</axis2>
+    			<xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and contains(@name, 'regional')]/cost[@unit='1975$/kg' or @unit='1975$/m3']/text()</xPath>
+    			<comments/>
+		</supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="inputs by tech">
+                <axis1 name="input">input</axis1>
+                <axis2 name="Year">demand-physical[@vintage]</axis2>
+                <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector']/*[@type='subsector']/*[@type='technology']/*[@type='input']/demand-physical/node()</xPath>
+                <comments/>
+            </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="outputs by tech">
+                <axis1 name="technology">technology[@name]</axis1>
+                <axis2 name="Year">physical-output[@vintage]</axis2>
+                <xPath buildList="true" dataName="output" group="false" sumAll="false">*[@type='sector']/*[@type='subsector']/*[@type='technology']/*[@type='output']/physical-output/node()</xPath>
+                <comments/>
+            </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="inputs by sector">
+                <axis1 name="sector">sector</axis1>
+                <axis2 name="Year">demand-physical[@vintage]</axis2>
+                <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector']//*[@type='input']/demand-physical/node()</xPath>
+                <comments/>
+            </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="costs by tech">
+                <axis1 name="technology">technology</axis1>
+                <axis2 name="Year">technology</axis2>
+                <xPath buildList="true" dataName="cost" group="false" sumAll="false">*[@type='sector' and (local-name()!='AgSupplySector')]/*[@type = 'subsector']/*[@type = 'technology']/cost/text()</xPath>
+                <comments>Excludes AgProductionTechnology costs, where data written out are no meaningful</comments>
+            </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="costs by tech and input">
+                <axis1 name="technology">technology</axis1>
+                <axis2 name="Year">price-paid[@vintage]</axis2>
+                <xPath buildList="true" dataName="fuel cost" group="false" sumAll="false">*[@type = 'sector']/*[@type = 'subsector']/*[@type = 'technology']/
+            *[@type='input']/price-paid[@vintage=parent::*/parent::*/@year]/text()</xPath>
+                <comments>excludes energy and emissions related costs which are not printed</comments>
+            </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <supplyDemandQuery title="water withdrawals by sector">
+            <axis1 name="sector">sector</axis1>
+            <axis2 name="Year">demand-physical[@vintage]</axis2>
+            <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and not(contains(@name, 'water_td'))]//*[@type='input' (:collapse:) and contains(@name,'water_td')
+         and ends-with(@name,'_W')]/demand-physical/node()</xPath>
+            <comments/>
+            <labelRewriteList append-values="false">
+                <level name="sector">
+                    <rewrite from="elec_Gen_III" to="electricity"/>
+                    <rewrite from="elec_CSP_storage" to="electricity"/>
+                    <rewrite from="elec_refined liquids (steam/CT)" to="electricity"/>
+                    <rewrite from="elec_geothermal" to="electricity"/>
+                    <rewrite from="elec_refined liquids (CC)" to="electricity"/>
+                    <rewrite from="elec_Gen_II_LWR" to="electricity"/>
+                    <rewrite from="elec_gas (steam/CT)" to="electricity"/>
+                    <rewrite from="elec_coal (IGCC)" to="electricity"/>
+                    <rewrite from="elec_gas (CC)" to="electricity"/>
+                    <rewrite from="elec_biomass (IGCC)" to="electricity"/>
+                    <rewrite from="elec_coal (conv pul)" to="electricity"/>
+                    <rewrite from="elec_CSP" to="electricity"/>
+                    <rewrite from="elec_biomass (conv)" to="electricity"/>
+                </level>
+            </labelRewriteList>
+        </supplyDemandQuery>
+    </aQuery>
+</queries>
