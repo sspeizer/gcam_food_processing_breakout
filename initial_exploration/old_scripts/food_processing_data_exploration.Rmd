@@ -1,0 +1,1267 @@
+---
+title: "Food processing data exploration"
+output: 
+  html_document:
+    toc: true
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+```{r, message = FALSE, warning = FALSE}
+# load necessary packages and data
+library(tidyr)
+library(dplyr)
+library(readr)
+library(plotly)
+library(ggplot2)
+library(jgcricolors)
+library(ggsci)
+library(Polychrome)
+
+setwd("C:/Users/spei632/Documents/GCAM_industry/food_processing")
+plot_dir <- "C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_exploration/figures"
+
+# load data
+IEA_en_bal <- read_csv("initial_exploration/data/L100.IEA_en_bal_ctry_hist.csv")
+comtrade_food_pro <- bind_rows(read_csv("initial_exploration/data/comtrade/comtrade_2015_1601-1905.csv"),
+                               read_csv("initial_exploration/data/comtrade/comtrade_2015_2001-2205.csv"),
+                               read_csv("initial_exploration/data/comtrade/comtrade_2015_2206-2404.csv"))
+CostShare_FoodProcessing_GTAP <- read_csv("initial_exploration/data/CostShare_FoodProcessing_GTAP.csv")
+L203.StubCalorieContent <- read_csv("initial_exploration/data/L203.StubCalorieContent_xz_cropremap_branch.csv")
+L203.StubTechProd_food <- read_csv("initial_exploration/data/L203.StubTechProd_food_xz_cropremap_branch.csv")
+L102.pcgdp_thous90USD_Scen_R_Y <- read_csv("initial_exploration/data/L102.pcgdp_thous90USD_Scen_R_Y.csv", skip = 2)
+UN_popTot <- read_csv("initial_exploration/data/UN_popTot.csv", skip = 7)
+USDA_GDP_MER <- read_csv("initial_exploration/data/USDA_GDP_MER.csv", skip = 6)
+WB_ExtraCountries_GDP_MER <- read_csv("initial_exploration/data/WB_ExtraCountries_GDP_MER.csv", skip = 7)
+socioeconomics_ctry <- read_csv("initial_exploration/data/socioeconomics_ctry.csv", skip = 7)
+L1328.in_EJ_R_food_F_Yh_nochp_1 <- read_csv("initial_exploration/data/L1328.in_EJ_R_food_F_Yh_nochp_12-6-22.csv")
+L1328.in_EJ_R_indenergy_F_Yh_1 <- read_csv("initial_exploration/data/L1328.in_EJ_R_indenergy_F_Yh_12-6-22.csv")
+L1327.in_EJ_R_indenergy_F_Yh_1 <- read_csv("initial_exploration/data/L1327.in_EJ_R_indenergy_F_Yh_12-6-22.csv")
+# looking at ag price data from sample GCAM 6.0 run
+# ag_commodity_prices_reference_1 <- read_csv("C:/Users/spei632/Documents/GCAM_industry/data/steel_decarb/steel_decarb_run_9-30-22/ag_commodity_prices_reference_1.csv", skip = 1)
+# meat_and_dairy_prices_reference_1 <- read_csv("C:/Users/spei632/Documents/GCAM_industry/data/steel_decarb/steel_decarb_run_9-30-22/meat_and_dairy_prices_reference_1.csv", skip = 1)
+# food_consumption_by_type_specific_reference_1 <- read_csv("C:/Users/spei632/Documents/GCAM_industry/data/steel_decarb/steel_decarb_run_9-30-22/food_consumption_by_type_specific_reference_1.csv", skip = 1)
+# food_demand_prices_reference_1 <- read_csv("C:/Users/spei632/Documents/GCAM_industry/data/steel_decarb/steel_decarb_run_9-30-22/food_demand_prices_reference_1.csv", skip = 1)
+# prices_of_all_markets_reference_1 <- read_csv("C:/Users/spei632/Documents/GCAM_industry/data/steel_decarb/steel_decarb_run_9-30-22/prices_of_all_markets_reference_1.csv", skip = 1)
+L203.StubCalorieContent_base_GCAM6p0 <- read_csv("initial_exploration/data/L203.StubCalorieContent_base_GCAM6p0.csv", skip = 3)
+ag_regional_prices <- read_csv("C:/Users/spei632/Documents/CWF_transport/data/tests/GCAM_6p0_branch_test_runs/test_run_12-12-22/exe_5_base_biochar_no_policy/queryout_ag_regional_prices.csv", skip = 1)
+food_consumption_by_type_specific <- read_csv("C:/Users/spei632/Documents/CWF_transport/data/tests/GCAM_6p0_branch_test_runs/test_run_12-12-22/exe_5_base_biochar_no_policy/queryout_food_consumption_by_type_specific.csv", skip = 1)
+prices_of_all_markets <- read_csv("C:/Users/spei632/Documents/CWF_transport/data/tests/GCAM_6p0_branch_test_runs/test_run_12-12-22/exe_5_base_biochar_no_policy/queryout_prices_of_all_markets.csv", skip = 1)
+food_demand_prices <- read_csv("C:/Users/spei632/Documents/CWF_transport/data/tests/GCAM_6p0_branch_test_runs/test_run_12-12-22/exe_5_base_biochar_no_policy/queryout_food_demand_prices.csv", skip = 1)
+demand_balances_by_crop_commodity <- read_csv("C:/Users/spei632/Documents/CWF_transport/data/tests/GCAM_6p0_branch_test_runs/test_run_12-12-22/exe_5_base_biochar_no_policy/queryout_demand_balances_by_crop_commodity.csv", skip = 1)
+demand_balances_by_meat_and_dairy_commodity <- read_csv("C:/Users/spei632/Documents/CWF_transport/data/tests/GCAM_6p0_branch_test_runs/test_run_12-12-22/exe_5_base_biochar_no_policy/queryout_demand_balances_by_meat_and_dairy_commodity.csv", skip = 1)
+
+
+# set constants
+CONV_KTOE_EJ <- 0.00004186
+hist_years <- c(1990:2015)
+gcam_hist_years <- c(1990, 2005, 2010, 2015)
+conv_P_k <- 10^12
+
+# mappings
+IEA_product_fuel <- readr::read_csv("mappings/IEA_product_fuel.csv", skip = 7)
+enduse_fuel_aggregation <- readr::read_csv("mappings/enduse_fuel_aggregation.csv", skip = 5)
+IEA_ctry <- readr::read_csv("mappings/iea_ctry.csv", skip = 5)
+iso_GCAM_regID <- readr::read_csv("mappings/iso_GCAM_regID.csv", skip = 6)
+GCAM_region_names <- readr::read_csv("mappings/GCAM_region_names.csv", skip = 6)
+
+# colors and palettes
+data(palette36)
+palette36 <- unname(palette36)
+pal_sel <- jgcricol()$pal_all
+```
+
+
+# Looking at IEA food processing data
+
+First looking at IEA data, both by countries and by GCAM regions.
+
+```{r, message = FALSE, warning = FALSE}
+food_pro_sect <- "FOODPRO"
+
+IEA_food_pro_region_fuel <- IEA_en_bal %>%
+  filter(FLOW == food_pro_sect) %>%
+  dplyr::select(iso, FLOW, PRODUCT, as.character(hist_years)) %>%
+  left_join(select(iso_GCAM_regID, iso, GCAM_region_ID, country_name), by = "iso") %>%
+  left_join(select(IEA_product_fuel, fuel, PRODUCT = product), by = "PRODUCT") %>%
+  left_join(enduse_fuel_aggregation %>% dplyr::select(fuel, industry)) %>%
+  # remap biomass_tradbio to biomass
+  mutate(industry = if_else(fuel == "biomass_tradbio", "biomass", industry)) %>%
+  # need to adjust a few that have no mapping to industry label for fuels - maybe don't do this?
+  # mutate(industry = ifelse(is.na(industry), fuel, industry),
+  #        industry = ifelse(industry %in% c("elec_solar CSP", "elec_geothermal"), "electricity", industry)) %>%
+  pivot_longer(as.character(hist_years), names_to = "year", values_to = "value") %>%
+  rename(fuel_orig = fuel, fuel = industry) %>%
+  filter(!is.na(fuel)) %>%
+  group_by(iso, country_name, GCAM_region_ID, year, fuel) %>%
+  # summarize and convert to EJ
+  summarize(value = sum(value, na.rm = TRUE) * CONV_KTOE_EJ) %>%
+  ungroup()
+
+IEA_food_pro_GCAM_region_fuel <- IEA_food_pro_region_fuel %>%
+  # summarize by GCAM region
+  group_by(GCAM_region_ID, year, fuel) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  full_join(GCAM_region_names) %>%
+  mutate(year = replace_na(year, 2015))
+
+# plot all regions
+ggplot(IEA_food_pro_region_fuel, aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  facet_wrap(~country_name, scale = "free") + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_discrete(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(plot_dir, "/food_pro_energy_use_by_region_fuel_hist_IEA.png"), width = 15, height = 10)
+
+# just plot 2015
+ggplot(IEA_food_pro_region_fuel %>% filter(year == 2015), aes(x = country_name, y = value, fill = fuel)) +
+  geom_col() + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use in 2015 (IEA)") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=8, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_energy_use_by_region_fuel_2015_IEA.png"), width = 10, height = 6)
+
+# plot by GCAM region
+ggplot(IEA_food_pro_GCAM_region_fuel, aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  facet_wrap(~region, scale = "free") + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_discrete(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(plot_dir, "/food_pro_energy_use_by_GCAM_region_fuel_hist_IEA.png"), width = 15, height = 10)
+
+# just plot 2015
+ggplot(IEA_food_pro_GCAM_region_fuel %>% filter(year == 2015), aes(x = region, y = value, fill = fuel)) +
+  geom_col() + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use in 2015 (IEA)") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_energy_use_by_GCAM_region_fuel_2015_IEA.png"), width = 10, height = 6)
+
+# global
+ggplot(IEA_food_pro_GCAM_region_fuel, aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Global food processing energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_discrete(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(plot_dir, "/food_pro_energy_use_by_fuel_global_hist_IEA.png"), width = 7, height = 5)
+
+# 2015 pie charts - breakdown by region and fuel
+IEA_food_pro_GCAM_region_fuel <- IEA_food_pro_GCAM_region_fuel %>%
+  group_by(year, region) %>%
+  mutate(share = value / sum(value, na.rm = TRUE)) %>%
+  ungroup()
+
+ggplot(IEA_food_pro_GCAM_region_fuel %>% filter(year == 2015),
+       aes(x="", y = share, fill = fuel)) +
+  facet_wrap(~region) + 
+  geom_bar(width = 1, stat = "identity") + 
+  geom_text(aes(label = paste0(round(share * 100, 0), "%")),
+            position = position_stack(vjust = 0.5),
+            size = 2) + 
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) +
+  labs(x = "", y = "", title = "Food processing energy use in 2015 (IEA)") + 
+  theme_bw() + 
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank())
+ggsave(paste0(plot_dir, "/food_pro_energy_use_by_GCAM_region_fuel_2015_pie_IEA.png"), width = 12, height = 12)
+
+IEA_food_pro_global_fuel_share <- IEA_food_pro_GCAM_region_fuel %>%
+  group_by(year, fuel) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  filter(!is.na(fuel)) %>%
+  group_by(year) %>%
+  mutate(share = value / sum(value)) %>%
+  ungroup()
+
+ggplot(IEA_food_pro_global_fuel_share %>% filter(year == 2015),
+       aes(x="", y = share, fill = fuel)) +
+  geom_bar(width = 1, stat = "identity") + 
+  geom_text(aes(label = paste0(round(share * 100, 0), "%")),
+            position = position_stack(vjust = 0.5),
+            size = 2) + 
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) +
+  labs(x = "", y = "", title = "Global food processing energy use in 2015 (IEA)") + 
+  theme_bw() + 
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank())
+ggsave(paste0(plot_dir, "/food_pro_energy_use_by_fuel_global_2015_pie_IEA.png"), width = 5, height = 5)
+
+IEA_food_pro_global_GCAM_region_share <- IEA_food_pro_GCAM_region_fuel %>%
+  group_by(year, region) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  group_by(year) %>%
+  mutate(share = value / sum(value)) %>%
+  ungroup() %>%
+  mutate(region_grouped = ifelse(share < 0.01, "Other", region))
+
+ggplot(IEA_food_pro_global_GCAM_region_share %>% filter(year == 2015),
+       aes(x="", y = share, fill = region_grouped)) +
+  geom_bar(width = 1, stat = "identity") + 
+  # geom_text(aes(label = paste0(round(share * 100, 0), "%")),
+  #           position = position_stack(vjust = 0.5),
+  #           size = 2) + 
+  coord_polar("y", start = 0) +
+  scale_fill_d3(palette = "category20", name = "Region") +
+  labs(x = "", y = "", title = "Food processing energy use in 2015 (IEA)") + 
+  theme_bw() + 
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank())
+ggsave(paste0(plot_dir, "/food_pro_energy_use_by_GCAM_region_global_2015_pie_IEA.png"), width = 5, height = 5)
+  
+```
+
+Identifying the GCAM regions with no energy used in food processing in the IEA data in 2015.
+
+```{r, message = FALSE, warning = FALSE}
+GCAM_regions_with_zero_food_pro_energy_IEA <- unique((IEA_food_pro_global_GCAM_region_share %>% filter(year == 2015 & value == 0))$region)
+
+print("GCAM regions with no energy used in food processing in IEA data in 2015:")
+print(GCAM_regions_with_zero_food_pro_energy_IEA)
+```
+
+## Comparing to other sectors and non-specified industry energy use
+
+Compare to energy used in INONSPEC (nonspecified industry energy use), and other sectors.
+
+```{r, message = FALSE, warning = FALSE}
+IEA_inonspec_region_fuel <- IEA_en_bal %>%
+  filter(FLOW == "INONSPEC") %>%
+  dplyr::select(iso, FLOW, PRODUCT, as.character(hist_years)) %>%
+  left_join(select(iso_GCAM_regID, iso, GCAM_region_ID, country_name), by = "iso") %>%
+  left_join(select(IEA_product_fuel, fuel, PRODUCT = product), by = "PRODUCT") %>%
+  left_join(enduse_fuel_aggregation %>% dplyr::select(fuel, industry)) %>%
+  # remap biomass_tradbio to biomass
+  mutate(industry = if_else(fuel == "biomass_tradbio", "biomass", industry)) %>%
+  # need to adjust a few that have no mapping to industry label for fuels - maybe don't do this?
+  # mutate(industry = ifelse(is.na(industry), fuel, industry),
+  #        industry = ifelse(industry %in% c("elec_solar CSP", "elec_geothermal"), "electricity", industry)) %>%
+  pivot_longer(as.character(hist_years), names_to = "year", values_to = "value") %>%
+  rename(fuel_orig = fuel, fuel = industry) %>%
+  filter(!is.na(fuel)) %>%
+  group_by(iso, country_name, GCAM_region_ID, year, fuel) %>%
+  # summarize and convert to EJ
+  summarize(value = sum(value, na.rm = TRUE) * CONV_KTOE_EJ) %>%
+  ungroup()
+
+IEA_inonspec_GCAM_region_fuel <- IEA_inonspec_region_fuel %>%
+  # summarize by GCAM region
+  group_by(GCAM_region_ID, year, fuel) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  full_join(GCAM_region_names) %>%
+  mutate(year = replace_na(year, 2015))
+
+# plot by GCAM region
+ggplot(IEA_inonspec_GCAM_region_fuel, aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  facet_wrap(~region, scale = "free") + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Non-specified industry energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_discrete(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(plot_dir, "/inonspec_energy_use_by_GCAM_region_fuel_hist_IEA.png"), width = 15, height = 10)
+
+# get all sectors broken out and the unspecified one
+flows_sel <- c("MINING", "CONSTRUC", "IRONSTL", "CHEMICAL", "NONFERR", "NONMET", "TRANSEQ", "MACHINE", "FOODPRO", "PAPERPRO", "WOODPRO", "TEXTILES", "INONSPEC")
+
+IEA_ind_sectors_region_fuel <- IEA_en_bal %>%
+  filter(FLOW %in% flows_sel) %>%
+  dplyr::select(iso, FLOW, PRODUCT, as.character(hist_years)) %>%
+  left_join(select(iso_GCAM_regID, iso, GCAM_region_ID, country_name), by = "iso") %>%
+  left_join(select(IEA_product_fuel, fuel, PRODUCT = product), by = "PRODUCT") %>%
+  left_join(enduse_fuel_aggregation %>% dplyr::select(fuel, industry)) %>%
+  # remap biomass_tradbio to biomass
+  mutate(industry = if_else(fuel == "biomass_tradbio", "biomass", industry)) %>%
+  # need to adjust a few that have no mapping to industry label for fuels - maybe don't do this?
+  # mutate(industry = ifelse(is.na(industry), fuel, industry),
+  #        industry = ifelse(industry %in% c("elec_solar CSP", "elec_geothermal"), "electricity", industry)) %>%
+  pivot_longer(as.character(hist_years), names_to = "year", values_to = "value") %>%
+  rename(fuel_orig = fuel, fuel = industry) %>%
+  filter(!is.na(fuel)) %>%
+  group_by(iso, country_name, GCAM_region_ID, year, fuel, FLOW) %>%
+  # summarize and convert to EJ
+  summarize(value = sum(value, na.rm = TRUE) * CONV_KTOE_EJ) %>%
+  ungroup()
+
+IEA_ind_sectors_GCAM_region_fuel <- IEA_ind_sectors_region_fuel %>%
+  # summarize by GCAM region
+  group_by(GCAM_region_ID, year, fuel, FLOW) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  full_join(GCAM_region_names) %>%
+  mutate(year = replace_na(year, 2015))
+```
+
+Calculate total food processing energy use on a per capita basis and compare to per capita nonspecified industry energy use, and other sectors.
+
+First calculate GDP per capita from the GDP and population data.
+```{r, message = FALSE, warning = FALSE}
+# get just historical populations and GDPs
+UN_popTot_hist <- UN_popTot %>%
+  filter(Year <= 2015 & Scenario == "EST") %>%
+  mutate(iso = tolower(Country))
+
+GDP_MER_hist <- rbind(USDA_GDP_MER, WB_ExtraCountries_GDP_MER) %>%
+  pivot_longer(cols = -c(Country, iso), names_to = "year", values_to = "GDP_MER_bil2010USD") %>%
+  mutate(year = as.numeric(year)) %>%
+  filter(year <= 2015)
+
+# join and calculate GDP per capita
+GDP_per_cap_hist_calc <- GDP_MER_hist %>%
+  left_join(UN_popTot_hist %>% dplyr::select(year = Year, iso, pop_thousands = Value)) %>%
+  mutate(GDP_per_cap_thous2010USD = (GDP_MER_bil2010USD*10^6) / (pop_thousands * 1000))
+```
+
+Now calculate food processing energy use per capita compared to other sectors.
+
+```{r message=FALSE, warning=FALSE}
+# get population by GCAM region
+UN_popTot_hist_GCAM_region <- UN_popTot_hist %>%
+  left_join(iso_GCAM_regID %>% dplyr::select(region = country_name, iso, GCAM_region_ID)) %>%
+  group_by(Year, GCAM_region_ID) %>%
+  summarize(pop_thousands = sum(Value)) %>%
+  ungroup() %>%
+  rename(year = Year) %>%
+  left_join(GCAM_region_names)
+  
+# get per capita food processing energy use
+# first summarize to total energy use
+IEA_food_pro_GCAM_region <- IEA_food_pro_GCAM_region_fuel %>%
+  group_by(year, region, GCAM_region_ID) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(year = as.numeric(year))
+
+IEA_food_pro_GCAM_region_pcap <- IEA_food_pro_GCAM_region %>%
+  left_join(UN_popTot_hist_GCAM_region) %>%
+  mutate(GJ_pcap = 10^9 * value / (pop_thousands * 1000))
+
+# repeat for non-specified industry energy
+IEA_inonspec_GCAM_region <- IEA_inonspec_GCAM_region_fuel %>%
+  group_by(year, region, GCAM_region_ID) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(year = as.numeric(year))
+
+IEA_inonspec_GCAM_region_pcap <- IEA_inonspec_GCAM_region %>%
+  left_join(UN_popTot_hist_GCAM_region) %>%
+  mutate(GJ_pcap = 10^9 * value / (pop_thousands * 1000))
+
+# join and compare
+IEA_food_pro_inonspec_GCAM_region_pcap <- IEA_food_pro_GCAM_region_pcap %>%
+  mutate(sector = "food processing") %>%
+  rbind(IEA_inonspec_GCAM_region_pcap %>% mutate(sector = "non-specified industry"))
+
+# plot
+ggplot(IEA_food_pro_inonspec_GCAM_region_pcap,
+       aes(x = year, y = GJ_pcap, color = sector)) +
+  geom_line() +
+  facet_wrap(~region, scale = "free") + 
+  labs(x = "", y = "GJ per capita", title = "Per capita food processing and non-specified industry energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  #scale_x_discrete(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(plot_dir, "/food_pro_inonspec_energy_use_by_GCAM_region_pcap_hist_IEA.png"), width = 15, height = 10)
+
+# repeat for all the industry sectors
+IEA_ind_sectors_GCAM_region <- IEA_ind_sectors_GCAM_region_fuel %>%
+  group_by(year, region, GCAM_region_ID, FLOW) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(year = as.numeric(year))
+
+IEA_ind_sectors_GCAM_region_pcap <- IEA_ind_sectors_GCAM_region %>%
+  left_join(UN_popTot_hist_GCAM_region) %>%
+  mutate(GJ_pcap = 10^9 * value / (pop_thousands * 1000))
+
+ggplot(IEA_ind_sectors_GCAM_region_pcap,
+       aes(x = year, y = GJ_pcap, color = FLOW)) +
+  geom_line() +
+  scale_color_manual(values = c("gray20", "red", "firebrick4", "deepskyblue1", "dodgerblue3", 
+                                "olivedrab", "darkgreen", "palegreen", "peachpuff2", "pink", "mediumpurple", 
+                                "gold1", "orange"), name = "sector") + 
+  facet_wrap(~region, scale = "free") + 
+  labs(x = "", y = "GJ per capita", title = "Per capita industry energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  #scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(plot_dir, "/ind_energy_use_by_sector_GCAM_region_pcap_hist_IEA.png"), width = 15, height = 10)
+
+# look at this on a country basis
+IEA_ind_sectors_region <- IEA_ind_sectors_region_fuel %>%
+  group_by(year, iso, country_name, GCAM_region_ID, FLOW) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(year = as.numeric(year))
+  
+IEA_ind_sectors_region_pcap <- IEA_ind_sectors_region %>%
+  left_join(UN_popTot_hist %>% dplyr::select(year = Year, iso, pop_thousands = Value)) %>%
+  mutate(GJ_pcap = 10^9 * value / (pop_thousands * 1000))
+  
+ggplot(IEA_ind_sectors_region_pcap,
+       aes(x = year, y = GJ_pcap, color = FLOW)) +
+  geom_line() +
+  scale_color_manual(values = c("gray20", "red", "firebrick4", "deepskyblue1", "dodgerblue3", 
+                                "olivedrab", "darkgreen", "palegreen", "peachpuff2", "pink", "mediumpurple", 
+                                "gold1", "orange"), name = "sector") + 
+  facet_wrap(~country_name, scale = "free") + 
+  labs(x = "", y = "GJ per capita", title = "Per capita industry energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(plot_dir, "/ind_energy_use_by_sector_country_pcap_hist_IEA.png"), width = 25, height = 20)
+
+```
+
+### Use the results from what the initial food processing breakout would look like for food processing energy use and remaining other industry energy
+
+```{r, message = FALSE, warning = FALSE}
+# aggregate initial datasystem breakout results to total energy for each region
+init_results_food_inden_by_region_pcap_1 <- L1328.in_EJ_R_food_F_Yh_nochp_1 %>%
+  rbind(L1328.in_EJ_R_indenergy_F_Yh_1) %>%
+  group_by(year, GCAM_region_ID, sector) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  left_join(UN_popTot_hist_GCAM_region) %>%
+  mutate(GJ_pcap = 10^9 * value / (pop_thousands * 1000))
+
+# plot
+ggplot(init_results_food_inden_by_region_pcap_1 %>% filter(year >= 1990),
+       aes(x = year, y = GJ_pcap, color = sector)) +
+  geom_line() +
+  scale_color_manual(values = c("gray20", "red"), name = "sector") + 
+  facet_wrap(~region, scale = "free") + 
+  labs(x = "", y = "GJ per capita", title = "Per capita food and other industry energy use (IEA, GCAM processed)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  #scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(plot_dir, "/food_pro_other_industry_energy_use_by_GCAM_region_pcap_hist_datasys_breakout_1.png"), width = 15, height = 10)
+
+
+# compare to before food was broken out
+init_results_inden_pre_food_breakout_by_region_pcap_1 <- L1327.in_EJ_R_indenergy_F_Yh_1 %>%
+  group_by(year, GCAM_region_ID, sector) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  left_join(UN_popTot_hist_GCAM_region) %>%
+  mutate(GJ_pcap = 10^9 * value / (pop_thousands * 1000))
+```
+
+
+# Looking at Comtrade data
+
+```{r, message = FALSE, warning = FALSE}
+comtrade_food_pro_edit <- comtrade_food_pro %>%
+  dplyr::select(year = Year, Reporter, `Reporter ISO`, Commodity, `Commodity Code`, Qty, `Qty Unit`, `Trade Value (US$)`) %>%
+  mutate(iso = ifelse(`Reporter ISO` == "ROU", "rom", tolower(`Reporter ISO`)))
+
+# get total by region and unit
+comtrade_food_pro_total_by_region_units <- comtrade_food_pro_edit %>%
+  group_by(year, iso, Reporter, `Qty Unit`) %>%
+  summarize(qty = sum(Qty, na.rm = TRUE),
+            trade_val_usd = sum(`Trade Value (US$)`, na.rm = TRUE))
+
+# aggregate by GCAM region
+comtrade_food_pro_total_by_GCAM_region_units <- comtrade_food_pro_total_by_region_units %>%
+  left_join(iso_GCAM_regID) %>%
+  group_by(year, GCAM_region_ID, `Qty Unit`) %>%
+  summarize(qty = sum(qty),
+            trade_val_usd = sum(trade_val_usd)) %>%
+  full_join(GCAM_region_names) 
+
+# get just dollar value, aggregating all
+comtrade_food_pro_total_by_GCAM_region_units_trade_val_only <- comtrade_food_pro_total_by_GCAM_region_units %>%
+  group_by(year, region) %>%
+  summarize(trade_val_usd = sum(trade_val_usd))
+
+# see if the regions with no food processing energy use also have no exports
+comtrade_total_GCAM_regions_w_zero_IEA <- comtrade_food_pro_total_by_GCAM_region_units %>%
+  filter(region %in% GCAM_regions_with_zero_food_pro_energy_IEA)
+
+# get the regions both not in comtrade and with zero in IEA
+GCAM_regions_with_zero_food_pro_energy_IEA_and_no_comtrade <- setdiff(GCAM_regions_with_zero_food_pro_energy_IEA, unique(comtrade_total_GCAM_regions_w_zero_IEA$region))
+
+print("GCAM regions with no energy used in food processing in IEA data in 2015 and also no data from Comtrade for 2015: ")
+print(GCAM_regions_with_zero_food_pro_energy_IEA_and_no_comtrade)
+
+# plot comtrade data
+ggplot(comtrade_food_pro_total_by_GCAM_region_units,
+       aes(x = region, y = qty, fill = `Qty Unit`)) +
+  geom_col() +
+  labs(x = "", y = "mixed units (L and kg)", title = "Comtrade quantity of exports of food, 2015") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_exports_qty_GCAM_region_2015_comtrade.png"), width = 10, height = 6)
+
+# plot just dollar value
+ggplot(comtrade_food_pro_total_by_GCAM_region_units,
+       aes(x = region, y = trade_val_usd, fill = `Qty Unit`)) +
+  geom_col() +
+  labs(x = "", y = "USD", title = "Comtrade value of exports of food, 2015") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_exports_usd_val_GCAM_region_2015_comtrade.png"), width = 10, height = 6)
+```
+
+So all the regions with no energy use do have exports in Comtrade.
+
+# GCAM processed FAO data 
+
+Note this is from Xin's updated branch.
+
+```{r, message = FALSE, warning = FALSE}
+food_prod_GCAM_FAO <- L203.StubTechProd_food %>%
+  dplyr::select(region, supplysector, subsector, stub.technology, subsector0, year, calOutputValue) %>%
+  left_join(L203.StubCalorieContent %>%
+              dplyr::select(-market.name)) %>%
+  mutate(inputValue = calOutputValue / efficiency)
+
+# plot the values for efficiency and consumption by region
+plot_ly(food_prod_GCAM_FAO %>% filter(year == 2015)) %>%
+  add_trace(x = ~stub.technology,
+            y = ~calOutputValue,
+            type = "scatter",
+            mode = "markers",
+            color = ~region) %>%
+  layout(xaxis= list(title = ""),
+         yaxis = list(title = "Pcal"),
+         title = "Production of final calories, GCAM-FAO data, 2015")
+
+plot_ly(food_prod_GCAM_FAO %>% filter(year == 2015)) %>%
+  add_trace(x = ~stub.technology,
+            y = ~efficiency,
+            type = "scatter",
+            mode = "markers",
+            color = ~region) %>%
+  layout(xaxis= list(title = ""),
+         yaxis = list(title = "kcal/g (or Pcal/Mt) "),
+         title = "Efficiency of calories produced per input, GCAM-FAO data, 2015")
+
+plot_ly(food_prod_GCAM_FAO %>% filter(year == 2015)) %>%
+  add_trace(x = ~region,
+            y = ~efficiency,
+            type = "scatter",
+            mode = "markers",
+            color = ~stub.technology) %>%
+  layout(xaxis= list(title = ""),
+         yaxis = list(title = "kcal/g (or Pcal/Mt) "),
+         title = "Efficiency of calories produced per input, GCAM-FAO data, 2015")
+
+# get global average for each crop
+food_prod_GCAM_FAO_global_avg_by_crop <- food_prod_GCAM_FAO %>%
+  group_by(supplysector, subsector, stub.technology, subsector0, year, minicam.energy.input) %>%
+  summarize(calOutputValue = sum(calOutputValue),
+            inputValue = sum(inputValue)) %>%
+  ungroup() %>%
+  mutate(efficiency = calOutputValue / inputValue)
+
+# aggregate across nonstaples and staples and total
+food_prod_GCAM_FAO_agg_sector <- food_prod_GCAM_FAO %>%
+  group_by(region, supplysector, year) %>%
+  summarize(calOutputValue = sum(calOutputValue),
+            inputValue = sum(inputValue)) %>%
+  ungroup() %>%
+  mutate(efficiency = calOutputValue / inputValue) %>%
+  group_by(region, year) %>%
+  mutate(calOutputValue_frac_of_total = calOutputValue / sum(calOutputValue)) %>%
+  ungroup()
+
+food_prod_GCAM_FAO_agg_all <- food_prod_GCAM_FAO %>%
+  group_by(region, year) %>%
+  summarize(calOutputValue = sum(calOutputValue),
+            inputValue = sum(inputValue)) %>%
+  ungroup() %>%
+  mutate(efficiency = calOutputValue / inputValue)
+
+plot_ly(food_prod_GCAM_FAO_agg_sector %>% filter(year == 2015)) %>%
+  add_trace(x = ~region,
+            y = ~calOutputValue,
+            type = "scatter",
+            mode = "markers",
+            color = ~supplysector) %>%
+  layout(xaxis= list(title = ""),
+         yaxis = list(title = "Pcal"),
+         title = "Production of final calories by region and staples vs nonstaples, GCAM-FAO data, 2015")
+
+plot_ly(food_prod_GCAM_FAO_agg_sector %>% filter(year == 2015)) %>%
+  add_trace(x = ~region,
+            y = ~efficiency,
+            type = "scatter",
+            mode = "markers",
+            color = ~supplysector) %>%
+  layout(xaxis= list(title = ""),
+         yaxis = list(title = "kcal/g (or Pcal/Mt) "),
+         title = "Efficiency of calories produced per input by region and staples vs nonstaples, GCAM-FAO data, 2015")
+
+plot_ly(food_prod_GCAM_FAO_agg_sector %>% filter(year == 2015)) %>%
+  add_trace(x = ~region,
+            y = ~calOutputValue_frac_of_total,
+            type = "scatter",
+            mode = "markers",
+            color = ~supplysector) %>%
+  layout(xaxis= list(title = ""),
+         yaxis = list(title = "kcal/g (or Pcal/Mt) "),
+         title = "Fraction of calories produced from staples vs nonstaples, GCAM-FAO data, 2015")
+
+plot_ly(food_prod_GCAM_FAO_agg_all %>% filter(year == 2015)) %>%
+  add_trace(x = ~region,
+            y = ~calOutputValue,
+            type = "bar") %>%
+  layout(xaxis= list(title = ""),
+         yaxis = list(title = "Pcal"),
+         title = "Production of final calories by region, GCAM-FAO data, 2015")
+
+plot_ly(food_prod_GCAM_FAO_agg_all %>% filter(year == 2015)) %>%
+  add_trace(x = ~region,
+            y = ~efficiency,
+            type = "bar") %>%
+  layout(xaxis= list(title = "", categoryorder = "total ascending"),
+         yaxis = list(title = "kcal/g (or Pcal/Mt) "),
+         title = "Efficiency of calories produced per input by region, GCAM-FAO data, 2015")
+```
+
+## Compare food production to IEA energy use
+
+Now compare the food production to the energy use data from the IEA.
+
+```{r, message = FALSE, warning = FALSE}
+# calculate the energy used per food calorie output
+food_prod_GCAM_FAO_agg_all_IEA_total_fuel_comp <- food_prod_GCAM_FAO_agg_all %>%
+  filter(year >= 1990) %>%
+  rename(cal_efficiency = efficiency) %>%
+  left_join(IEA_food_pro_global_GCAM_region_share %>% 
+              dplyr::select(year, region, value) %>%
+              rename(energy_use_EJ = value) %>%
+              mutate(year = as.numeric(year))) %>%
+  mutate(energy_per_Pcal = energy_use_EJ / calOutputValue,
+         energy_per_kcal = energy_per_Pcal * conv_P_k,
+         cal_coefficient = 1 / cal_efficiency,
+         energy_per_input_crop = energy_use_EJ / inputValue) %>%
+  ungroup()
+
+# plot
+plot_ly(food_prod_GCAM_FAO_agg_all_IEA_total_fuel_comp %>% filter(year == 2015)) %>%
+  add_trace(x = ~region,
+            y = ~energy_per_Pcal,
+            type = "bar") %>%
+  layout(xaxis = list(title = "", categoryorder = "total ascending"),
+         yaxis = list(title = "EJ/Pcal"),
+         title = "Food processing energy use (from IEA) per output kcal (FAO-GCAM), 2015")
+
+plot_ly(food_prod_GCAM_FAO_agg_all_IEA_total_fuel_comp %>% filter(year == 2015)) %>%
+  add_trace(x = ~region,
+            y = ~energy_per_input_crop,
+            type = "bar") %>%
+  layout(xaxis = list(title = "", categoryorder = "total ascending"),
+         yaxis = list(title = "EJ/Mt"),
+         title = "Food processing energy use (from IEA) per input Mt (FAO-GCAM), 2015")
+
+# combine the two metrics in one plot
+plot_ly(food_prod_GCAM_FAO_agg_all_IEA_total_fuel_comp %>% filter(year == 2015)) %>%
+  add_trace(x = ~region,
+            y = ~cal_coefficient,
+            type = "bar",
+            name = "Crop coefficient") %>%
+  add_trace(x = ~region,
+            y = ~energy_per_Pcal,
+            type = "scatter",
+            mode = "markers",
+            yaxis = "y2",
+            name = "Energy coefficient",
+            color = I("darkred")) %>%
+  layout(xaxis= list(title = "", categoryorder = "total ascending"),
+         yaxis = list(title = "Mt/Pcal"),
+         yaxis2 = list(overlaying = "y", side = "right", title = "EJ/Pcal", 
+                       tickfont = list(color = "darkred"), gridcolor = "darkred", 
+                       range = c(0, 0.0065)),
+         title = "Energy and crop coefficients for calories produced by region, IEA and GCAM-FAO data, 2015")
+```
+
+Save some figures with ggplot.
+
+```{r, message = FALSE, warning = FALSE}
+ggplot(food_prod_GCAM_FAO_agg_all_IEA_total_fuel_comp %>% filter(year == 2015), aes(x = reorder(region, cal_coefficient, FUN = identity), y = cal_coefficient)) +
+  geom_col(fill = "steelblue") + 
+  labs(x = "", y = "Mt/Pcal", title = "Coefficient of input crops per output calories by region, GCAM-FAO data, 2015") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_prod_coef_total_by_region_GCAM-FAO_2015.png"), width = 10, height = 6)
+
+ggplot(food_prod_GCAM_FAO_agg_all_IEA_total_fuel_comp %>% filter(year == 2015), aes(x = reorder(region, energy_per_Pcal, FUN = identity), y = energy_per_Pcal)) +
+  geom_col(fill = "steelblue") + 
+  labs(x = "", y = "EJ/Pcal", title = "Coefficient of food processing energy use per output calories by region, IEA data + GCAM-FAO data, 2015") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_coef_per_output_food_total_by_region_IEA_GCAM-FAO_2015.png"), width = 10, height = 6)
+
+ggplot(food_prod_GCAM_FAO_agg_sector %>% filter(year == 2015), aes(x = region, y = calOutputValue, fill = supplysector)) +
+  geom_bar(position = "dodge", stat = "identity") + 
+  labs(x = "", y = "Pcal", title = "Output calories by region and staple vs nonstaples, GCAM-FAO data, 2015") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_prod_output_food_staples_nonstaples_by_region_GCAM-FAO_2015.png"), width = 10, height = 6)
+
+ggplot(food_prod_GCAM_FAO_agg_sector %>% filter(year == 2015 & supplysector == "FoodDemand_NonStaples"), aes(x = reorder(region, calOutputValue_frac_of_total, FUN = "identity"), y = calOutputValue_frac_of_total)) +
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  labs(x = "", y = "Fraction", title = "Fraction of output calories from non-staples by region, GCAM-FAO data, 2015") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_prod_output_food_nonstaples_frac_by_region_GCAM-FAO_2015.png"), width = 10, height = 6)
+
+ggplot(food_prod_GCAM_FAO_agg_sector %>% filter(year == 2015), aes(x = region, y = efficiency, fill = supplysector)) +
+  geom_bar(position = "dodge", stat = "identity") + 
+  labs(x = "", y = "Pcal/Mt", title = "Food production efficiency (output / input crops) by region and staple vs nonstaples, GCAM-FAO data, 2015") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_prod_food_efficiency_staples_nonstaples_by_region_GCAM-FAO_2015.png"), width = 10, height = 6)
+```
+
+
+## Compare food production coefficients/efficiencies to GDP per capita
+
+### Aggregated GCAM regions
+
+Compare to GDP per capita.
+
+```{r, message = FALSE, warning = FALSE}
+# select just historical GCAM years GDP, using SSP2 scenario (but values should be same across scenarios since they are historical)
+GDP_per_cap_hist_GCAM_years <- L102.pcgdp_thous90USD_Scen_R_Y %>%
+  filter(scenario == "SSP2" & year %in% gcam_hist_years) %>%
+  left_join(GCAM_region_names) %>%
+  rename(GDPpc_thous1990USD = value)
+
+# join to food coefficient data
+food_prod_GCAM_FAO <- food_prod_GCAM_FAO %>%
+  left_join(GDP_per_cap_hist_GCAM_years %>%
+              dplyr::select(-GCAM_region_ID, -scenario)) %>%
+  ungroup()
+
+food_prod_GCAM_FAO_agg_sector <- food_prod_GCAM_FAO_agg_sector %>%
+  left_join(GDP_per_cap_hist_GCAM_years %>%
+              dplyr::select(-GCAM_region_ID, -scenario)) %>%
+  ungroup()
+
+food_prod_GCAM_FAO_agg_all <- food_prod_GCAM_FAO_agg_all %>%
+  left_join(GDP_per_cap_hist_GCAM_years %>%
+              dplyr::select(-GCAM_region_ID, -scenario)) %>%
+  ungroup()
+  
+# calculate linear models for relationship between efficiency of crops in per food out vs per capita GDP
+plot_GDPpc_efficiency_lin_model <- function(crop, input_data) {
+  sel_data <- input_data %>%
+    filter(stub.technology == crop & year != 1975)
+    # filter(stub.technology == crop & year == 2015)
+  
+  
+  lin_reg <- lm(efficiency ~ GDPpc_thous1990USD, sel_data)
+  lin_reg_summary <- summary(lin_reg)
+  
+  print(crop)
+  print(lin_reg_summary)
+  
+  # get key values
+  pval <- lin_reg_summary$coef[2,4]
+  Rsq <- lin_reg_summary$adj.r.squared
+  slope <- lin_reg_summary$coef[[2]]
+  
+  # plot
+  x_for_lin_reg_plot <- c(min(sel_data$GDPpc_thous1990USD), max(sel_data$GDPpc_thous1990USD))
+  plot_ly(sel_data) %>%
+    add_trace(x = ~GDPpc_thous1990USD,
+              y = ~efficiency,
+              color = ~region,
+              colors = palette36,
+              type = "scatter",
+              mode = "markers") %>%
+    add_trace(#x = x_for_lin_reg_plot,
+              #y = predict(lin_reg, data.frame(GDPpc_thous1990USD = x_for_lin_reg_plot)),
+      x = seq(x_for_lin_reg_plot[1], x_for_lin_reg_plot[2]),
+              y = predict(lin_reg, data.frame(GDPpc_thous1990USD = seq(x_for_lin_reg_plot[1], x_for_lin_reg_plot[2]))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+    layout(xaxis = list(title = "GDP (thousand 1990$ MER) per capita"),
+           yaxis = list(title = "Pcal/Mt"),
+           title = paste0(crop, " production efficiency (output / input crops) by GDP per capita\nGCAM-FAO data (1990, 2005, 2010, 2015)"))
+  
+  # ggplot(sel_data, aes(x = GDPpc_thous1990USD, y = efficiency, color = region)) +
+  #   geom_point() +
+  #   scale_color_manual(values = palette36, name = "region") + 
+  #   labs(x = "GDP per capita (thousand 1990$)", y = "Pcal/Mt", title = paste0(crop, " production efficiency (output / input crops) by GDP per capita, GCAM-FAO data, 2015")) + 
+  #   theme_classic()
+  # 
+  # ggsave(paste0(plot_dir, "/food_prod_food_efficiency_", crop, "_by_GDPpc_GCAM-FAO_2015.png"), width = 10, height = 6)
+}
+
+crop_names <- unique(food_prod_GCAM_FAO$stub.technology)
+
+plot_GDPpc_efficiency_lin_model(crop_names[1], food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[2], food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[3],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[4],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[5],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[6],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[7],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[8],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[9],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[10],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[11],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[12],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[13],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[14],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[15],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[16],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[17],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[18],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[19],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[20],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_lin_model(crop_names[21],  food_prod_GCAM_FAO)
+
+# repeat for aggregated crops
+plot_GDPpc_efficiency_lin_model("FoodDemand_Staples",  food_prod_GCAM_FAO_agg_sector %>% rename(stub.technology = supplysector))
+plot_GDPpc_efficiency_lin_model("FoodDemand_NonStaples",  food_prod_GCAM_FAO_agg_sector %>% rename(stub.technology = supplysector))
+plot_GDPpc_efficiency_lin_model("all",  food_prod_GCAM_FAO_agg_all %>% mutate(stub.technology = "all"))
+
+# try with different function
+plot_GDPpc_efficiency_exp_model <- function(crop, input_data) {
+  sel_data <- input_data %>%
+    filter(stub.technology == crop & year != 1975)
+    # filter(stub.technology == crop & year == 2015)
+  
+  lin_reg <- lm(efficiency ~ log(GDPpc_thous1990USD), sel_data)
+  lin_reg_summary <- summary(lin_reg)
+  
+  print(crop)
+  print(lin_reg_summary)
+  
+  # get key values
+  pval <- lin_reg_summary$coef[2,4]
+  Rsq <- lin_reg_summary$adj.r.squared
+  slope <- lin_reg_summary$coef[[2]]
+  
+  # plot
+  x_for_lin_reg_plot <- c(min(sel_data$GDPpc_thous1990USD), max(sel_data$GDPpc_thous1990USD))
+  plot_ly(sel_data) %>%
+    add_trace(x = ~GDPpc_thous1990USD,
+              y = ~efficiency,
+              color = ~region,
+              colors = palette36,
+              type = "scatter",
+              mode = "markers") %>%
+    add_trace(x = seq(x_for_lin_reg_plot[1], x_for_lin_reg_plot[2]),
+              y = predict(lin_reg, data.frame(GDPpc_thous1990USD = seq(x_for_lin_reg_plot[1], x_for_lin_reg_plot[2]))),
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+    layout(xaxis = list(title = "GDP (thousand 1990$ MER) per capita"),
+           yaxis = list(title = "Pcal/Mt"),
+           title = paste0(crop, " production efficiency (output / input crops) by GDP per capita\nGCAM-FAO data (1990, 2005, 2010, 2015)"))
+  
+  # ggplot(sel_data, aes(x = GDPpc_thous1990USD, y = efficiency, color = region)) +
+  #   geom_point() +
+  #   scale_color_manual(values = palette36, name = "region") + 
+  #   labs(x = "GDP per capita (thousand 1990$)", y = "Pcal/Mt", title = paste0(crop, " production efficiency (output / input crops) by GDP per capita, GCAM-FAO data, 2015")) + 
+  #   theme_classic()
+  # 
+  # ggsave(paste0(plot_dir, "/food_prod_food_efficiency_", crop, "_by_GDPpc_GCAM-FAO_2015.png"), width = 10, height = 6)
+}
+
+plot_GDPpc_efficiency_exp_model(crop_names[1], food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[2], food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[3],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[4],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[5],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[6],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[7],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[8],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[9],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[10],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[11],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[12],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[13],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[14],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[15],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[16],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[17],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[18],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[19],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[20],  food_prod_GCAM_FAO)
+plot_GDPpc_efficiency_exp_model(crop_names[21],  food_prod_GCAM_FAO)
+
+# repeat for aggregated crops
+plot_GDPpc_efficiency_exp_model("FoodDemand_Staples",  food_prod_GCAM_FAO_agg_sector %>% rename(stub.technology = supplysector))
+plot_GDPpc_efficiency_exp_model("FoodDemand_NonStaples",  food_prod_GCAM_FAO_agg_sector %>% rename(stub.technology = supplysector))
+plot_GDPpc_efficiency_exp_model("all",  food_prod_GCAM_FAO_agg_all %>% mutate(stub.technology = "all"))
+```
+
+### Individual countries and more detailed regressions
+
+## Looking at the relationship between food processing energy use, production, and GDP
+
+Since there are some regions that have no food processing energy use, which is not realistic (and is likely due to how the IEA just groups energy into "other industry" when there is not good detail on the fuel/sector breakout for specific sectors in a particular country), we will need to reallocate some of the other industrial energy use to food processing. To do this, we might try finding a relationship between per capita GDP, food production, and food processing energy use for regions that do have good energy use by sector data (which we will define as having <50% of total energy use in "other industry"). Then we can use this to estimate food processing energy use for the regions without good energy use by sector data.
+
+First at GCAM region level.
+```{r, message = FALSE, warning = FALSE}
+IEA_ind_sectors_GCAM_region_frac_of_all_ind  <- IEA_ind_sectors_GCAM_region %>%
+  group_by(year, region, GCAM_region_ID) %>%
+  mutate(share = value / sum(value))
+
+# get regions and years with over a certain fraction of energy in non-specified industry
+non_spec_frac_thresh <- 0.5
+
+GCAM_region_years_to_exclude <- IEA_ind_sectors_GCAM_region_frac_of_all_ind %>%
+  filter(FLOW == "INONSPEC" & share >= non_spec_frac_thresh) %>%
+  dplyr::select(year, region, GCAM_region_ID)
+
+# filter to just regions with sufficient data, and just food processing data
+IEA_food_pro_GCAM_region_sel <- IEA_ind_sectors_GCAM_region %>%
+  anti_join(GCAM_region_years_to_exclude) %>%
+  filter(FLOW == food_pro_sect)
+
+# join to production and GDP per capita
+IEA_food_pro_GCAM_region_sel_GDP_prod <- IEA_food_pro_GCAM_region_sel %>%
+  left_join(food_prod_GCAM_FAO_agg_all %>%
+              dplyr::select(region, year, calOutputValue, inputValue, efficiency, GDPpc_thous1990USD)) %>%
+  filter(!is.na(calOutputValue))
+
+# try a multiple regression for predicting food production energy use
+food_pro_energy_reg_GDPpc_prod <- lm(value ~ calOutputValue + GDPpc_thous1990USD, IEA_food_pro_GCAM_region_sel_GDP_prod)
+summary(food_pro_energy_reg_GDPpc_prod)
+
+```
+
+
+
+
+
+
+TO DO
+
+Now for country level.
+
+```{r, message = FALSE, warning = FALSE}
+# first aggregate to get fraction of all industry from each sector in each country 
+IEA_ind_sectors_region_frac_of_all_ind  <- IEA_ind_sectors_region %>%
+  group_by(year, iso, country_name) %>%
+  mutate(share = value / sum(value))
+  
+# get regions and years with over a certain fraction of energy in non-specified industry
+region_years_to_exclude <- IEA_ind_sectors_region_frac_of_all_ind %>%
+  filter(FLOW == "INONSPEC" & share >= non_spec_frac_thresh) %>%
+  dplyr::select(year, iso, country_name)
+
+# filter to just regions with sufficient data, and just food processing data
+IEA_food_pro_region_sel <- IEA_ind_sectors_region %>%
+  anti_join(region_years_to_exclude) %>%
+  filter(FLOW == food_pro_sect)
+
+
+```
+
+
+# GTAP data
+
+```{r, message = FALSE, warning = FALSE}
+# plot detailed data across regions
+
+# calculate shares
+CostShare_FoodProcessing_GTAP <- CostShare_FoodProcessing_GTAP %>%
+  group_by(year, output, region_GCAM, region_GCAM_abb) %>%
+  mutate(share = value / sum(value),
+         value = value / 1000)
+
+# plot detailed
+ggplot(CostShare_FoodProcessing_GTAP %>% filter(year == 2014),
+       aes(x = region_GCAM_abb, y = value, fill = input_AGG_Detail)) +
+  geom_col() +
+  scale_fill_manual(values = palette36, name = "Cost") +
+  facet_wrap(~output, ncol = 2, scale = "free") +
+  labs(x = "Region", y = "$ Billion", title = "Food processing sectors value cost (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_costs_by_type_reg_detailed_GTAP_2014.png"), width = 12, height = 15)
+
+# plot detailed shares
+ggplot(CostShare_FoodProcessing_GTAP %>% filter(year == 2014),
+       aes(x = region_GCAM_abb, y = share, fill = input_AGG_Detail)) +
+  geom_col() +
+  scale_fill_manual(values = palette36, name = "Cost") +
+  facet_wrap(~output, ncol = 2) +
+  labs(x = "Region", y = "Share", title = "Food processing sectors value cost shares (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_cost_shares_by_type_reg_detailed_GTAP_2014.png"), width = 12, height = 15)
+
+# aggregate to summarized cost type and calculate shares
+CostShare_FoodProcessing_GTAP_agg <- CostShare_FoodProcessing_GTAP %>%
+  group_by(year, output, region_GCAM, region_GCAM_abb, input_AGG) %>%
+  summarize(value = sum(value)) %>%
+  group_by(year, output, region_GCAM) %>%
+  mutate(share = value / sum(value))
+
+# plot the shares and values by region
+ggplot(CostShare_FoodProcessing_GTAP_agg %>% filter(year == 2014),
+       aes(x = region_GCAM_abb, y = value, fill = input_AGG)) +
+  geom_col() +
+  scale_fill_d3(palette = "category20", name = "Cost") +
+  facet_wrap(~output, ncol = 2, scale = "free") +
+  labs(x = "Region", y = "$ Billion", title = "Food processing sectors value cost (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_costs_by_type_reg_GTAP_2014.png"), width = 12, height = 15)
+
+ggplot(CostShare_FoodProcessing_GTAP_agg %>% filter(year == 2014),
+       aes(x = region_GCAM_abb, y = share, fill = input_AGG)) +
+  geom_col() +
+  scale_fill_d3(palette = "category20", name = "Cost") +
+  facet_wrap(~output, ncol = 2, scale = "free") +
+  labs(x = "Region", y = "Share", title = "Food processing sectors value cost shares (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_cost_shares_by_type_reg_GTAP_2014.png"), width = 12, height = 15)
+
+# plot just energy, capital, labor portions
+ggplot(CostShare_FoodProcessing_GTAP_agg %>% filter(year == 2014 & input_AGG %in% c("Energy", "Capital", "Labor")),
+       aes(x = region_GCAM_abb, y = value, fill = input_AGG)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_d3(palette = "category20", name = "Cost") +
+  facet_wrap(~output, ncol = 2, scale = "free") +
+  labs(x = "Region", y = "$ Billion", title = "Food processing sectors value cost (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_costs_sel_reg_GTAP_2014.png"), width = 12, height = 15)
+
+ggplot(CostShare_FoodProcessing_GTAP_agg %>% filter(year == 2014 & input_AGG %in% c("Energy", "Capital", "Labor")),
+       aes(x = region_GCAM_abb, y = share, fill = input_AGG)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_d3(palette = "category20", name = "Cost") +
+  facet_wrap(~output, ncol = 2, scale = "free") +
+  labs(x = "Region", y = "Share", title = "Food processing sectors value cost shares (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_cost_shares_sel_reg_GTAP_2014.png"), width = 12, height = 15)
+
+# plot just energy costs for overall food processing
+ggplot(CostShare_FoodProcessing_GTAP_agg %>% filter(year == 2014 & input_AGG == "Energy" & output == "FoodProduct"),
+       aes(x = reorder(region_GCAM, value, FUN = identity), y = value)) +
+  geom_bar(position = "dodge", stat = "identity", fill = "steelblue") +
+  labs(x = "Region", y = "$ Billion", title = "FoodProduct energy cost (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_costs_energy_FoodProduct_reg_GTAP_2014.png"), width = 10, height = 6)
+
+ggplot(CostShare_FoodProcessing_GTAP_agg %>% filter(year == 2014 & input_AGG == "Energy" & output == "FoodProduct"),
+       aes(x = reorder(region_GCAM, share, FUN = identity), y = share)) +
+  geom_bar(position = "dodge", stat = "identity", fill = "steelblue") +
+  labs(x = "Region", y = "Share", title = "FoodProduct energy cost shares (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_cost_shares_energy_FoodProduct_reg_GTAP_2014.png"), width = 10, height = 6)
+
+# plot all costs for just overall food processing
+ggplot(CostShare_FoodProcessing_GTAP_agg %>% filter(year == 2014 & output == "FoodProduct"),
+       aes(x = region_GCAM_abb, y = value, fill = input_AGG)) +
+  geom_col() +
+  scale_fill_d3(palette = "category20", name = "Cost") +
+  labs(x = "Region", y = "$ Billion", title = "Food processing sector value cost (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_costs_by_type_reg_GTAP_2014_FoodProduct.png"), width = 12, height = 8)
+
+# plot just capital, energy, and labor for overall food product
+ggplot(CostShare_FoodProcessing_GTAP_agg %>% filter(year == 2014 & output == "FoodProduct" & input_AGG %in% c(c("Energy", "Capital", "Labor"))),
+       aes(x = region_GCAM_abb, y = value, fill = input_AGG)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_d3(palette = "category20", name = "Cost") +
+  labs(x = "Region", y = "$ Billion", title = "Food processing sector selected value costs (agent prices), 2014, GTAP") + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(size=12, angle=90, vjust=0.5, hjust=1))
+ggsave(paste0(plot_dir, "/food_pro_costs_sel_reg_GTAP_2014_FoodProduct.png"), width = 12, height = 8)
+```
+
+# Looking at food prices from sample GCAM 6.0 runs
+
+Wanting to check, at Xin's request, whether food prices are equal to the weighted average of the regional commodity prices when converted to Cal units.
+
+```{r, message = FALSE, warning = FALSE}
+# function to process GCAM output data
+parse_PIC_data <- function(results_df) {
+   # remove extra headers and column names and separate date
+  results_df <- results_df %>% 
+    filter(scenario != "scenario" & ! (is.na(region))) %>%
+    separate(scenario, into = c("scenario", "date"), sep = c(","))
+  
+  # remove last column, which is NAs
+  results_df <- results_df[, !apply(is.na(results_df), 2, all)]
+  
+  # put in longer form
+  # first get year columns
+  year_vals <- as.character(intersect(colnames(results_df), c(1975:2100)))
+  results_df <- results_df %>% 
+    pivot_longer(cols = all_of(year_vals), names_to = "year", values_to = "value") %>%
+    mutate(year = as.integer(year))
+  
+  return(results_df)
+}
+
+# food_consumption_by_type_specific_reference_1_edit <- parse_PIC_data(food_consumption_by_type_specific_reference_1)
+# ag_commodity_prices_reference_1_edit <- parse_PIC_data(ag_commodity_prices_reference_1)
+# meat_and_dairy_prices_reference_1_edit <- parse_PIC_data(meat_and_dairy_prices_reference_1)
+# food_demand_prices_reference_1_edit <- parse_PIC_data(food_demand_prices_reference_1)
+# prices_of_all_markets_reference_1_edit <- parse_PIC_data(prices_of_all_markets_reference_1)
+# 
+# # get just OtherMeat_Fish prices from prices of all markets
+# OtherMeat_Fish_prices <- prices_of_all_markets_reference_1_edit %>%
+#   filter(market == "globalOtherMeat_Fish")
+# 
+# # convert the commodity prices into Pcal units and aggregate meat and crops
+# ag_an_prices_reference_1_Pcal <- ag_commodity_prices_reference_1_edit %>%
+#   bind_rows(meat_and_dairy_prices_reference_1_edit) %>%
+#   bind_rows(OtherMeat_Fish_prices %>% dplyr::select(-c(region, market)) %>% mutate(sector = "OtherMeat_Fish") %>%
+#               gcamdata::repeat_add_columns(tibble(region = unique(ag_commodity_prices_reference_1_edit$region)))) %>%
+#   left_join(L203.StubCalorieContent_base_GCAM6p0 %>%
+#               mutate(sector = stub.technology) %>%
+#               dplyr::select(sector, supplysector, region, year, efficiency)) %>%
+#   # only want food
+#   filter(!is.na(efficiency)) %>% 
+#   mutate(cost_per_Pcal = value * 10^9 / efficiency)
+#   
+# # add consumption and calculate overall prices
+# ag_an_prices_consumption_reference_1 <- ag_an_prices_reference_1_Pcal %>%
+#   left_join(food_consumption_by_type_specific_reference_1_edit %>%
+#               dplyr::select(scenario, date, year, region, sector = technology, consumption_Pcal = value)) %>%
+#   mutate(cost = cost_per_Pcal * consumption_Pcal)
+# 
+# # aggregate to staples and nonstaples
+# ag_an_aggregated_cost_reference_1 <- ag_an_prices_consumption_reference_1 %>%
+#   group_by(scenario, year, region, supplysector) %>%
+#   summarize(cost = sum(cost),
+#             consumption_Pcal = sum(consumption_Pcal)) %>%
+#   ungroup() %>%
+#   # convert units to match food demand
+#   mutate(cost_2005USD = cost * gcamdata::gdp_deflator(2005, 1975),
+#          consumption_Mcal_per_day = consumption_Pcal * 10^9 / 365,
+#          cost_2005USD_per_Mcal_per_day = cost_2005USD / consumption_Mcal_per_day)
+
+food_consumption_by_type_specific_edit <- parse_PIC_data(food_consumption_by_type_specific)
+ag_regional_prices_edit <- parse_PIC_data(ag_regional_prices)
+prices_of_all_markets_edit <- parse_PIC_data(prices_of_all_markets)
+food_demand_prices_edit <- parse_PIC_data(food_demand_prices)
+demand_balances_by_crop_commodity_edit <- parse_PIC_data(demand_balances_by_crop_commodity)
+demand_balances_by_meat_and_dairy_commodity_edit <- parse_PIC_data(demand_balances_by_meat_and_dairy_commodity)
+
+# get just OtherMeat_Fish prices from prices of all markets
+OtherMeat_Fish_prices <- prices_of_all_markets_edit %>%
+  filter(market == "globalOtherMeat_Fish")
+
+# convert the ag prices into Pcal units and aggregate meat and crops
+ag_regional_prices_Pcal <- ag_regional_prices_edit %>%
+  # first adjust the sector name - remove the "regional" part and adjust others as necessary
+  mutate(sector = substr(sector, 10, nchar(sector)),
+         sector = case_when(sector == "root_tuber" ~ "roottuber",
+                            sector == "nuts_seeds" ~ "nutsseeds",
+                            TRUE ~ sector)) %>%
+  bind_rows(OtherMeat_Fish_prices %>% dplyr::select(-c(region, market)) %>% mutate(sector = "othermeat_fish") %>%
+              gcamdata::repeat_add_columns(tibble(region = unique(ag_regional_prices_edit$region)))) %>%
+  left_join(L203.StubCalorieContent_base_GCAM6p0 %>%
+              mutate(sector = tolower(stub.technology)) %>%
+              dplyr::select(sector, supplysector, region, year, efficiency)) %>%
+  # only want food
+  filter(!is.na(efficiency)) %>%
+  mutate(cost_per_Pcal = value * 10^9 / efficiency)
+
+# add consumption and calculate overall prices
+ag_prices_consumption <- ag_regional_prices_Pcal %>%
+  left_join(food_consumption_by_type_specific_edit %>%
+              dplyr::select(scenario, date, year, region, sector = technology, consumption_Pcal = value) %>%
+              mutate(sector = tolower(sector))) %>%
+  filter(!is.na(consumption_Pcal)) %>%
+  mutate(cost_1975USD = cost_per_Pcal * consumption_Pcal)
+
+# aggregate to staples and nonstaples
+ag_aggregated_cost <- ag_prices_consumption %>%
+  group_by(scenario, year, region, supplysector) %>%
+  summarize(cost_1975USD = sum(cost_1975USD),
+            consumption_Pcal = sum(consumption_Pcal)) %>%
+  ungroup() %>%
+  # convert units to match food demand
+  mutate(cost_2005USD = cost_1975USD * gcamdata::gdp_deflator(2005, 1975),
+         consumption_Mcal_per_day = consumption_Pcal * 10^9 / 365,
+         cost_2005USD_per_Mcal_per_day = cost_2005USD / consumption_Mcal_per_day)
+
+# repeat this calculation using the demand balances by crop commodity query
+# first obtain the total cost for all consumed crops for food
+ag_regional_total_costs_food <- rbind(demand_balances_by_crop_commodity_edit,
+                                demand_balances_by_meat_and_dairy_commodity_edit) %>%
+  filter(sector == "FoodDemand_NonStaples" | sector == "FoodDemand_Staples") %>%
+  left_join(ag_regional_prices_edit %>% 
+              bind_rows(OtherMeat_Fish_prices %>% dplyr::select(-c(region, market)) %>% mutate(sector = "OtherMeat_Fish") %>%
+              gcamdata::repeat_add_columns(tibble(region = unique(ag_regional_prices_edit$region)))) %>%
+              rename(input = sector,
+                     Units_cost = Units,
+                     value_cost = value)) %>%
+  mutate(cost_per_Mt = value_cost * 10^9,
+         total_cost = cost_per_Mt * value,
+         total_cost_2005USD = total_cost * gcamdata::gdp_deflator(2005, 1975))
+
+# aggregate to total staples and non-staples
+ag_regional_total_costs_food_aggregated <- ag_regional_total_costs_food %>%
+  group_by(scenario, year, region, sector) %>%
+  summarize(total_cost_2005USD = sum(total_cost_2005USD)) %>%
+  ungroup() %>%
+  mutate(total_cost_bil_2005USD = total_cost_2005USD / (10^9))
+
+# calculate total cost from the food demand prices
+food_consumption_by_sector <- food_consumption_by_type_specific_edit %>%
+  left_join(L203.StubCalorieContent_base_GCAM6p0 %>%
+              dplyr::select(sector = supplysector, stub.technology) %>%
+              unique(),
+            by = c("technology" = "stub.technology")) %>%
+  group_by(scenario, year, region, sector, Units) %>%
+  summarize(value = sum(value)) %>%
+  ungroup()
+
+# get cost
+food_demand_prices_total <- food_demand_prices_edit %>%
+  left_join(food_consumption_by_sector %>%
+              dplyr::select(scenario, year, region, input = sector, Units_cons = Units, cons = value)) %>%
+  mutate(total_cost_2005USD = value * (cons * 10^9 / 365),
+         total_cost_bil_2005USD = total_cost_2005USD / (10^9))
+
+# compare values
+comp_food_costs <- ag_regional_total_costs_food_aggregated %>%
+  left_join(food_demand_prices_total %>%
+              dplyr::select(scenario, year, region, sector = input, 
+                            total_cost_bil_2005USD_from_food_demand_prices = total_cost_bil_2005USD)) %>%
+  mutate(dif = total_cost_bil_2005USD - total_cost_bil_2005USD_from_food_demand_prices,
+         perc_dif = 100 * dif / total_cost_bil_2005USD_from_food_demand_prices)
+```
+
+

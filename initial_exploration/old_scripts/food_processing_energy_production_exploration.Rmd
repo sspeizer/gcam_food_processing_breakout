@@ -1,0 +1,2777 @@
+---
+title: "Exploring relationship between food processing energy use and food production"
+output: 
+  html_document:
+    toc: true
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+```{r, message = FALSE, warning = FALSE}
+# load necessary packages and data
+library(tidyr)
+library(dplyr)
+library(readr)
+library(plotly)
+library(ggplot2)
+library(jgcricolors)
+library(Polychrome)
+
+setwd("C:/Users/spei632/Documents/GCAM_industry/food_processing")
+fig_dir <- "C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_exploration/figures_food_processing_energy_production"
+
+# load data
+IEA_en_bal <- read_csv("initial_exploration/data/L100.IEA_en_bal_ctry_hist.csv")
+UN_popTot <- read_csv("initial_exploration/data/UN_popTot.csv", skip = 7)
+USDA_GDP_MER <- read_csv("initial_exploration/data/USDA_GDP_MER.csv", skip = 6)
+WB_ExtraCountries_GDP_MER <- read_csv("initial_exploration/data/WB_ExtraCountries_GDP_MER.csv", skip = 7)
+socioeconomics_ctry <- read_csv("initial_exploration/data/socioeconomics_ctry.csv", skip = 7)
+macronutrientrate_2010_2019_mean <- read_csv("initial_exploration/data/GCAMDATA_FAOSTAT_MacroNutrientRate_179Regs_426Items_2010to2019Mean.csv")
+fao_sua_2010_2019 <- read_csv("initial_exploration/data/GCAMDATA_FAOSTAT_SUA_195Regs_530Items_2010to2019.csv")
+fao_fbsh_1973_2009 <- read_csv("initial_exploration/data/GCAMDATA_FAOSTAT_FBSH_CB_173Regs_118Items_1973to2009.csv")
+fao_pop <- read_csv("initial_exploration/data/FAOSTAT_data_pop_12-29-2022.csv")
+fao_gdp <- read_csv("initial_exploration/data/FAOSTAT_data_gdp_12-29-2022.csv")
+GTAP_proc_food_trade_prod <- read_csv("initial_exploration/data/Proc_Food_TradeProd.csv")
+
+# set constants
+CONV_KTOE_EJ <- 0.00004186
+hist_years <- c(1971:2015)
+gcam_hist_years <- c(1990, 2005, 2010, 2015)
+conv_P_k <- 10^12
+max_frac_INONSPEC <- 0.5
+max_frac_INONSPEC_fuel <- 0.8
+min_frac_FOODPRO <- 0.01
+max_frac_fuel_total_en <- 0.1
+
+# mappings
+IEA_product_fuel <- read_csv("mappings/IEA_product_fuel.csv", skip = 7)
+enduse_fuel_aggregation <- read_csv("mappings/enduse_fuel_aggregation.csv", skip = 5)
+IEA_ctry <- read_csv("mappings/iea_ctry.csv", skip = 5)
+iso_GCAM_regID <- read_csv("mappings/iso_GCAM_regID.csv", skip = 6)
+GCAM_region_names <- read_csv("mappings/GCAM_region_names.csv", skip = 6)
+AGLU_ctry <- read_csv("mappings/AGLU_ctry.csv", skip = 7)
+Mapping_SUA_PrimaryEquivalent <- read_csv("initial_exploration/data/Mapping_SUA_PrimaryEquivalent.csv", skip = 21)
+Mapping_item_FBS_GCAM <- read_csv("initial_exploration/data/Mapping_item_FBS_GCAM.csv", skip = 7)
+GCAM_commodity_type_mapping <- read_csv("mappings/GCAM_commodity_type_mapping.csv")
+
+# colors and palettes
+data(palette36)
+palette36 <- unname(palette36)
+pal_sel <- jgcricol()$pal_all
+```
+
+# Processing GDP data
+
+Calculate GDP per capita from the GDP and population data.
+```{r, message = FALSE, warning = FALSE}
+# get just historical populations and GDPs
+UN_popTot_hist <- UN_popTot %>%
+  filter(Year <= 2015 & Scenario == "EST") %>%
+  mutate(iso = tolower(Country))
+
+GDP_MER_hist <- rbind(USDA_GDP_MER, WB_ExtraCountries_GDP_MER) %>%
+  pivot_longer(cols = -c(Country, iso), names_to = "year", values_to = "GDP_MER_bil2010USD") %>%
+  mutate(year = as.numeric(year)) %>%
+  filter(year <= 2015)
+
+# join and calculate GDP per capita
+GDP_per_cap_hist_calc <- GDP_MER_hist %>%
+  left_join(UN_popTot_hist %>% dplyr::select(year = Year, iso, pop_thousands = Value)) %>%
+  mutate(GDP_per_cap_thous2015USD = (GDP_MER_bil2010USD*10^6*gcamdata::gdp_deflator(2015, 2010)) / (pop_thousands * 1000))
+
+# get from the FAO data (also include population)
+fao_gdp_per_cap_hist <- fao_gdp %>%
+  filter(Element == "Value US$ per capita, 2015 prices" & Year <= 2015) %>%
+  left_join(fao_pop %>% mutate(pop = Value * 1000) %>% dplyr::select(Area, Year, pop))
+
+# prep FAO data for joining
+fao_gdp_per_cap_hist_relabel <- fao_gdp_per_cap_hist %>%
+  # exclude USSR values in 1990, because these are covered by individual regions
+  filter(!(Area == "USSR" & Year == 1990)) %>%
+  # also exclude the "China" GDP since that includes Hong Kong and Macao as well, which are also broken out; there is another one that is "China, mainland" which we keep
+  filter(Area != "China") %>%
+  mutate(GDP_pcap_thous2015USD_FAO = Value / 1000) %>%
+  dplyr::select(area = Area, year = Year, GDP_pcap_thous2015USD_FAO, pop) %>%
+  # edit a few areas and join to isos and GCAM region IDs
+  mutate(area = case_when(area == "Côte d'Ivoire" ~ "Cote dIvoire",
+                          area == "Curaçao" ~ "Curacao",
+                          area == "Democratic People's Republic of Korea" ~ "Democratic Peoples Republic of Korea",
+                          area == "Lao People's Democratic Republic" ~ "Lao Peoples Democratic Republic",
+                          area == "Sint Maarten (Dutch part)" ~ "Sint Maarten (Dutch Part)",
+                          area == "Türkiye" ~ "Turkiye",
+                          grepl("Yemen", area) ~ "Yemen",
+                          TRUE ~ area)) %>%
+  group_by(area, year) %>%
+  summarize(GDP_pcap_thous2015USD_FAO = weighted.mean(GDP_pcap_thous2015USD_FAO, pop),
+            pop = sum(pop)) %>%
+  ungroup() %>%
+  left_join(AGLU_ctry %>% select(area = FAO_country, iso), by = "area") %>%
+  left_join(iso_GCAM_regID %>% select(iso, GCAM_region_ID), by = "iso")
+
+# combine
+GDP_per_cap_hist_calc_w_FAO <- GDP_per_cap_hist_calc %>%
+  dplyr::select(area = Country, iso, year, GDP_pcap_thous2015USD_calc = GDP_per_cap_thous2015USD) %>%
+  full_join(fao_gdp_per_cap_hist_relabel %>%
+              rename(area_FAO = area))
+```
+
+# Processing GTAP data
+
+```{r, message = FALSE, warning = FALSE}
+# calculate the net imports as a share of total production, in value terms
+GTAP_proc_food_trade_prod_imports_share_prod <- GTAP_proc_food_trade_prod %>%
+  pivot_wider(names_from = var, values_from = value) %>%
+  mutate(net_import_share = (import - export) / production,
+         prod_frac_of_dom_cons = production / (production - export + import)) %>%
+  ungroup()
+
+# interpolate to all years (extending end points)
+GTAP_proc_food_trade_prod_imports_share_prod_interp <- GTAP_proc_food_trade_prod_imports_share_prod %>%
+  complete(nesting(sector, region_GTAP, GTAP_Long_Name, region_GCAM, region_GCAM_abb, sector_agg, sector_agg_detail, unit),
+           year = hist_years) %>%
+  group_by(sector, region_GTAP, GTAP_Long_Name, region_GCAM, region_GCAM_abb, sector_agg, sector_agg_detail, unit) %>%
+  mutate(export = approx(year, y = export, xout = year, rule = 2)$y,
+         import = approx(year, y = import, xout = year, rule = 2)$y,
+         production = approx(year, y = production, xout = year, rule = 2)$y,
+         net_import_share = (import - export) / production,
+         prod_frac_of_dom_cons = production / (production - export + import)) %>%
+  ungroup()
+
+
+# aggregate to GCAM regions and calculate the same
+GTAP_proc_food_trade_prod_imports_share_prod_GCAM_reg <- GTAP_proc_food_trade_prod_imports_share_prod %>%
+  group_by(sector, year, region_GCAM, region_GCAM_abb, sector_agg, sector_agg_detail, unit) %>%
+  summarize(export = sum(export),
+            import = sum(import),
+            production = sum(production)) %>%
+  ungroup() %>%
+  mutate(net_import_share = (import - export) / production,
+         prod_frac_of_dom_cons = production / (production - export + import))
+
+# also interpolate
+GTAP_proc_food_trade_prod_imports_share_prod_GCAM_reg_interp <- GTAP_proc_food_trade_prod_imports_share_prod_GCAM_reg %>%
+  complete(nesting(sector, region_GCAM, region_GCAM_abb, sector_agg, sector_agg_detail, unit),
+           year = hist_years) %>%
+  group_by(sector, region_GCAM, region_GCAM_abb, sector_agg, sector_agg_detail, unit) %>%
+  mutate(export = approx(year, y = export, xout = year, rule = 2)$y,
+         import = approx(year, y = import, xout = year, rule = 2)$y,
+         production = approx(year, y = production, xout = year, rule = 2)$y,
+         net_import_share = (import - export) / production,
+         prod_frac_of_dom_cons = production / (production - export + import)) %>%
+  ungroup()
+```
+
+# Processing the IEA data
+
+First get IEA data for industry (non-specified and specific industries).
+
+```{r, message = FALSE, warning = FALSE}
+# industry flows
+flows_sel <- c("MINING", "CONSTRUC", "IRONSTL", "CHEMICAL", "NONFERR", "NONMET", "TRANSEQ", "MACHINE", "FOODPRO", "PAPERPRO", "WOODPRO", "TEXTILES", "INONSPEC")
+
+IEA_ind_sectors_region_fuel <- IEA_en_bal %>%
+  filter(FLOW %in% flows_sel) %>%
+  dplyr::select(iso, FLOW, PRODUCT, as.character(hist_years)) %>%
+  left_join(select(iso_GCAM_regID, iso, GCAM_region_ID, country_name), by = "iso") %>%
+  left_join(select(IEA_product_fuel, fuel, PRODUCT = product), by = "PRODUCT") %>%
+  left_join(enduse_fuel_aggregation %>% dplyr::select(fuel, industry)) %>%
+  # remap biomass_tradbio to biomass
+  mutate(industry = if_else(fuel == "biomass_tradbio", "biomass", industry)) %>%
+  pivot_longer(as.character(hist_years), names_to = "year", values_to = "value") %>%
+  rename(fuel_orig = fuel, fuel = industry) %>%
+  filter(!is.na(fuel)) %>%
+  group_by(iso, country_name, GCAM_region_ID, year, fuel, FLOW) %>%
+  # summarize and convert to EJ
+  summarize(value = sum(value, na.rm = TRUE) * CONV_KTOE_EJ) %>%
+  ungroup() %>%
+  mutate(year = as.numeric(year)) %>%
+  group_by(iso, country_name, GCAM_region_ID, year, fuel) %>%
+  mutate(frac_sector = value / sum(value)) %>%
+  ungroup()
+
+# complete nesting so that there are values for all sectors, fuels, and years, even if 0
+all_IEA_years <- unique(IEA_ind_sectors_region_fuel$year)
+all_IEA_fuels <- unique(IEA_ind_sectors_region_fuel$fuel)
+IEA_ind_sectors_region_fuel <- IEA_ind_sectors_region_fuel %>%
+  complete(nesting(iso, country_name, GCAM_region_ID),
+           year = all_IEA_years,
+           FLOW = flows_sel,
+           fuel = all_IEA_fuels) %>%
+  mutate(value = replace_na(value, 0),
+         frac_sector = replace_na(frac_sector, 0))
+
+# aggregate to GCAM region level
+IEA_ind_sectors_GCAM_region_fuel <- IEA_ind_sectors_region_fuel %>%
+  group_by(GCAM_region_ID, year, fuel, FLOW) %>%
+  summarize(value = sum(value)) %>%
+  ungroup() %>%
+  full_join(GCAM_region_names) %>%
+  group_by(GCAM_region_ID, year, fuel) %>%
+  mutate(frac_sector = value / sum(value)) %>%
+  ungroup()
+
+# plot the fraction of each fuel used in each sector in each region
+for (fuel_sel in unique(IEA_ind_sectors_region_fuel$fuel)) {
+  ggplot(IEA_ind_sectors_region_fuel %>% filter(fuel == fuel_sel),
+         aes(x = year, y = value, fill = FLOW)) +
+    geom_col() + 
+  scale_fill_manual(values = c("gray20", "red", "firebrick4", "deepskyblue1", "dodgerblue3", 
+                                "olivedrab", "darkgreen", "palegreen", "peachpuff2", "pink", "mediumpurple", 
+                                "gold1", "orange"), name = "sector") + 
+  facet_wrap(~country_name, scale = "free") + 
+  labs(x = "", y = "EJ", title = paste0("Industry ", fuel_sel, " use by sector(IEA)")) + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+  ggsave(paste0(fig_dir, "/ind_", fuel_sel, "_use_by_sector_country_hist_IEA.png"), width = 35, height = 20)
+}
+
+# get the regions and fuels with all their energy in INONSPEC in all years
+country_fuels_all_inonspec <- IEA_ind_sectors_region_fuel %>%
+  filter(FLOW == "INONSPEC") %>%
+  group_by(iso, country_name, GCAM_region_ID, fuel) %>%
+  filter(all(frac_sector == 1)) %>%
+  dplyr::select(iso, country_name, GCAM_region_ID, fuel) %>%
+  distinct()
+
+# aggregate to total energy 
+IEA_ind_sectors_region_total_en <- IEA_ind_sectors_region_fuel %>%
+  group_by(iso, country_name, GCAM_region_ID, year, FLOW) %>%
+  summarize(value = sum(value)) %>%
+  group_by(iso, country_name, GCAM_region_ID, year) %>%
+  mutate(frac = value / sum(value)) %>%
+  ungroup()
+
+# aggregate to GCAM region
+IEA_ind_sectors_GCAM_region_total_en <- IEA_ind_sectors_region_total_en %>%
+  group_by(GCAM_region_ID, year, FLOW) %>%
+  summarize(value = sum(value)) %>%
+  group_by(GCAM_region_ID, year) %>%
+  mutate(frac = value / sum(value)) %>%
+  ungroup()
+```
+
+Look at the fraction of energy that is in non-specified industry energy and food processing in each region.
+
+```{r, message = FALSE, warning = FALSE}
+ggplot(IEA_ind_sectors_region_total_en,
+       aes(x = year, y = value, color = FLOW)) +
+  geom_line() +
+  scale_color_manual(values = c("gray20", "red", "firebrick4", "deepskyblue1", "dodgerblue3", 
+                                "olivedrab", "darkgreen", "palegreen", "peachpuff2", "pink", "mediumpurple", 
+                                "gold1", "orange"), name = "sector") + 
+  facet_wrap(~country_name, scale = "free") + 
+  labs(x = "", y = "EJ", title = "Industry energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/ind_energy_use_by_sector_country_hist_IEA.png"), width = 35, height = 20)
+
+# plot the fraction of total industry energy that is in non-specified industry
+plot_ly(IEA_ind_sectors_region_total_en %>% 
+          filter(FLOW == "INONSPEC")) %>%
+  add_trace(x = ~year,
+            y = ~frac,
+            type = "scatter",
+            mode = "lines",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = ""),
+         yaxis = list(title = "Fraction"),
+         title = "Fraction of industry energy that is in non-specified industry energy")
+
+# plot fractions in food processing and non-specified industry
+ggplot(IEA_ind_sectors_region_total_en %>% filter(FLOW %in% c("INONSPEC", "FOODPRO")),
+       aes(x = year, y = frac, color = FLOW)) +
+  geom_line() +
+  geom_hline(yintercept = 0.5, linetype = "dashed", color = "slategray") + 
+  scale_color_manual(values = c("firebrick4", "deepskyblue1"), name = "sector") + 
+  facet_wrap(~country_name, scale = "free_x") + 
+  labs(x = "", y = "Fraction", title = "Fraction of total industry energy use in non-specified industry and food processing (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/ind_energy_use_frac_inonspec_foodpro_country_hist_IEA.png"), width = 35, height = 20)
+
+# exclude regions with more than 90% industry non-specified in all periods
+country_names_excl_1 <- IEA_ind_sectors_region_total_en %>%
+  filter(FLOW == "INONSPEC") %>%
+  group_by(iso, country_name, GCAM_region_ID) %>%
+  filter(all(frac > 0.9 | is.na(frac))) %>%
+  arrange(country_name) %>%
+  pull(country_name) %>%
+  unique()
+
+ggplot(IEA_ind_sectors_region_total_en %>% 
+         filter(FLOW %in% c("INONSPEC", "FOODPRO") & !country_name %in% country_names_excl_1),
+       aes(x = year, y = frac, color = FLOW)) +
+  geom_line() +
+  scale_color_manual(values = c("firebrick4", "deepskyblue1"), name = "sector") + 
+  facet_wrap(~country_name, scale = "free_x") + 
+  labs(x = "", y = "Fraction", title = "Fraction of total industry energy use in non-specified industry and food processing (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/ind_energy_use_frac_inonspec_foodpro_country_hist_IEA_sel_1.png"), width = 35, height = 20)
+
+# exclude regions with no energy used in food processing in all periods
+country_names_excl_zero_foodpro <- IEA_ind_sectors_region_total_en %>%
+  filter(FLOW == "FOODPRO") %>%
+  group_by(iso, country_name, GCAM_region_ID) %>%
+  filter(all(value == 0)) %>%
+  arrange(country_name) %>%
+  pull(country_name) %>%
+  unique()
+
+ggplot(IEA_ind_sectors_region_total_en %>% 
+         filter(FLOW %in% c("INONSPEC", "FOODPRO") & !country_name %in% country_names_excl_zero_foodpro),
+       aes(x = year, y = frac, color = FLOW)) +
+  geom_line() +
+  scale_color_manual(values = c("firebrick4", "deepskyblue1"), name = "sector") + 
+  facet_wrap(~country_name, scale = "free_x") + 
+  labs(x = "", y = "Fraction", title = "Fraction of total industry energy use in non-specified industry and food processing (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/ind_energy_use_frac_inonspec_foodpro_country_hist_IEA_sel_nonzero_foodpro_all.png"), width = 35, height = 20)
+
+# plot energy used in food processing by fuel
+ggplot(IEA_ind_sectors_region_fuel %>% filter(FLOW == "FOODPRO"), 
+       aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  facet_wrap(~country_name, scale = "free") + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/foodpro_energy_use_by_country_fuel_hist_IEA.png"), width = 35, height = 20)
+```
+
+Obtain food processing energy use per capita and plot for all regions that have nonzero values for food processing in at least some years.
+
+```{r, message = FALSE, warning = FALSE}
+IEA_ind_sectors_region_total_en_pcap <- IEA_ind_sectors_region_total_en %>%
+  left_join(UN_popTot_hist %>%
+              dplyr::select(year = Year, pop_thous = Value, iso)) %>%
+  mutate(GJ_pcap = value * 10^9 / (pop_thous * 1000))
+
+ggplot(IEA_ind_sectors_region_total_en_pcap %>% 
+         filter(FLOW %in% c("FOODPRO") & !country_name %in% country_names_excl_zero_foodpro),
+       aes(x = year, y = GJ_pcap, color = FLOW)) +
+  geom_line() +
+  scale_color_manual(values = c("firebrick4", "deepskyblue1"), name = "sector") + 
+  facet_wrap(~country_name, scale = "free_x") + 
+  labs(x = "", y = "GJ per capita", title = "Per capita energy use in food processing (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/foodpro_energy_use_pcap_country_hist_IEA_sel_nonzero_all.png"), width = 25, height = 20)
+
+# plot also not per capita
+ggplot(IEA_ind_sectors_region_total_en_pcap %>% 
+         filter(FLOW %in% c("FOODPRO") & !country_name %in% country_names_excl_zero_foodpro),
+       aes(x = year, y = value, color = FLOW)) +
+  geom_line() +
+  scale_color_manual(values = c("firebrick4", "deepskyblue1"), name = "sector") + 
+  facet_wrap(~country_name, scale = "free") + 
+  labs(x = "", y = "EJ", title = "Energy use in food processing (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/foodpro_energy_use_country_hist_IEA_sel_nonzero_all.png"), width = 25, height = 20)
+
+plot_ly(IEA_ind_sectors_region_total_en_pcap %>% 
+         filter(FLOW %in% c("FOODPRO") & !country_name %in% country_names_excl_zero_foodpro)) %>%
+  add_trace(x = ~year,
+            y = ~GJ_pcap,
+            type = "scatter",
+            mode = "lines",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = ""),
+         yaxis = list(title = "GJ per capita"),
+         title = "Food processing energy use per capita for regions where it is not zero in all periods, IEA data")
+```
+
+
+# Processing food production data
+
+Get food production.
+```{r, message = FALSE, warning = FALSE}
+# from Xin's updated AGLU branch - processing into GCAM commodities and calories
+# 2010-2019 data first
+fao_sua_2010_2019_longer <- fao_sua_2010_2019 %>%
+  pivot_longer(-c(area_code, item_code, element, item, area), names_to = "year", values_to = "value") %>%
+  filter(!is.na(value))
+
+Mapping_SUA_PrimaryEquivalent %>%
+  select(GCAM_commodity, item = source_item) %>%
+  bind_rows(Mapping_SUA_PrimaryEquivalent %>%
+              select(GCAM_commodity, item = sink_item)) %>%
+  distinct() %>% arrange(GCAM_commodity) ->
+  SUA_Items_GCAM
+
+fao_sua_2010_2019_longer %>% distinct(item) %>%
+   filter(!item %in% unique(SUA_Items_GCAM$item)) -> SUA_Items_NonGCAM
+ 
+fao_sua_2010_2019_longer %>% distinct(item, item_code) %>%
+  filter(item %in% unique(macronutrientrate_2010_2019_mean$item)) %>%
+  left_join(SUA_Items_GCAM, by = "item") %>%
+  # For NA GCAM_commodity: not elsewhere classified (NEC)
+  # So we would know % of food calories not included in GCAM commodities
+  mutate(GCAM_commodity = if_else(is.na(GCAM_commodity), "NEC", GCAM_commodity)) ->
+  SUA_Items_Food
+
+# get world average macronutrient rate
+macronutrientrate_2010_2019_mean %>% tidyr::gather(macronutrient, macronutrient_value, calperg:proteinperc) %>% 
+  group_by(item, item_code, macronutrient) %>%
+  summarise(macronutrient_value_World = mean(macronutrient_value), .groups = "drop") %>%
+  ungroup() ->
+  SUA_food_macronutrient_rate_World
+
+# calculate SUA food Calories consumption by joining macronutrient rates and SUA food - adapted from Xin's code, not using world average for regions with missing data
+fao_sua_2010_2019_longer %>%
+  filter(element == "Food", item_code %in% SUA_Items_Food$item_code) %>%
+  rename(Food_Kt = value) %>%
+  select(-element) %>%
+  gcamdata::left_join_error_no_match(SUA_Items_Food, by = c("item_code", "item")) %>%
+  gcamdata::repeat_add_columns(
+    tibble(macronutrient = c("calperg", "fatperc", "proteinperc"))) %>%
+  left_join(macronutrientrate_2010_2019_mean %>%
+          tidyr::gather(macronutrient, macronutrient_value, calperg:proteinperc),
+        by = c("area_code", "item_code", "item", "macronutrient")) %>%
+  # gcamdata::left_join_error_no_match(SUA_food_macronutrient_rate_World,
+  #                              by = c("item_code", "item", "macronutrient")) %>%
+  # mutate(macronutrient_value = if_else(is.na(macronutrient_value),
+  #                                          macronutrient_value_World,
+  #                                          macronutrient_value)) %>%
+  # calculate total Cal, protein and fat in food
+  # value was in 1000 ton or 10^ 9 g
+  mutate(value = macronutrient_value * Food_Kt,
+         value = if_else(macronutrient %in% c("fatperc", "proteinperc"),
+                             value / 100 /1000, value)) %>% # unit from perc to Mt
+  #select(-macronutrient_value, -macronutrient_value_World, -Food_Kt) %>%
+  select(-macronutrient_value) %>%
+  # rename element with units
+  mutate(macronutrient = case_when(
+        macronutrient == "calperg" ~ "MKcal",
+        macronutrient == "fatperc" ~ "MtFat",
+        macronutrient == "proteinperc" ~ "MtProtein" )) %>%
+  gcamdata::left_join_error_no_match(AGLU_ctry %>% select(area = FAO_country, iso), by = "area") %>%
+  gcamdata::left_join_error_no_match(iso_GCAM_regID %>% select(iso, GCAM_region_ID), by = "iso") ->
+  FAO_Food_Macronutrient_All_2010_2019
+
+# calculate macronutrient rates from the aggregated values - aggregated to GCAM commodities
+macronutrientrate_agg_GCAM_commod_2010_2019 <- FAO_Food_Macronutrient_All_2010_2019 %>%
+  pivot_wider(names_from = macronutrient, values_from = value) %>%
+  # in this calculation, we only want to include food that has an associated calorie content (to not have too high of a denominator)
+  mutate(Food_Kt_w_calorie = if_else(is.na(MKcal), 0, Food_Kt)) %>%
+  group_by(area_code, area, year, GCAM_commodity, iso, GCAM_region_ID) %>%
+  summarize(Food_Kt = sum(Food_Kt_w_calorie),
+            MKcal = sum(MKcal, na.rm = TRUE),
+            MtFat = sum(MtFat, na.rm = TRUE),
+            MtProtein = sum(MtProtein, na.rm = TRUE)) %>%
+  mutate(calperg = MKcal / Food_Kt,
+         fatperc = MtFat / Food_Kt * 100 * 1000,
+         proteinperc = MtProtein / Food_Kt * 100 * 1000)
+  
+# aggregate to mean of all years
+macronutrientrate_agg_GCAM_commod_2010_2019_mean <- macronutrientrate_agg_GCAM_commod_2010_2019 %>%
+  group_by(area_code, area, GCAM_commodity, iso, GCAM_region_ID) %>%
+  summarize(Food_Kt_sum = sum(Food_Kt),
+            MKcal_sum = sum(MKcal),
+            MtFat_sum = sum(MtFat),
+            MtProtein_sum = sum(MtProtein),
+            calperg_mean = mean(calperg, na.rm = TRUE),
+            fatperc = mean(fatperc, na.rm = TRUE), 
+            proteinperc = mean(proteinperc, na.rm = TRUE),
+            calperg_mean_weighted = MKcal_sum / Food_Kt_sum) %>%
+  ungroup()
+
+# aggregate to total calories
+FAO_Food_Macronutrient_All_2010_2019_total <- FAO_Food_Macronutrient_All_2010_2019 %>%
+  # get Food_Kt both including and not including food that has no associated calorie content
+  mutate(Food_Kt_w_macronutrient = if_else(is.na(value), 0, Food_Kt)) %>%
+  group_by(area, year, iso, GCAM_region_ID, macronutrient) %>%
+  summarize(macronutrient_value = sum(value, na.rm = TRUE), 
+            Food_Kt = sum(Food_Kt),
+            Food_Kt_w_macronutrient = sum(Food_Kt_w_macronutrient)) %>%
+  ungroup() %>%
+  mutate(year = as.numeric(year))
+
+# aggregate to staples, meat, and other non-staples
+FAO_Food_Macronutrient_All_2010_2019_total_cats <- FAO_Food_Macronutrient_All_2010_2019 %>%
+  left_join(GCAM_commodity_type_mapping %>% dplyr::select(GCAM_commodity, commodity_type_broad)) %>%
+  # get Food_Kt both including and not including food that has no associated calorie content
+  mutate(Food_Kt_w_macronutrient = if_else(is.na(value), 0, Food_Kt)) %>%
+  group_by(area, year, iso, GCAM_region_ID, commodity_type_broad, macronutrient) %>%
+  summarize(macronutrient_value = sum(value, na.rm = TRUE), 
+            Food_Kt = sum(Food_Kt),
+            Food_Kt_w_macronutrient = sum(Food_Kt_w_macronutrient)) %>%
+  ungroup() %>%
+  mutate(year = as.numeric(year))
+
+# aggregate by GCAM commodity
+FAO_Food_Macronutrient_All_2010_2019_commodity <- FAO_Food_Macronutrient_All_2010_2019 %>%
+  # get Food_Kt both including and not including food that has no associated calorie content
+  mutate(Food_Kt_w_macronutrient = if_else(is.na(value), 0, Food_Kt)) %>%
+  group_by(area, year, iso, GCAM_region_ID, GCAM_commodity, macronutrient) %>%
+  summarize(macronutrient_value = sum(value, na.rm = TRUE), 
+            Food_Kt = sum(Food_Kt),
+            Food_Kt_w_macronutrient = sum(Food_Kt_w_macronutrient)) %>%
+  ungroup() %>%
+  mutate(year = as.numeric(year))
+
+# data before 2010
+fao_fbsh_1973_2009 %>%
+  gcamdata::gather_years() %>%
+  filter(year < min(fao_sua_2010_2019_longer$year)) %>%
+  filter(!is.na(value)) ->
+  FBSH_CB
+
+Mapping_item_FBS_GCAM %>%
+  select(item_code, GCAM_commodity)%>%
+  filter(!is.na(GCAM_commodity)) %>%
+  left_join(FBSH_CB %>%
+              # complete element
+              complete(nesting(area, area_code, item_code, item, year), element,
+                           fill = list(value = 0)),
+                by = "item_code") %>%
+  dplyr::group_by_at(vars(-value, -item, -item_code)) %>%
+  summarise(value = sum(value), .groups = "drop") %>%
+  gcamdata::left_join_error_no_match(AGLU_ctry %>% select(area = FAO_country, iso), by = "area") %>%
+  gcamdata::left_join_error_no_match(iso_GCAM_regID %>% select(iso, GCAM_region_ID), by = "iso") %>%
+  gcamdata::left_join_error_no_match(GCAM_region_names, by = "GCAM_region_ID") %>%
+  #dplyr::group_by_at(vars(area = region, year, GCAM_commodity, element)) %>%
+  dplyr::group_by_at(vars(area, region, GCAM_region_ID, year, GCAM_commodity, element, iso, unit)) %>%
+  summarise(value = sum(value), .groups = "drop") ->
+  FBSH_CB_reg
+
+# get just food
+FBSH_CB_reg_food <- FBSH_CB_reg %>%
+  filter(element == "Food" & !is.na(unit)) %>%
+  mutate(unit = "Kt")
+
+# convert to calories using the (weighted) mean of the conversion rate from the 2010-2019 data
+FBSH_CB_reg_food_cal <- FBSH_CB_reg_food %>%
+  left_join(macronutrientrate_agg_GCAM_commod_2010_2019_mean %>% 
+              dplyr::select(area, iso, GCAM_region_ID, GCAM_commodity, calperg = calperg_mean_weighted),
+            by = c("area", "GCAM_region_ID", "iso", "GCAM_commodity")) %>%
+  mutate(MKcal = value * calperg)
+
+# some regions have no data for food production for some crops in the 2010-2019 data but have a mean conversion rate for the individual commodities -- take the average of the commodities that constitute the overall GCAM commodity (assuming they contribute equally to the total production of the overall GCAM commodity - big assumption but not sure how else to do it)
+# Actually not going to use this for now...they are far off from the real rates
+macronutrientrate_2010_2019_mean_by_GCAM_commodity <- macronutrientrate_2010_2019_mean %>%
+  left_join(SUA_Items_Food) %>%
+  group_by(area_code, GCAM_commodity) %>%
+  summarize(calperg_mean = mean(calperg))
+
+# aggregate to total calories
+FBSH_CB_reg_food_cal_total <- FBSH_CB_reg_food_cal %>%
+  # get Food_Kt both including and not including food that has no associated calorie content
+  mutate(Food_Kt_w_calorie = if_else(is.na(MKcal), 0, value)) %>%
+  group_by(area, year, iso, GCAM_region_ID, region) %>%
+  summarize(MKcal = sum(MKcal, na.rm = TRUE), 
+            Food_Kt = sum(value),
+            Food_Kt_w_calorie = sum(Food_Kt_w_calorie)) %>%
+  ungroup()
+
+# aggregate to staples, meat, and other non-staples
+FBSH_CB_reg_food_cal_total_cats <- FBSH_CB_reg_food_cal %>%
+  left_join(GCAM_commodity_type_mapping %>% dplyr::select(GCAM_commodity, commodity_type_broad)) %>%
+  # get Food_Kt both including and not including food that has no associated calorie content
+  mutate(Food_Kt_w_calorie = if_else(is.na(MKcal), 0, value)) %>%
+  group_by(area, year, iso, GCAM_region_ID, region, commodity_type_broad) %>%
+  summarize(MKcal = sum(MKcal, na.rm = TRUE), 
+            Food_Kt = sum(value),
+            Food_Kt_w_calorie = sum(Food_Kt_w_calorie)) %>%
+  ungroup()
+
+# combine the pre-2010 and 2010-2019 data
+total_cal_food_kt_all_years <- FAO_Food_Macronutrient_All_2010_2019_total %>%
+  pivot_wider(names_from = macronutrient, values_from = macronutrient_value) %>%
+  dplyr::select(area, year, iso, GCAM_region_ID, Food_Kt, Food_Kt_w_calorie = Food_Kt_w_macronutrient, MKcal) %>%
+  rbind(FBSH_CB_reg_food_cal_total %>%
+          dplyr::select(area, year, iso, GCAM_region_ID, MKcal, Food_Kt, Food_Kt_w_calorie)) %>%
+  mutate(frac_Food_Kt_w_calorie = Food_Kt_w_calorie / Food_Kt,
+         calperg_food_w_calorie = MKcal / Food_Kt_w_calorie) %>%
+  arrange(area, year)
+
+total_cal_food_kt_all_years_cats <- FAO_Food_Macronutrient_All_2010_2019_total_cats %>%
+  pivot_wider(names_from = macronutrient, values_from = macronutrient_value) %>%
+  dplyr::select(area, year, iso, GCAM_region_ID, Food_Kt, Food_Kt_w_calorie = Food_Kt_w_macronutrient, MKcal, commodity_type_broad) %>%
+  rbind(FBSH_CB_reg_food_cal_total_cats %>%
+          dplyr::select(area, year, iso, GCAM_region_ID, MKcal, Food_Kt, Food_Kt_w_calorie, commodity_type_broad)) %>%
+  mutate(frac_Food_Kt_w_calorie = Food_Kt_w_calorie / Food_Kt,
+         calperg_food_w_calorie = MKcal / Food_Kt_w_calorie) %>%
+  arrange(area, year, commodity_type_broad)
+
+# combine the GCAM-commodity level data
+total_cal_food_kt_all_years_commodity <- FAO_Food_Macronutrient_All_2010_2019_commodity %>%
+  pivot_wider(names_from = macronutrient, values_from = macronutrient_value) %>%
+  dplyr::select(area, year, iso, GCAM_region_ID, Food_Kt, Food_Kt_w_calorie = Food_Kt_w_macronutrient, MKcal, GCAM_commodity) %>%
+  rbind(FBSH_CB_reg_food_cal %>%
+          # get Food_Kt both including and not including food that has no associated calorie content
+          mutate(Food_Kt_w_calorie = if_else(is.na(MKcal), 0, value)) %>%
+          dplyr::select(area, year, iso, GCAM_region_ID, MKcal, Food_Kt = value, Food_Kt_w_calorie, GCAM_commodity)) %>%
+  mutate(frac_Food_Kt_w_calorie = Food_Kt_w_calorie / Food_Kt,
+         calperg_food_w_calorie = MKcal / Food_Kt_w_calorie) %>%
+  arrange(area, year, GCAM_commodity)
+
+
+
+# alternate options
+# also obtain animal feed in production units
+fao_sua_2010_2019_longer %>%
+  filter(element == "Feed", item_code %in% SUA_Items_Food$item_code) %>%
+  rename(Feed_Kt = value) %>%
+  select(-element) %>%
+  gcamdata::left_join_error_no_match(SUA_Items_Food, by = c("item_code", "item")) %>%
+  gcamdata::left_join_error_no_match(AGLU_ctry %>% select(area = FAO_country, iso), by = "area") %>%
+  gcamdata::left_join_error_no_match(iso_GCAM_regID %>% select(iso, GCAM_region_ID), by = "iso") ->
+  FAO_Feed_Production_All_2010_2019
+
+# aggregate to total feed production by region
+total_feed_kt_2010_2019 <- FAO_Feed_Production_All_2010_2019 %>%
+  group_by(area_code, area, year, iso, GCAM_region_ID) %>%
+  summarize(Feed_Kt = sum(Feed_Kt)) %>%
+  mutate(year = as.numeric(year)) %>%
+  ungroup()
+
+# get pre-2010 data
+FBSH_CB_reg_feed <- FBSH_CB_reg %>%
+  filter(element == "Feed" & !is.na(unit)) %>%
+  mutate(unit = "Kt")
+
+total_feed_kt_till_2010 <- FBSH_CB_reg_feed %>%
+  group_by(area, year, iso, GCAM_region_ID) %>%
+  summarize(Feed_Kt = sum(value)) %>%
+  ungroup()
+
+# join
+total_feed_kt_all_years <- total_feed_kt_2010_2019 %>%
+  dplyr::select(area, year, iso, GCAM_region_ID, Feed_Kt) %>%
+  rbind(total_feed_kt_till_2010 %>%
+          dplyr::select(area, year, iso, GCAM_region_ID, Feed_Kt)) %>%
+  arrange(area, year)
+```
+
+Plot calorie production by region, and the fraction of food produced that has a corresponding calorie content.
+
+```{r, message = FALSE, warning = FALSE}
+ggplot(total_cal_food_kt_all_years,
+       aes(x = year, y = MKcal)) +
+  geom_line() + 
+  facet_wrap(~area, scale = "free") + 
+  labs(x = "", y = "MKcal", title = "Total food production in calories (calculated from FAO data)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1980, 1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/food_prod_by_country_FAO.png"), width = 30, height = 20)
+
+ggplot(total_cal_food_kt_all_years,
+       aes(x = year, y = Food_Kt, color = "darkred")) +
+  geom_line() + 
+  facet_wrap(~area, scale = "free") + 
+  labs(x = "", y = "Kt", title = "Total food production in tonnes (from FAO data)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1980, 1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/food_prod_by_country_Kt_FAO.png"), width = 30, height = 20)
+
+ggplot(total_cal_food_kt_all_years_cats,
+       aes(x= year, y = MKcal, fill = commodity_type_broad)) +
+  geom_col() +
+  facet_wrap(~area, scale = "free_y") + 
+  scale_fill_manual(values = c("darkred", "darkgreen", "darkblue"), name = "") +
+  labs(x = "", y = "MKcal", title = "Total food production in calories by type (calculated from FAO data)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1980, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/food_prod_by_type_country_FAO.png"), width = 35, height = 20)
+
+ggplot(total_cal_food_kt_all_years,
+       aes(x = year, y = frac_Food_Kt_w_calorie)) +
+  geom_line() + 
+  facet_wrap(~area, scale = "free") + 
+  labs(x = "", y = "Fraction", title = "Fraction of food production that has an associated calorie content (calculated from FAO data)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1980, 1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/food_prod_frac_w_cal_content_by_country_FAO.png"), width = 30, height = 20)
+  
+plot_ly(total_cal_food_kt_all_years) %>%
+  add_trace(x = ~year,
+            y = ~MKcal,
+            type = "scatter",
+            mode = "lines",
+            color = ~area) %>%
+  layout(xaxis = list(title = ""),
+         yaxis = list(title = "MKcal"),
+         title = "Total food production in calories (calculated from FAO data)")
+
+plot_ly(total_cal_food_kt_all_years) %>%
+  add_trace(x = ~year,
+            y = ~Food_Kt,
+            type = "scatter",
+            mode = "lines",
+            color = ~area) %>%
+  layout(xaxis = list(title = ""),
+         yaxis = list(title = "Kt"),
+         title = "Total food production in tonnes (from FAO data)")
+
+plot_ly(total_cal_food_kt_all_years) %>%
+  add_trace(x = ~year,
+            y = ~frac_Food_Kt_w_calorie,
+            type = "scatter",
+            mode = "lines",
+            color = ~area) %>%
+  layout(xaxis = list(title = ""),
+         yaxis = list(title = "Fraction"),
+         title = "Fraction of food production that has an associated calorie content (calculated from FAO data)")
+
+plot_ly(total_cal_food_kt_all_years) %>%
+  add_trace(x = ~year,
+            y = ~calperg_food_w_calorie,
+            type = "scatter",
+            mode = "lines",
+            color = ~area) %>%
+  layout(xaxis = list(title = ""),
+         yaxis = list(title = "cal per g"),
+         title = "Overall calories per g food produced (calculated from FAO data)")
+```
+
+
+# Relationship between food processing energy use and food production
+
+To start, will try a few options for selecting valid regions and years. On the energy side: 
+
+1. Calculating the relationship for all regions and years where food processing energy use is nonzero.
+
+2. Calculating the relationship for all regions and years where food processing energy use is nonzero, and no fuels are fully allocated to non-specified industry (because if this is true, that means that there is not a detailed breakdown of sectoral use of those fuels, meaning it is likely that some should be allocated to food processing).
+
+3. Calculating the relationship for all regions and years where food processing energy is nonzero, and the fraction of total industry energy used in food processing is greater than `r min_frac_FOODPRO` and where the fraction of total energy use that is in non-specified industry is less than `r max_frac_INONSPEC`.
+
+4. Calculating the relationship for all regions and years where food processing energy is nonzero, and the fraction of total industry energy used in food processing is greater than `r min_frac_FOODPRO` and where the fraction of total energy use that is in non-specified industry FOR EACH FUEL FUEL is less than `r max_frac_INONSPEC_fuel`.
+
+On the food production data side: (always only using regions that do not have zero food production in all years)
+
+1. First using only 2010-2019 (really only till 2015 for compatibility with IEA data), years for which the data are better.
+
+2. Using 1973-2019 (2015) (all regions and years have over 99% of the food production in tonnes has a corresponding calorie content)
+
+Will try both using total calories and breaking out staples, animal products, and non-meat non-staples.
+
+```{r, message = FALSE, warning = FALSE}
+# first join the food processing energy use data with the food production data
+IEA_foodpro_region_total_en <- IEA_ind_sectors_region_total_en %>%
+  filter(FLOW == "FOODPRO")
+
+comb_data_all <- IEA_foodpro_region_total_en %>% 
+  dplyr::select(iso, country_name, GCAM_region_ID, year, energy = value) %>%
+  full_join(total_cal_food_kt_all_years %>%
+              dplyr::select(iso, year, GCAM_region_ID, Food_Kt, Food_Kt_w_calorie, MKcal, calperg_food_w_calorie)) %>%
+  full_join(GDP_per_cap_hist_calc_w_FAO %>%
+              dplyr::select(iso, year, GCAM_region_ID, GDP_pcap_thous2015USD_calc, GDP_pcap_thous2015USD_FAO, pop)) %>%
+  left_join(total_feed_kt_all_years %>%
+              dplyr::select(iso, year, GCAM_region_ID, Feed_Kt)) %>%
+  filter(year %in% all_IEA_years & !is.na(energy)) %>%
+  arrange(country_name, year) %>%
+  # convert some units
+  mutate(PKcal = MKcal / (10^9))
+
+# select just regions that do not have zero food processing energy use in all years, and also do not have no food production in all years
+comb_data_sel <- comb_data_all %>%
+  group_by(iso) %>%
+  filter(!all(energy == 0) & !all(is.na(MKcal) | MKcal == 0)) %>%
+  ungroup()
+
+# repeat for the food data with category of food -- add the food production by category and commodity to the rest of the data
+comb_data_all_cats <- comb_data_all %>%
+  left_join(total_cal_food_kt_all_years_cats %>%
+              # convert some units
+              mutate(PKcal = MKcal / (10^9)) %>%
+              dplyr::select(iso, year, GCAM_region_ID, commodity_type_broad, PKcal) %>%
+              pivot_wider(names_from = commodity_type_broad, values_from = PKcal)) %>%
+  mutate(staples_frac = staples / PKcal,
+         nonstaples_frac = (nonstaples_animal + nonstaples_other) / PKcal,
+         EJ_per_PKcal = energy / PKcal,
+         EJ_pcap = energy / pop) %>%
+  left_join(total_cal_food_kt_all_years_commodity %>%
+              # convert some units
+              mutate(PKcal = MKcal / (10^9)) %>%
+              dplyr::select(iso, year, GCAM_region_ID, GCAM_commodity, PKcal) %>%
+              pivot_wider(names_from = GCAM_commodity, values_from = PKcal))
+
+# select just regions that do not have zero food processing energy use in all years, and also do not have no food production in all years
+comb_data_sel_cats <- comb_data_all_cats %>%
+  group_by(iso) %>%
+  filter(!all(energy == 0) & !all(is.na(MKcal) | MKcal == 0)) %>%
+  ungroup()
+
+# function to calculate the relationship between food processing energy use and food production, GDP per capita, and other variables 
+calc_lin_model_food_en_use_production <- function(input_data, sel_name) {
+  
+  lin_reg_1 <- lm(energy ~ PKcal, input_data)
+  lin_reg_summary_1 <- summary(lin_reg_1)
+  print(lin_reg_summary_1)
+  
+  lin_reg_1a <- lm(energy ~ 0 + PKcal, input_data)
+  lin_reg_summary_1a <- summary(lin_reg_1a)
+  print(lin_reg_summary_1a)
+  
+  lin_reg_2 <- lm(energy ~ PKcal + calperg_food_w_calorie, input_data)
+  lin_reg_summary_2 <- summary(lin_reg_2)
+  print(lin_reg_summary_2)
+  
+  lin_reg_3 <- lm(energy ~ PKcal + calperg_food_w_calorie + GDP_pcap_thous2015USD_FAO, input_data)
+  lin_reg_summary_3 <- summary(lin_reg_3)
+  print(lin_reg_summary_3)
+  
+  lin_reg_3b <- lm(energy ~ PKcal + calperg_food_w_calorie + log(GDP_pcap_thous2015USD_FAO), input_data)
+  lin_reg_summary_3b <- summary(lin_reg_3b)
+  print(lin_reg_summary_3b)
+  
+  lin_reg_4 <- lm(energy ~ PKcal + calperg_food_w_calorie + GDP_pcap_thous2015USD_calc, input_data)
+  lin_reg_summary_4 <- summary(lin_reg_4)
+  print(lin_reg_summary_4)
+  
+  lin_reg_5 <- lm(energy ~ PKcal + log(GDP_pcap_thous2015USD_FAO), input_data)
+  lin_reg_summary_5 <- summary(lin_reg_5)
+  print(lin_reg_summary_5)
+  
+  lin_reg_6 <- lm(energy ~ PKcal + PKcal:calperg_food_w_calorie + PKcal:log(GDP_pcap_thous2015USD_FAO), input_data)
+  lin_reg_summary_6 <- summary(lin_reg_6)
+  print(lin_reg_summary_6)
+  confint(lin_reg_6)
+  
+  lin_reg_7 <- lm(energy ~ PKcal + PKcal*calperg_food_w_calorie + PKcal*log(GDP_pcap_thous2015USD_FAO), input_data)
+  lin_reg_summary_7 <- summary(lin_reg_7)
+  print(lin_reg_summary_7)
+  print(confint(lin_reg_7))
+  
+  lin_reg_8 <- lm(energy ~ PKcal + calperg_food_w_calorie + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_8 <- summary(lin_reg_8)
+  print(lin_reg_summary_8)
+  print(confint(lin_reg_8))
+  
+  lin_reg_9 <- lm(energy ~ PKcal + calperg_food_w_calorie + log(GDP_pcap_thous2015USD_FAO) + year + country_name, input_data)
+  lin_reg_summary_9 <- summary(lin_reg_9)
+  print(lin_reg_summary_9)
+  print(confint(lin_reg_9))
+  
+  lin_reg_10 <- lm(energy ~ staples + nonstaples_animal + nonstaples_other + calperg_food_w_calorie + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_10 <- summary(lin_reg_10)
+  print(lin_reg_summary_10)
+  print(confint(lin_reg_10))
+  
+  lin_reg_11 <- lm(energy ~ staples + nonstaples_animal + nonstaples_other + calperg_food_w_calorie + GDP_pcap_thous2015USD_FAO + year, input_data)
+  lin_reg_summary_11 <- summary(lin_reg_11)
+  print(lin_reg_summary_11)
+  print(confint(lin_reg_11))
+  
+  lin_reg_12 <- lm(energy ~ 0 + staples + nonstaples_animal + nonstaples_other + calperg_food_w_calorie + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_12 <- summary(lin_reg_12)
+  print(lin_reg_summary_12)
+  print(confint(lin_reg_12))
+  
+  lin_reg_13 <- lm(energy ~ 0 + PKcal + calperg_food_w_calorie + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_13 <- summary(lin_reg_13)
+  print(lin_reg_summary_13)
+  print(confint(lin_reg_13))
+  
+  lin_reg_14 <- lm(energy ~ 0 + PKcal +staples_frac + calperg_food_w_calorie + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_14 <- summary(lin_reg_14)
+  print(lin_reg_summary_14)
+  print(confint(lin_reg_14))
+  
+  lin_reg_15 <- lm(energy ~ 0 + PKcal +nonstaples_frac + calperg_food_w_calorie + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_15 <- summary(lin_reg_15)
+  print(lin_reg_summary_15)
+  print(confint(lin_reg_15))
+  
+  lin_reg_16 <- lm(energy ~ 0 + PKcal*staples_frac + calperg_food_w_calorie + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_16 <- summary(lin_reg_16)
+  print(lin_reg_summary_16)
+  print(confint(lin_reg_16))
+  
+  lin_reg_17 <- lm(energy ~ 0 + Beef + Corn + Dairy + FiberCrop + Fruits + Legumes + MiscCrop + NutsSeeds + OilCrop + OilPalm + OtherGrain + OtherMeat_Fish + 
+                     Poultry + Rice + RootTuber + SheepGoat + Soybean + SugarCrop + Vegetables + Wheat + NEC + Pork + calperg_food_w_calorie + 
+                     log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_17 <- summary(lin_reg_17)
+  print(lin_reg_summary_17)
+  print(confint(lin_reg_17))
+  
+  lin_reg_18 <- lm(energy ~ 0 + Food_Kt + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_18 <- summary(lin_reg_18)
+  print(lin_reg_summary_18)
+  print(confint(lin_reg_18))
+  
+  lin_reg_19 <- lm(energy ~ 0 + Food_Kt + Feed_Kt + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_19 <- summary(lin_reg_19)
+  print(lin_reg_summary_19)
+  print(confint(lin_reg_19))
+  
+  lin_reg_18 <- lm(energy ~ 0 + PKcal + Feed_Kt + log(GDP_pcap_thous2015USD_FAO) + year, input_data)
+  lin_reg_summary_18 <- summary(lin_reg_18)
+  print(lin_reg_summary_18)
+  print(confint(lin_reg_18))
+  
+  # get key values from the model using just calorie production, and plot
+  pval <- lin_reg_summary_1$coef[2,4]
+  Rsq <- lin_reg_summary_1$adj.r.squared
+  slope <- lin_reg_summary_1$coef[[2]]
+  
+  # plot
+  x_for_lin_reg_plot <- c(min(input_data$PKcal), max(input_data$PKcal))
+  plot_ly(input_data) %>%
+    add_trace(x = ~PKcal,
+              y = ~energy,
+              color = ~country_name,
+              colors = palette36,
+              type = "scatter",
+              mode = "markers") %>%
+    add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lin_reg_1, data.frame(PKcal = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+    layout(xaxis = list(title = "Calorie production (PKcal)"),
+           yaxis = list(title = "Food processing energy use (EJ)"),
+           title = "Food processing energy use vs calories of food production")
+  
+  # plot pairs
+  jpeg(filename = paste0(fig_dir, "/relationships_pair_plot_", sel_name, " .png", width = 1000, height = 1000))
+  pairs(input_data %>% dplyr::select(energy, PKcal, calperg_food_w_calorie, GDP_pcap_thous2015USD_FAO, GDP_pcap_thous2015USD_calc), pch = 16)
+  dev.off()
+  
+  
+  # # plot an interaction plot for GDP per capita, food production, and food processing energy use
+  # # first need to bin into GDP classes and calculate means
+  # input_data_GDP_classes <- input_data %>%
+  #   mutate(GDP_pcap_class = case_when(GDP_pcap_thous2015USD_FAO < 2 ~ "< 2",
+  #                                     GDP_pcap_thous2015USD_FAO >=2 & GDP_pcap_thous2015USD_FAO <10 ~ "2-10",
+  #                                     GDP_pcap_thous2015USD_FAO >=10 & GDP_pcap_thous2015USD_FAO <20 ~ "10-20",
+  #                                     GDP_pcap_thous2015USD_FAO >=2 & GDP_pcap_thous2015USD_FAO <40 ~ "20-40",
+  #                                     GDP_pcap_thous2015USD_FAO >= 40 ~ ">= 40")) %>%
+  #   group_by(GDP_pcap_class) %>%
+  #   summarize(energy = mean(energy),
+  #             MKcal = mean(MKcal))
+  
+}
+
+```
+
+## Test 1: all regions and years where food processing energy use and food production is nonzero, 2010-2015
+
+```{r, message = FALSE, warning = FALSE}
+# select data where food processing energy use is nonzero, and within 2010-2015
+comb_data_sel_1 <- comb_data_sel_cats %>%
+  filter(year >= 2010 & year <= 2015,
+         !is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0)
+
+calc_lin_model_food_en_use_production(comb_data_sel_1, "1")
+
+plot_ly(comb_data_sel_1) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs food production")
+
+plot_ly(comb_data_sel_1) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+```
+
+Mean-centered.
+
+```{r, message = FALSE, warning = FALSE}
+# mean-center GDP per capita, food production, and calories per g
+comb_data_sel_1_cent <- comb_data_sel_1 %>%
+  ungroup() %>%
+  mutate(PKcal = PKcal - mean(PKcal),
+         calperg_food_w_calorie = calperg_food_w_calorie - mean(calperg_food_w_calorie),
+         GDP_pcap_thous2015USD_FAO = GDP_pcap_thous2015USD_FAO - mean(GDP_pcap_thous2015USD_FAO, na.rm = TRUE),
+         GDP_pcap_thous2015USD_calc = GDP_pcap_thous2015USD_calc - mean(GDP_pcap_thous2015USD_calc, na.rm = TRUE))
+
+calc_lin_model_food_en_use_production(comb_data_sel_1_cent, "1cent")
+
+
+```
+
+## Test 2: all regions and years where food processing energy use and food production is nonzero, 1973-2015
+
+```{r, message = FALSE, warning = FALSE}
+# select data where food processing energy use is nonzero, and within 2010-2015
+comb_data_sel_2 <- comb_data_sel_cats %>%
+  filter(!is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0)
+
+calc_lin_model_food_en_use_production(comb_data_sel_2, "2")
+
+plot_ly(comb_data_sel_2) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs food production")
+
+plot_ly(comb_data_sel_2) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+```
+
+Mean-centered.
+
+```{r, message = FALSE, warning = FALSE}
+# mean-center GDP per capita, food production, and calories per g
+comb_data_sel_2_cent <- comb_data_sel_2 %>%
+  ungroup() %>%
+  mutate(PKcal = PKcal - mean(PKcal),
+         calperg_food_w_calorie = calperg_food_w_calorie - mean(calperg_food_w_calorie),
+         GDP_pcap_thous2015USD_FAO = GDP_pcap_thous2015USD_FAO - mean(GDP_pcap_thous2015USD_FAO, na.rm = TRUE),
+         GDP_pcap_thous2015USD_calc = GDP_pcap_thous2015USD_calc - mean(GDP_pcap_thous2015USD_calc, na.rm = TRUE))
+
+calc_lin_model_food_en_use_production(comb_data_sel_2_cent, "2cent")
+
+```
+
+
+## Test 3: all regions and years where food processing energy use is nonzero, and no fuels are fully allocated to non-specified industry, 2010-2015
+
+```{r, message = FALSE, warning = FALSE}
+# get regions and years to remove
+country_years_excl_all_inonspec <- IEA_ind_sectors_region_fuel %>%
+  filter(FLOW == "INONSPEC") %>%
+  filter(frac_sector == 1) %>%
+  dplyr::select(iso, country_name, GCAM_region_ID, year) %>%
+  distinct()
+
+comb_data_sel_3 <- comb_data_sel_cats %>%
+  filter(year >= 2010 & year <= 2015,
+         !is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0) %>%
+  anti_join(country_years_excl_all_inonspec)
+
+calc_lin_model_food_en_use_production(comb_data_sel_3, "3")
+
+plot_ly(comb_data_sel_3) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs food production")
+
+plot_ly(comb_data_sel_3) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+```
+
+Mean-centered.
+
+```{r, message = FALSE, warning = FALSE}
+# mean-center GDP per capita, food production, and calories per g
+comb_data_sel_3_cent <- comb_data_sel_3 %>%
+  ungroup() %>%
+  mutate(PKcal = PKcal - mean(PKcal),
+         calperg_food_w_calorie = calperg_food_w_calorie - mean(calperg_food_w_calorie),
+         GDP_pcap_thous2015USD_FAO = GDP_pcap_thous2015USD_FAO - mean(GDP_pcap_thous2015USD_FAO, na.rm = TRUE),
+         GDP_pcap_thous2015USD_calc = GDP_pcap_thous2015USD_calc - mean(GDP_pcap_thous2015USD_calc, na.rm = TRUE))
+
+calc_lin_model_food_en_use_production(comb_data_sel_3_cent, "3cent")
+
+```
+
+## Test 4: all regions and years where food processing energy use is nonzero, and no fuels are fully allocated to non-specified industry, 1973-2015
+
+```{r, message = FALSE, warning = FALSE}
+comb_data_sel_4 <- comb_data_sel_cats %>%
+  filter(!is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0) %>%
+  anti_join(country_years_excl_all_inonspec)
+
+calc_lin_model_food_en_use_production(comb_data_sel_4, "4")
+
+plot_ly(comb_data_sel_4) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs food production")
+
+plot_ly(comb_data_sel_4) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+```
+
+Mean-centered.
+
+```{r, message = FALSE, warning = FALSE}
+# mean-center GDP per capita, food production, and calories per g
+comb_data_sel_4_cent <- comb_data_sel_4 %>%
+  ungroup() %>%
+  mutate(PKcal = PKcal - mean(PKcal),
+         calperg_food_w_calorie = calperg_food_w_calorie - mean(calperg_food_w_calorie),
+         GDP_pcap_thous2015USD_FAO = GDP_pcap_thous2015USD_FAO - mean(GDP_pcap_thous2015USD_FAO, na.rm = TRUE),
+         GDP_pcap_thous2015USD_calc = GDP_pcap_thous2015USD_calc - mean(GDP_pcap_thous2015USD_calc, na.rm = TRUE))
+
+calc_lin_model_food_en_use_production(comb_data_sel_4_cent, "4cent")
+
+```
+
+## Test 5: all regions and years where the fraction of total industry energy used in food processing is greater than a threshold and the fraction of total energy use that is in non-specified industry is less than a threshold, 2010-2015
+
+```{r, message = FALSE, warning = FALSE}
+# get regions and years to remove
+country_years_excl_high_inonspec <- IEA_ind_sectors_region_total_en %>%
+  filter(FLOW == "INONSPEC") %>%
+  filter(frac > max_frac_INONSPEC) %>%
+  dplyr::select(iso, country_name, GCAM_region_ID, year) %>%
+  distinct()
+
+country_years_excl_low_foodpro <- IEA_ind_sectors_region_total_en %>%
+  filter(FLOW == "FOODPRO") %>%
+  filter(frac < min_frac_FOODPRO | is.na(frac)) %>%
+  dplyr::select(iso, country_name, GCAM_region_ID, year) %>%
+  distinct()
+
+comb_data_sel_5 <- comb_data_sel_cats %>%
+  filter(year >= 2010 & year <= 2015,
+         !is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0) %>%
+  anti_join(country_years_excl_high_inonspec) %>%
+  anti_join(country_years_excl_low_foodpro)
+
+calc_lin_model_food_en_use_production(comb_data_sel_5, "5")
+
+plot_ly(comb_data_sel_5) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs food production")
+
+plot_ly(comb_data_sel_5) %>%
+  add_trace(x = ~nonstaples_other, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs non-meat nonstaples food production")
+
+plot_ly(comb_data_sel_5) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+plot_ly(comb_data_sel_5 %>%
+          mutate(GDP_group = case_when(GDP_pcap_thous2015USD_FAO < 1 ~ "< 1",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "1-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 30 ~ "20-30",
+                                       TRUE ~ ">= 30"))) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            text = ~country_name,
+            color = ~GDP_group) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+plot_ly(comb_data_sel_5) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs per capita GDP")
+
+plot_ly(comb_data_sel_5) %>%
+  add_trace(x = ~staples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  layout(xaxis = list(title = "Fraction of calories from staples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs staples fraction")
+
+plot_ly(comb_data_sel_5) %>%
+  add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  layout(xaxis = list(title = "Fraction of calories from nonstaples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+print(summary(lm(EJ_per_PKcal ~ GDP_pcap_thous2015USD_FAO, comb_data_sel_5)))
+print(summary(lm(EJ_per_PKcal ~ GDP_pcap_thous2015USD_FAO + staples_frac, comb_data_sel_5)))
+summary(lm(EJ_per_PKcal ~ log(staples_frac), comb_data_sel_5))
+lm_to_plot2 <- lm(EJ_per_PKcal ~ exp(nonstaples_frac), comb_data_sel_5)
+lm_to_plot2_summary <- summary(lm_to_plot2)
+print(lm_to_plot2_summary)
+lm_to_plot <- lm(EJ_per_PKcal ~ nonstaples_frac, comb_data_sel_5)
+lm_to_plot_summary <- summary(lm_to_plot)
+print(lm_to_plot_summary)
+print(summary(lm(EJ_per_PKcal ~ exp(nonstaples_frac) + GDP_pcap_thous2015USD_FAO, comb_data_sel_5)))
+
+# get key values from the model to plot
+pval <- lm_to_plot_summary$coef[2,4]
+Rsq <- lm_to_plot_summary$adj.r.squared
+slope <- lm_to_plot_summary$coef[[2]]
+  
+# plot
+x_for_lin_reg_plot <- c(0,1)
+plot_ly(comb_data_sel_5) %>%
+    add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Fraction of calories from nonstaples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+# get key values from the model to plot
+pval <- lm_to_plot2_summary$coef[2,4]
+Rsq <- lm_to_plot2_summary$adj.r.squared
+slope <- lm_to_plot2_summary$coef[[2]]
+  
+# plot
+x_for_lin_reg_plot <- c(0,1)
+plot_ly(comb_data_sel_5) %>%
+    add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot2, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Fraction of calories from nonstaples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+```
+
+Mean-centered.
+
+```{r, message = FALSE, warning = FALSE}
+# mean-center GDP per capita, food production, and calories per g
+comb_data_sel_5_cent <- comb_data_sel_5 %>%
+  ungroup() %>%
+  mutate(PKcal = PKcal - mean(PKcal),
+         calperg_food_w_calorie = calperg_food_w_calorie - mean(calperg_food_w_calorie),
+         GDP_pcap_thous2015USD_FAO = GDP_pcap_thous2015USD_FAO - mean(GDP_pcap_thous2015USD_FAO, na.rm = TRUE),
+         GDP_pcap_thous2015USD_calc = GDP_pcap_thous2015USD_calc - mean(GDP_pcap_thous2015USD_calc, na.rm = TRUE))
+
+calc_lin_model_food_en_use_production(comb_data_sel_5_cent, "5cent")
+
+
+```
+
+## Test 6: all regions and years where the fraction of total industry energy used in food processing is greater than a threshold and the fraction of total energy use that is in non-specified industry is less than a threshold, 1973-2015
+
+```{r, message = FALSE, warning = FALSE}
+# get regions and years to remove
+comb_data_sel_6 <- comb_data_sel_cats %>%
+  filter(!is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0) %>%
+  anti_join(country_years_excl_high_inonspec) %>%
+  anti_join(country_years_excl_low_foodpro)
+
+calc_lin_model_food_en_use_production(comb_data_sel_6, "6")
+
+plot_ly(comb_data_sel_6) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs food production")
+
+plot_ly(comb_data_sel_6) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+plot_ly(comb_data_sel_6 %>%
+          mutate(GDP_group = case_when(GDP_pcap_thous2015USD_FAO < 1 ~ "< 1",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "1-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 30 ~ "20-30",
+                                       TRUE ~ ">= 30"))) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            text = ~country_name,
+            color = ~GDP_group) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+
+plot_ly(comb_data_sel_6 %>%
+          mutate(GDP_group = case_when(GDP_pcap_thous2015USD_FAO < 1 ~ "< 1",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "1-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 30 ~ "20-30",
+                                       TRUE ~ ">= 30"))) %>%
+  add_trace(x = ~GDP_group, 
+            y = ~EJ_per_PKcal,
+            type = "box") %>%
+  layout(xaxis = list(title = "GDP category"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+plot_ly(comb_data_sel_6) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs per capita GDP")
+
+plot_ly(comb_data_sel_6 %>% filter(year == 2015)) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs per capita GDP, 2015")
+
+print(summary(lm(EJ_per_PKcal ~ GDP_pcap_thous2015USD_FAO, comb_data_sel_6)))
+print(summary(lm(EJ_per_PKcal ~ GDP_pcap_thous2015USD_FAO + staples_frac, comb_data_sel_6)))
+summary(lm(EJ_per_PKcal ~ log(staples_frac), comb_data_sel_6))
+lm_to_plot <- lm(EJ_per_PKcal ~ nonstaples_frac, comb_data_sel_6)
+lm_to_plot_summary <- summary(lm_to_plot)
+print(lm_to_plot_summary)
+lm_to_plot2 <- lm(EJ_per_PKcal ~ exp(nonstaples_frac), comb_data_sel_6)
+lm_to_plot2_summary <- summary(lm_to_plot)
+print(lm_to_plot2_summary)
+print(summary(lm(EJ_per_PKcal ~ exp(nonstaples_frac) + GDP_pcap_thous2015USD_FAO, comb_data_sel_6)))
+
+# get key values from the model to plot
+pval <- lm_to_plot_summary$coef[2,4]
+Rsq <- lm_to_plot_summary$adj.r.squared
+slope <- lm_to_plot_summary$coef[[2]]
+  
+# plot
+x_for_lin_reg_plot <- c(0,1)
+plot_ly(comb_data_sel_6) %>%
+    add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Fraction of calories from nonstaples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+# get key values from the model to plot
+pval <- lm_to_plot2_summary$coef[2,4]
+Rsq <- lm_to_plot2_summary$adj.r.squared
+slope <- lm_to_plot2_summary$coef[[2]]
+  
+# plot
+x_for_lin_reg_plot <- c(0,1)
+plot_ly(comb_data_sel_6) %>%
+    add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot2, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Fraction of calories from nonstaples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+```
+
+## Test 7: all regions and years where the fraction of total industry energy used in food processing is greater than a threshold and the fraction of total energy use that is in non-specified industry is less than a threshold for each fuel, 2010-2015 
+
+```{r, message = FALSE, warning = FALSE}
+# get regions and years to remove
+country_years_excl_high_inonspec_fuel <- IEA_ind_sectors_region_fuel %>%
+  filter(FLOW == "INONSPEC") %>%
+  filter(frac_sector > max_frac_INONSPEC_fuel) %>%
+  dplyr::select(iso, country_name, GCAM_region_ID, year) %>%
+  distinct()
+
+comb_data_sel_7 <- comb_data_sel_cats %>%
+  filter(year >= 2010 & year <= 2015,
+         !is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0) %>%
+  anti_join(country_years_excl_high_inonspec_fuel) %>%
+  anti_join(country_years_excl_low_foodpro)
+
+calc_lin_model_food_en_use_production(comb_data_sel_7, "7")
+
+plot_ly(comb_data_sel_7) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs food production")
+
+plot_ly(comb_data_sel_7) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+```
+
+## Test 8: all regions and years where the fraction of total industry energy used in food processing is greater than a threshold and the fraction of total energy use that is in non-specified industry is less than a threshold for each fuel, 1973-2015 
+
+```{r, message = FALSE, warning = FALSE}
+
+comb_data_sel_8 <- comb_data_sel_cats %>%
+  filter(!is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0) %>%
+  anti_join(country_years_excl_high_inonspec_fuel) %>%
+  anti_join(country_years_excl_low_foodpro)
+
+calc_lin_model_food_en_use_production(comb_data_sel_8, "8")
+
+plot_ly(comb_data_sel_8) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs food production")
+
+plot_ly(comb_data_sel_8) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+plot_ly(comb_data_sel_8 %>%
+          mutate(GDP_group = case_when(GDP_pcap_thous2015USD_FAO < 1 ~ "< 1",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "1-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 30 ~ "20-30",
+                                       GDP_pcap_thous2015USD_FAO < 40 ~ "30-40",
+                                       TRUE ~ ">= 40"),
+                 GDP_group = factor(GDP_group, levels = c("< 1", "1-5", "5-10", "10-20", "20-30", "30-40", ">= 40")))) %>%
+  add_trace(x = ~GDP_group, 
+            y = ~EJ_per_PKcal,
+            type = "box") %>%
+  layout(xaxis = list(title = "GDP category"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+```
+
+## More rigorously deciding which regions to include as data that we trust
+
+Another test, using:
+
+ - The fraction of total industry energy used in food processing is greater than `r min_frac_FOODPRO`
+ 
+ - The fraction of total energy use that is in non-specified industry for each fuel is less than `r max_frac_INONSPEC_fuel`, or, if it is greater than that fraction, the total consumption of that fuel as a fraction of non-specified industry energy use is less than `r max_frac_fuel_total_en` (meaning that that fuel is not a big contributor to the non-specified industry energy use anyway so we don't need to worry about it as much)
+ 
+```{r, message = FALSE, warning = FALSE}
+# get regions and years to exclude based on the fraction of fuel use criteria
+country_years_excl_high_inonspec_fuel_2 <- IEA_ind_sectors_region_fuel %>%
+  filter(FLOW == "INONSPEC") %>%
+  group_by(iso, country_name, GCAM_region_ID, year) %>%
+  mutate(frac_fuel = value / sum(value)) %>%
+  filter(frac_sector > max_frac_INONSPEC_fuel & frac_fuel > max_frac_fuel_total_en) %>%
+  dplyr::select(iso, country_name, GCAM_region_ID, year) %>%
+  distinct()
+
+# try what this looks like
+comb_data_sel_9 <- comb_data_sel_cats %>%
+  filter(!is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0) %>%
+  anti_join(country_years_excl_high_inonspec_fuel_2) %>%
+  anti_join(country_years_excl_low_foodpro)
+
+# plot energy used in food processing by fuel
+ggplot(IEA_ind_sectors_region_fuel %>% 
+         filter(FLOW == "FOODPRO") %>% 
+         anti_join(country_years_excl_high_inonspec_fuel_2) %>%
+         anti_join(country_years_excl_low_foodpro), 
+       aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  facet_wrap(~country_name, scale = "free_y") + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/foodpro_energy_use_by_country_fuel_hist_IEA_sel_9.png"), width = 35, height = 20)
+
+```
+
+Another test, using:
+
+ - The fraction of total industry energy used in food processing is greater than `r min_frac_FOODPRO`
+ 
+ - The fraction of total energy use that is in non-specified industry for each fuel is less than `r max_frac_INONSPEC_fuel`, or, if it is greater than that fraction, fraction of total energy use that is in non-specified industry is less than `r max_frac_INONSPEC` (meaning that that fuel is not a big contributor to the non-specified industry energy use anyway so we don't need to worry about it as much)
+ 
+```{r, message = FALSE, warning = FALSE}
+
+# try what this looks like
+comb_data_sel_10 <- comb_data_sel_cats %>%
+  filter(!is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0) %>%
+  anti_join(country_years_excl_high_inonspec_fuel %>%
+              inner_join(country_years_excl_high_inonspec)) %>%
+  anti_join(country_years_excl_low_foodpro)
+
+# plot energy used in food processing by fuel
+ggplot(IEA_ind_sectors_region_fuel %>% 
+         filter(FLOW == "FOODPRO") %>% 
+         anti_join(country_years_excl_high_inonspec_fuel %>%
+              inner_join(country_years_excl_high_inonspec)) %>%
+         anti_join(country_years_excl_low_foodpro), 
+       aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  facet_wrap(~country_name, scale = "free_y") + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/foodpro_energy_use_by_country_fuel_hist_IEA_sel_10.png"), width = 35, height = 20)
+
+```
+
+Another test, using:
+
+ - The fraction of total industry energy used in food processing is greater than `r min_frac_FOODPRO`
+ 
+ - The fraction of total energy use that is in non-specified industry is less than `r max_frac_INONSPEC`
+ 
+```{r, message = FALSE, warning = FALSE}
+
+# plot energy used in food processing by fuel
+ggplot(IEA_ind_sectors_region_fuel %>% 
+         filter(FLOW == "FOODPRO") %>% 
+         anti_join(country_years_excl_high_inonspec) %>%
+         anti_join(country_years_excl_low_foodpro), 
+       aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  facet_wrap(~country_name, scale = "free_y") + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/foodpro_energy_use_by_country_fuel_hist_IEA_sel_5.png"), width = 35, height = 20)
+
+plot_ly(comb_data_sel_6 %>%
+          mutate(GDP_group = case_when(GDP_pcap_thous2015USD_FAO < 1 ~ "< 1",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "1-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 30 ~ "20-30",
+                                       GDP_pcap_thous2015USD_FAO < 40 ~ "30-40",
+                                       TRUE ~ ">= 40"),
+                 GDP_group = factor(GDP_group, levels = c("< 1", "1-5", "5-10", "10-20", "20-30", "30-40", ">= 40")))) %>%
+  add_trace(x = ~GDP_group, 
+            y = ~EJ_per_PKcal,
+            type = "box") %>%
+  layout(xaxis = list(title = "GDP category"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+```
+
+Another test using:
+ 
+ - Manually selected regions, just after 1995
+ 
+(this shouldn't be used to decide which regions to fill in data for, but was just me trying to select regions that seem to have reasonable data)
+
+```{r, message = FALSE, warning = FALSE}
+countries_sel_manual <- c("Albania", "Australia", "Austria", "Bulgaria", "Brazil", 
+                        "Botswana", "Belgium", "Belarus", "China", "Colombia", "Costa Rica",
+                        "Croatia", "Estonia", "Denmark", "Czech Republic", "France", "Germany", "Greece",
+                        "Japan", "Italy", "Ireland", "Hungary", "Korea, Republic of", "Mexico", 
+                        "Netherlands", "Norway", "Romania", "Russian Federation", "Portugal", "Poland",
+                        "Thailand", "Taiwan", "Sweden", "Spain", "Turkey", "United Kingdom", "United States of America")
+
+comb_data_sel_11 <- comb_data_sel_cats %>%
+  filter(!is.na(energy),
+         !is.na(MKcal),
+         energy > 0,
+         MKcal > 0,
+         country_name %in% countries_sel_manual,
+         year >= 1995)
+
+calc_lin_model_food_en_use_production(comb_data_sel_11, "11")
+
+plot_ly(comb_data_sel_11) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0("year = ", year)) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs food production")
+
+plot_ly(comb_data_sel_11) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "lines+markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+plot_ly(comb_data_sel_11 %>%
+          mutate(GDP_group = case_when(GDP_pcap_thous2015USD_FAO < 1 ~ "< 1",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "1-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 30 ~ "20-30",
+                                       GDP_pcap_thous2015USD_FAO < 40 ~ "30-40",
+                                       TRUE ~ ">= 40"))) %>%
+  add_trace(x = ~year, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            text = ~country_name,
+            color = ~GDP_group) %>%
+  layout(xaxis = list(title = "year"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+
+plot_ly(comb_data_sel_11 %>%
+          mutate(GDP_group = case_when(GDP_pcap_thous2015USD_FAO < 1 ~ "< 1",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "1-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 30 ~ "20-30",
+                                       GDP_pcap_thous2015USD_FAO < 40 ~ "30-40",
+                                       TRUE ~ ">= 40"),
+                 GDP_group = factor(GDP_group, levels = c("< 1", "1-5", "5-10", "10-20", "20-30", "30-40", ">= 40")))) %>%
+  add_trace(x = ~GDP_group, 
+            y = ~EJ_per_PKcal,
+            type = "box") %>%
+  layout(xaxis = list(title = "GDP category"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+plot_ly(comb_data_sel_11) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs per capita GDP")
+
+plot_ly(comb_data_sel_11 %>% filter(year == 2015)) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs per capita GDP, 2015")
+
+plot_ly(comb_data_sel_11) %>%
+  add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "Nonstaples fraction"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+plot_ly(comb_data_sel_11 %>% mutate(GDP_times_nonstaples_frac = GDP_pcap_thous2015USD_FAO*nonstaples_frac)) %>%
+  add_trace(x = ~GDP_times_nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015) * nonstaples fraction"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+plot_ly(comb_data_sel_11 %>%
+          mutate(GDP_group = case_when(GDP_pcap_thous2015USD_FAO < 1 ~ "< 1",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "1-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 30 ~ "20-30",
+                                       GDP_pcap_thous2015USD_FAO < 40 ~ "30-40",
+                                       TRUE ~ ">= 40"))) %>%
+  add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~GDP_pcap_thous2015USD_FAO,
+            text = ~GDP_pcap_thous2015USD_FAO) %>%
+  layout(xaxis = list(title = "Nonstaples fraction"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+print(summary(lm(EJ_per_PKcal ~ GDP_pcap_thous2015USD_FAO, comb_data_sel_11)))
+print(summary(lm(EJ_per_PKcal ~ GDP_pcap_thous2015USD_FAO + staples_frac, comb_data_sel_11)))
+summary(lm(EJ_per_PKcal ~ log(staples_frac), comb_data_sel_11))
+lm_to_plot <- lm(EJ_per_PKcal ~ nonstaples_frac, comb_data_sel_11)
+lm_to_plot_summary <- summary(lm_to_plot)
+print(lm_to_plot_summary)
+lm_to_plot2 <- lm(EJ_per_PKcal ~ exp(nonstaples_frac), comb_data_sel_11)
+lm_to_plot2_summary <- summary(lm_to_plot)
+print(lm_to_plot2_summary)
+print(summary(lm(EJ_per_PKcal ~ exp(nonstaples_frac) + GDP_pcap_thous2015USD_FAO, comb_data_sel_11)))
+
+# get key values from the model to plot
+pval <- lm_to_plot_summary$coef[2,4]
+Rsq <- lm_to_plot_summary$adj.r.squared
+slope <- lm_to_plot_summary$coef[[2]]
+  
+# plot
+x_for_lin_reg_plot <- c(0,1)
+plot_ly(comb_data_sel_11) %>%
+    add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Fraction of calories from nonstaples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+# get key values from the model to plot
+pval <- lm_to_plot2_summary$coef[2,4]
+Rsq <- lm_to_plot2_summary$adj.r.squared
+slope <- lm_to_plot2_summary$coef[[2]]
+  
+# plot
+x_for_lin_reg_plot <- c(0,1)
+plot_ly(comb_data_sel_11) %>%
+    add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot2, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Fraction of calories from nonstaples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+
+lm_to_plot3 <- lm(energy ~ 0 + nonstaples_other, comb_data_sel_11)
+lm_to_plot3_summary <- summary(lm_to_plot3)
+print(lm_to_plot3_summary)
+lm_to_plot4 <- lm(energy ~ 0 + PKcal, comb_data_sel_11)
+lm_to_plot4_summary <- summary(lm_to_plot4)
+print(lm_to_plot4_summary)
+
+# get key values from the model to plot
+pval <- lm_to_plot3_summary$coef[1,4]
+Rsq <- lm_to_plot3_summary$adj.r.squared
+slope <- lm_to_plot3_summary$coef[[1]]
+  
+# plot
+x_for_lin_reg_plot <- c(min(comb_data_sel_11$nonstaples_other), max(comb_data_sel_11$nonstaples_other))
+plot_ly(comb_data_sel_11) %>%
+    add_trace(x = ~nonstaples_other, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot3, data.frame(nonstaples_other = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Nonstaples production (PKcal)"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs non-meat nonstaples production")
+
+
+# get key values from the model to plot
+pval <- lm_to_plot4_summary$coef[1,4]
+Rsq <- lm_to_plot4_summary$adj.r.squared
+slope <- lm_to_plot4_summary$coef[[1]]
+  
+# plot
+x_for_lin_reg_plot <- c(min(comb_data_sel_11$PKcal), max(comb_data_sel_11$PKcal))
+plot_ly(comb_data_sel_11) %>%
+    add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot4, data.frame(PKcal = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Food production (PKcal)"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs total food production")
+
+# try 2015 only
+lm_to_plot5 <- lm(energy ~ 0 + nonstaples_other, comb_data_sel_11 %>% filter(year == 2015))
+lm_to_plot5_summary <- summary(lm_to_plot5)
+print(lm_to_plot5_summary)
+lm_to_plot6 <- lm(energy ~ 0 + PKcal, comb_data_sel_11 %>% filter(year == 2015))
+lm_to_plot6_summary <- summary(lm_to_plot6)
+print(lm_to_plot6_summary)
+
+# get key values from the model to plot
+pval <- lm_to_plot5_summary$coef[1,4]
+Rsq <- lm_to_plot5_summary$adj.r.squared
+slope <- lm_to_plot5_summary$coef[[1]]
+  
+# plot
+x_for_lin_reg_plot <- c(min(comb_data_sel_11$nonstaples_other), max(comb_data_sel_11$nonstaples_other))
+plot_ly(comb_data_sel_11 %>% filter(year == 2015)) %>%
+    add_trace(x = ~nonstaples_other, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot5, data.frame(nonstaples_other = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Nonstaples production (PKcal)"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs non-meat nonstaples production, 2015")
+
+
+# get key values from the model to plot
+pval <- lm_to_plot6_summary$coef[1,4]
+Rsq <- lm_to_plot6_summary$adj.r.squared
+slope <- lm_to_plot6_summary$coef[[1]]
+  
+# plot
+x_for_lin_reg_plot <- c(min(comb_data_sel_11$PKcal), max(comb_data_sel_11$PKcal))
+plot_ly(comb_data_sel_11 %>% filter(year == 2015)) %>%
+    add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot6, data.frame(PKcal = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              line = list(dash = ifelse(pval <= 0.05, "solid", "dash")),
+              name = "Linear regression",
+              text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Food production (PKcal)"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs total food production, 2015")
+
+summary(lm(energy ~ 0 + staples + nonstaples_animal + nonstaples_other, comb_data_sel_11))
+```
+
+
+With that data, looking at production and including animal feed.
+
+```{r, message = FALSE, warning = FALSE}
+print(summary(lm(energy ~ 0 + Food_Kt + log(GDP_pcap_thous2015USD_FAO), comb_data_sel_11)))
+print(summary(lm(energy ~ 0 + PKcal + log(GDP_pcap_thous2015USD_FAO), comb_data_sel_11)))
+print(summary(lm(energy ~ 0 + Food_Kt + log(GDP_pcap_thous2015USD_FAO) + calperg_food_w_calorie, comb_data_sel_11)))
+print(summary(lm(energy ~ 0 + Food_Kt + log(GDP_pcap_thous2015USD_FAO) + Feed_Kt, comb_data_sel_11)))
+print(summary(lm(energy ~ 0 + PKcal + log(GDP_pcap_thous2015USD_FAO) + Feed_Kt, comb_data_sel_11)))
+print(summary(lm(energy ~ 0 + PKcal + Feed_Kt, comb_data_sel_11)))
+print(summary(lm(energy ~ 0 + Food_Kt + Feed_Kt, comb_data_sel_11)))
+print(summary(lm(energy ~ 0 + Food_Feed_Kt, comb_data_sel_11 %>% mutate(Food_Feed_Kt = Food_Kt + Feed_Kt))))
+
+plot_ly(comb_data_sel_11) %>%
+  add_trace(x = ~Food_Kt,
+            y = ~Feed_Kt,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "Food (Kt)"),
+         yaxis = list(title = "Feed (Kt)"),
+         title = "Feed vs food production")
+
+plot_ly(comb_data_sel_11) %>%
+  add_trace(x = ~PKcal,
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Energy vs food demand")
+
+plot_ly(comb_data_sel_11) %>%
+  add_trace(x = ~(Feed_Kt + Food_Kt),
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name) %>%
+  layout(xaxis = list(title = "Kt"),
+         yaxis = list(title = "EJ"),
+         title = "Energy vs feed and food production")
+```
+
+
+### Maybe final subset
+
+Trying to come up with something that is rigorous and replicable, but also incorporates only results that seem reasonable.
+
+```{r, message = FALSE, warning = FALSE}
+IEA_ind_sectors_region_total_en_frac_wider <- IEA_ind_sectors_region_total_en %>%
+  dplyr::select(-value) %>%
+  pivot_wider(names_from = FLOW, values_from = frac)
+
+# get regions and years to include - only where fraction in food processing is greater than 1% and fraction in non-specified is less than 50% and year is beyond 1990
+country_years_incl <- IEA_ind_sectors_region_total_en_frac_wider %>%
+  filter(year >= 1990 & INONSPEC < 0.5 & (!is.na(FOODPRO) & FOODPRO > 0.01)) %>%
+  dplyr::select(iso, country_name, GCAM_region_ID, year)
+
+ggplot(IEA_ind_sectors_region_fuel %>% filter(FLOW == "FOODPRO") %>% right_join(country_years_incl), 
+       aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  facet_wrap(~country_name, scale = "free_y") + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/foodpro_energy_use_by_country_fuel_hist_IEA_sel_12.png"), width = 35, height = 20)
+
+# filter the food and energy data
+comb_data_sel_12 <- comb_data_sel_cats %>%
+  right_join(country_years_incl) %>%
+  filter(!is.na(MKcal),
+         MKcal > 0) %>%
+  # add GTAP data
+  left_join(GTAP_proc_food_trade_prod_imports_share_prod_interp %>%
+              filter(sector_agg_detail == "FoodProduct") %>%
+              left_join(GCAM_region_names, by = c("region_GCAM" = "region")) %>%
+              dplyr::select(iso = region_GTAP, GCAM_region_ID, year, export_GTAP = export, 
+                            import_GTAP = import, production_GTAP = production, net_import_share,
+                            prod_frac_of_dom_cons)) %>%
+  mutate(prod_PKcal = PKcal * prod_frac_of_dom_cons)
+
+# plot the EJ per PKcal coefficient as a function of GDP per capita for these data
+plot_ly(comb_data_sel_12) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs per capita GDP")
+
+# plot the EJ per PKcal coefficient as a function of nonstaples fraction for these data
+plot_ly(comb_data_sel_12) %>%
+  add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  layout(xaxis = list(title = "Fraction of calories from nonstaples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+# plot the GDP per capita as a histogram
+plot_ly(comb_data_sel_12) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            type = "histogram",
+            xbins = list(size = 1)) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         title = "Per capita GDP, selected data")
+
+plot_ly(comb_data_all) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            type = "histogram",
+            xbins = list(size = 1)) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         title = "Per capita GDP, all data")
+
+# just for 2015
+plot_ly(comb_data_sel_12 %>% filter(year == 2015)) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            type = "histogram",
+            xbins = list(size = 1)) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         title = "Per capita GDP, selected data, 2015")
+
+plot_ly(comb_data_all %>% filter(year == 2015)) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            type = "histogram",
+            xbins = list(size = 1)) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         title = "Per capita GDP, all data, 2015")
+
+# plot the production fraction of domestic consumption 
+plot_ly(comb_data_sel_12) %>%
+  add_trace(x = ~year, 
+            y = ~prod_frac_of_dom_cons,
+            type = "scatter",
+            mode = "lines",
+            color = ~country_name,
+            text = ~year) %>%
+  layout(xaxis = list(title = "Year"),
+         yaxis = list(title = "Production fraction of domestic consumption"),
+         title = "Production fraction of domestic consumption")
+```
+
+Try some linear models.
+```{r, message = FALSE, warning = FALSE}
+summary(lm(energy ~ 0 + PKcal, comb_data_sel_12))
+summary(lm(energy ~ 0 + PKcal + Feed_Kt, comb_data_sel_12))
+summary(lm(energy ~ 0 + staples + nonstaples_other + nonstaples_animal, comb_data_sel_12))
+summary(lm(energy ~ 0 + staples + nonstaples_other + nonstaples_animal + log(GDP_pcap_thous2015USD_FAO), comb_data_sel_12))
+summary(lm(energy ~ 0 + staples + nonstaples_other + nonstaples_animal + Feed_Kt, comb_data_sel_12))
+summary(lm(EJ_per_PKcal ~ 0 + GDP_pcap_thous2015USD_FAO, comb_data_sel_12))
+summary(lm(EJ_per_PKcal ~ 0 + nonstaples_frac, comb_data_sel_12))
+summary(lm(EJ_per_PKcal ~ 0 + exp(nonstaples_frac), comb_data_sel_12))
+summary(lm(EJ_per_PKcal ~ 0 + GDP_pcap_thous2015USD_FAO + nonstaples_frac, comb_data_sel_12))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac, comb_data_sel_12))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac, comb_data_sel_12, weights = comb_data_sel_12$PKcal))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_12))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_12, weights = comb_data_sel_12$PKcal))
+summary(lm(EJ_per_PKcal ~ 0 + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_12, weights = comb_data_sel_12$PKcal))
+
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2) + net_import_share, comb_data_sel_12))
+summary(lm(EJ_per_PKcal ~ 0 + nonstaples_frac + net_import_share, comb_data_sel_12, weights = comb_data_sel_12$PKcal))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2) + net_import_share, comb_data_sel_12, weights = comb_data_sel_12$PKcal))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2) + prod_frac_of_dom_cons, comb_data_sel_12, weights = comb_data_sel_12$PKcal))
+summary(lm(energy ~ 0 + prod_PKcal, comb_data_sel_12))
+summary(lm(energy ~ 0 + PKcal:prod_frac_of_dom_cons, comb_data_sel_12))
+```
+
+Plotting the coefficients weighted by the consumption of calories in each region and year.
+```{r, message = FALSE, warning = FALSE}
+comb_data_sel_12_to_plot <- comb_data_sel_12 %>%
+  mutate(size_to_plot = case_when(PKcal < 0.05 ~ 0.05,
+                                  PKcal > 0.75 ~ 0.75,
+                                  TRUE ~ PKcal))
+
+
+lm_to_plot_ns_frac_sq <- lm(EJ_per_PKcal ~ 0 + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_12, weights = comb_data_sel_12$PKcal)
+lm_to_plot_ns_frac_sq_summary <- summary(lm_to_plot_ns_frac_sq)
+print(lm_to_plot_ns_frac_sq_summary)
+pval <- lm_to_plot_ns_frac_sq_summary$coef[1,4]
+Rsq <- lm_to_plot_ns_frac_sq_summary$adj.r.squared
+x_for_lin_reg_plot <- c(min(comb_data_sel_12$nonstaples_frac), max(comb_data_sel_12$nonstaples_frac))
+
+plot_ly(comb_data_sel_12_to_plot) %>%
+    add_trace(y = ~EJ_per_PKcal, 
+            x = ~nonstaples_frac,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0(year, "; PKcal = ", PKcal),
+            size = ~size_to_plot,
+            sizes = c(5, 150)) %>%
+            #marker = ~list(size = size_to_plot*50)) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot_ns_frac_sq, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              name = "Linear regression",
+            text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Nonstaples fraction"),
+         yaxis = list(title = "EJ / PKcal"),
+         title = "Food processing energy use coefficient vs nonstaples fraction")
+
+lm_to_plot_ns_frac_sq <- lm(EJ_per_PKcal ~ 0 + nonstaples_frac, comb_data_sel_12, weights = comb_data_sel_12$PKcal)
+lm_to_plot_ns_frac_sq_summary <- summary(lm_to_plot_ns_frac_sq)
+print(lm_to_plot_ns_frac_sq_summary)
+pval <- lm_to_plot_ns_frac_sq_summary$coef[1,4]
+Rsq <- lm_to_plot_ns_frac_sq_summary$adj.r.squared
+x_for_lin_reg_plot <- c(min(comb_data_sel_12$nonstaples_frac), max(comb_data_sel_12$nonstaples_frac))
+
+plot_ly(comb_data_sel_12_to_plot) %>%
+    add_trace(y = ~EJ_per_PKcal, 
+            x = ~nonstaples_frac,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~paste0(year, "; PKcal = ", PKcal),
+            size = ~size_to_plot,
+            sizes = c(5, 150)) %>%
+            #marker = ~list(size = size_to_plot*50)) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot_ns_frac_sq, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              name = "Linear regression",
+            text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Nonstaples fraction"),
+         yaxis = list(title = "EJ / PKcal"),
+         title = "Food processing energy use coefficient vs nonstaples fraction")
+
+
+ggplot(comb_data_sel_12_to_plot,
+       aes(x = nonstaples_frac, y = EJ_per_PKcal, color = country_name, size = PKcal)) + 
+  geom_point() + 
+  guides(color = "none", size = "none") +
+  geom_smooth(aes(group = 1), method = "lm", formula = y ~ 0 + x + I(x ^ 2), se = FALSE) + 
+  labs(x = "Nonstaples fraction", y = "EJ / PKcal", title = "Energy coefficient vs fraction of calories consumed from nonstaples") + 
+  theme_classic() + 
+  theme(text = element_text(size=20))
+ggsave(paste0(fig_dir, "/coef_ns_relationship_sel_12.png"), width = 12, height = 10)
+
+ggplot(comb_data_sel_12_to_plot,
+       aes(x = nonstaples_frac, y = EJ_per_PKcal, color = country_name, size = PKcal)) + 
+  geom_point() + 
+  guides(color = "none", size = "none") +
+  geom_smooth(aes(group = 1, weight = PKcal), method = "lm", formula = y ~ 0 + x + I(x ^ 2), se = FALSE) + 
+  labs(x = "Nonstaples fraction", y = "EJ / PKcal", title = "Energy coefficient vs fraction of calories consumed from nonstaples") + 
+  theme_classic() + 
+  theme(text = element_text(size=20))
+ggsave(paste0(fig_dir, "/coef_ns_relationship_sel_12_weighted.png"), width = 12, height = 10)
+
+ggplot(comb_data_sel_12_to_plot,
+       aes(x = nonstaples_frac, y = EJ_per_PKcal, color = country_name, size = PKcal)) + 
+  geom_point() + 
+  guides(color = "none", size = "none") +
+  geom_smooth(aes(group = 1, weight = PKcal), method = "lm", formula = y ~ 0 + x , se = FALSE) + 
+  labs(x = "Nonstaples fraction", y = "EJ / PKcal", title = "Energy coefficient vs fraction of calories consumed from nonstaples") + 
+  theme_classic() + 
+  theme(text = element_text(size=20))
+ggsave(paste0(fig_dir, "/coef_ns_relationship_sel_12_weighted_linear.png"), width = 12, height = 10)
+```
+
+
+GDP per capita categories: 0-2, 2-5, 5-10, 10-20, 20-40, 40-60, 60+
+
+```{r, message = FALSE, warning = FALSE}
+comb_data_sel_12_GDP_cats <- comb_data_sel_12 %>%
+  mutate(GDP_pcap_group = case_when(GDP_pcap_thous2015USD_FAO < 2 ~ "< 2",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "2-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 40 ~ "20-40",
+                                       GDP_pcap_thous2015USD_FAO < 60 ~ "40-60",
+                                       TRUE ~ ">= 60"),
+                 GDP_pcap_group = factor(GDP_pcap_group, levels = c("< 2", "2-5", "5-10", "10-20", "20-40", "40-60", ">= 60")))
+
+plot_ly(comb_data_sel_12_GDP_cats) %>%
+  add_trace(x = ~GDP_pcap_group, 
+            y = ~EJ_per_PKcal,
+            type = "box") %>%
+  layout(xaxis = list(title = "GDP category"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+# calculate the 10th percentile for each of the GDP groups
+comb_data_sel_12_GDP_cats_percs <- comb_data_sel_12_GDP_cats %>%
+  group_by(GDP_pcap_group) %>%
+  summarize(min_EJ_per_PKcal = min(EJ_per_PKcal, na.rm = TRUE),
+            perc_5_EJ_per_PKcal = quantile(EJ_per_PKcal, 0.05),
+            perc_10_EJ_per_PKcal = quantile(EJ_per_PKcal, 0.1),
+            perc_25_EJ_per_PKcal = quantile(EJ_per_PKcal, 0.25),
+            perc_50_EJ_per_PKcal = quantile(EJ_per_PKcal, 0.5),
+            num =  n())
+            # min_EJ_pcap = min(EJ_pcap, na.rm = TRUE),
+            # perc_5_EJ_pcap = quantile(EJ_pcap, 0.05, na.rm = TRUE),
+            # perc_10_EJ_pcap = quantile(EJ_pcap, 0.1, na.rm = TRUE),
+            # perc_25_EJ_pcap = quantile(EJ_pcap, 0.25, na.rm = TRUE),
+            # perc_50_EJ_pcap = quantile(EJ_pcap, 0.5, na.rm = TRUE))
+
+# expand for the GDP values for plotting
+comb_data_sel_12_GDP_cats_to_plot <- data.frame(GDP_pcap_thous2015USD_FAO = seq(0, 
+                                                                                max(comb_data_sel_12$GDP_pcap_thous2015USD_FAO, na.rm = TRUE), 
+                                                                                by = 0.05)) %>%
+  mutate(GDP_pcap_group = case_when(GDP_pcap_thous2015USD_FAO < 2 ~ "< 2",
+                                       GDP_pcap_thous2015USD_FAO < 5 ~ "2-5",
+                                       GDP_pcap_thous2015USD_FAO < 10 ~ "5-10",
+                                       GDP_pcap_thous2015USD_FAO < 20 ~ "10-20",
+                                       GDP_pcap_thous2015USD_FAO < 40 ~ "20-40",
+                                       GDP_pcap_thous2015USD_FAO < 60 ~ "40-60",
+                                       TRUE ~ ">= 60")) %>%
+  left_join(comb_data_sel_12_GDP_cats_percs)
+  
+
+# plot the percentile that will be used for each GDP category
+plot_ly(comb_data_sel_12_GDP_cats) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = comb_data_sel_12_GDP_cats_to_plot$GDP_pcap_thous2015USD_FAO,
+            y = comb_data_sel_12_GDP_cats_to_plot$perc_10_EJ_per_PKcal,
+            name = paste0(comb_data_sel_12_GDP_cats_to_plot$GDP_pcap_group, " GDP per cap, 10%tile"),
+            color = I("black"),
+            type = "scatter",
+            mode = "lines",
+            line = list(dash = "dash")) %>%
+  add_trace(x = comb_data_sel_12_GDP_cats_to_plot$GDP_pcap_thous2015USD_FAO,
+            y = comb_data_sel_12_GDP_cats_to_plot$perc_50_EJ_per_PKcal,
+            name = paste0(comb_data_sel_12_GDP_cats_to_plot$GDP_pcap_group, " GDP per cap, 50%tile"),
+            color = I("gray35"),
+            type = "scatter",
+            mode = "lines",
+            line = list(dash = "dash")) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs per capita GDP")
+
+
+# save
+write_csv(comb_data_sel_12_GDP_cats_percs, paste0(fig_dir, "/comb_data_sel_12_GDP_cats_percs.csv"))
+
+```
+
+Nonstaple fraction categories: < 0.3, 0.3-0.4, 0.4-0.5, 0.5-0.6, 0.6-0.7, 0.7+
+
+```{r, message = FALSE, warning = FALSE}
+comb_data_sel_12_ns_cats <- comb_data_sel_12 %>%
+  mutate(nonstaples_frac_group = case_when(nonstaples_frac < 0.3 ~ "< 0.3",
+                                       nonstaples_frac < 0.4 ~ "0.3-0.4",
+                                       nonstaples_frac < 0.5 ~ "0.4-0.5",
+                                       nonstaples_frac < 0.6 ~ "0.5-0.6",
+                                       nonstaples_frac < 0.7 ~ "0.6-0.7",
+                                       TRUE ~ ">= 0.7"),
+                 nonstaples_frac_group = factor(nonstaples_frac_group , levels = c("< 0.3", "0.3-0.4", "0.4-0.5", "0.5-0.6", "0.6-0.7", ">= 0.7")))
+
+plot_ly(comb_data_sel_12_ns_cats) %>%
+  add_trace(x = ~nonstaples_frac_group, 
+            y = ~EJ_per_PKcal,
+            type = "box") %>%
+  layout(xaxis = list(title = "Nonstaple fraction category"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient")
+
+# calculate the 10th percentile for each of the nonstaple fraction groups
+comb_data_sel_12_ns_cats_percs <- comb_data_sel_12_ns_cats %>%
+  group_by(nonstaples_frac_group) %>%
+  summarize(min_EJ_per_PKcal = min(EJ_per_PKcal, na.rm = TRUE),
+            perc_5_EJ_per_PKcal = quantile(EJ_per_PKcal, 0.05),
+            perc_10_EJ_per_PKcal = quantile(EJ_per_PKcal, 0.1),
+            perc_25_EJ_per_PKcal = quantile(EJ_per_PKcal, 0.25),
+            perc_50_EJ_per_PKcal = quantile(EJ_per_PKcal, 0.5),
+            num =  n())
+
+# expand for the nonstaple values for plotting
+comb_data_sel_12_ns_cats_to_plot <- data.frame(nonstaples_frac = seq(min(comb_data_sel_12$nonstaples_frac, na.rm = TRUE),
+                                                                     max(comb_data_sel_12$nonstaples_frac, na.rm = TRUE), 
+                                                                                by = 0.01)) %>%
+  mutate(nonstaples_frac_group = case_when(nonstaples_frac < 0.3 ~ "< 0.3",
+                                       nonstaples_frac < 0.4 ~ "0.3-0.4",
+                                       nonstaples_frac < 0.5 ~ "0.4-0.5",
+                                       nonstaples_frac < 0.6 ~ "0.5-0.6",
+                                       nonstaples_frac < 0.7 ~ "0.6-0.7",
+                                       TRUE ~ ">= 0.7"),
+                 nonstaples_frac_group = factor(nonstaples_frac_group , levels = c("< 0.3", "0.3-0.4", "0.4-0.5", "0.5-0.6", "0.6-0.7", ">= 0.7"))) %>%
+  left_join(comb_data_sel_12_ns_cats_percs)
+  
+
+# plot the percentile that will be used for each GDP category
+plot_ly(comb_data_sel_12_ns_cats) %>%
+  add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~country_name,
+            text = ~year) %>%
+  add_trace(x = comb_data_sel_12_ns_cats_to_plot$nonstaples_frac,
+            y = comb_data_sel_12_ns_cats_to_plot$perc_10_EJ_per_PKcal,
+            name = paste0(comb_data_sel_12_ns_cats_to_plot$nonstaples_frac_group, " nonstaples frac, 10%tile"),
+            color = I("black"),
+            type = "scatter",
+            mode = "lines",
+            line = list(dash = "dash")) %>%
+  add_trace(x = comb_data_sel_12_ns_cats_to_plot$nonstaples_frac,
+            y = comb_data_sel_12_ns_cats_to_plot$perc_50_EJ_per_PKcal,
+            name = paste0(comb_data_sel_12_ns_cats_to_plot$nonstaples_frac_group, " nonstaples frac, 50%tile"),
+            color = I("gray35"),
+            type = "scatter",
+            mode = "lines",
+            line = list(dash = "dash")) %>%
+  layout(xaxis = list(title = "Nonstaples fraction"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction of calorie consumption")
+
+
+# save
+write_csv(comb_data_sel_12_ns_cats_percs, paste0(fig_dir, "/comb_data_sel_12_nonstaples_cats_percs.csv"))
+
+```
+
+#### Aggregate to GCAM regions
+
+Note that some of the GCAM regions are incomplete - the data for each region here will only be coming from countries within that region that have good data for that year.
+
+```{r, message = FALSE, warning = FALSE}
+comb_data_sel_12_GCAM_reg <- comb_data_sel_12 %>%
+  group_by(GCAM_region_ID, year) %>%
+  summarize(energy = sum(energy),
+            PKcal = sum(PKcal),
+            Food_Kt = sum(Food_Kt),
+            Food_Kt_w_calorie = sum(Food_Kt_w_calorie),
+            GDP_total_thous2015USD_FAO = sum(GDP_pcap_thous2015USD_FAO * pop),
+            pop = sum(pop),
+            Feed_Kt = sum(Feed_Kt),
+            nonstaples_animal = sum(nonstaples_animal),
+            nonstaples_other = sum(nonstaples_other),
+            staples = sum(staples)) %>%
+  mutate(GDP_pcap_thous2015USD_FAO = GDP_total_thous2015USD_FAO / pop,
+         staples_frac = staples / PKcal,
+         nonstaples_frac = (nonstaples_animal + nonstaples_other) / PKcal,
+         EJ_per_PKcal = energy / PKcal) %>%
+  ungroup() %>%
+  left_join(GCAM_region_names) 
+
+
+summary(lm(EJ_per_PKcal ~ 0 + GDP_pcap_thous2015USD_FAO + nonstaples_frac, comb_data_sel_12_GCAM_reg))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac, comb_data_sel_12_GCAM_reg))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac, comb_data_sel_12_GCAM_reg, weights = comb_data_sel_12_GCAM_reg$PKcal))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_12_GCAM_reg))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_12_GCAM_reg, weights = comb_data_sel_12_GCAM_reg$PKcal))
+summary(lm(EJ_per_PKcal ~ 0 + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_12_GCAM_reg, weights = comb_data_sel_12_GCAM_reg$PKcal))
+
+
+comb_data_sel_12_GCAM_reg_to_plot <- comb_data_sel_12_GCAM_reg %>%
+  mutate(size_to_plot = case_when(PKcal < 0.05 ~ 0.05,
+                                  PKcal > 0.75 ~ 0.75,
+                                  TRUE ~ PKcal))
+
+
+lm_to_plot_ns_frac_sq <- lm(EJ_per_PKcal ~ 0 + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_12_GCAM_reg, weights = comb_data_sel_12_GCAM_reg$PKcal)
+lm_to_plot_ns_frac_sq_summary <- summary(lm_to_plot_ns_frac_sq)
+print(lm_to_plot_ns_frac_sq_summary)
+pval <- lm_to_plot_ns_frac_sq_summary$coef[1,4]
+Rsq <- lm_to_plot_ns_frac_sq_summary$adj.r.squared
+x_for_lin_reg_plot <- c(min(comb_data_sel_12_GCAM_reg$nonstaples_frac), max(comb_data_sel_12_GCAM_reg$nonstaples_frac))
+
+plot_ly(comb_data_sel_12_GCAM_reg_to_plot) %>%
+    add_trace(y = ~EJ_per_PKcal, 
+            x = ~nonstaples_frac,
+            type = "scatter",
+            mode = "markers",
+            color = ~region,
+            text = ~paste0(year, "; PKcal = ", PKcal),
+            size = ~size_to_plot,
+            sizes = c(5, 150)) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot_ns_frac_sq, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              name = "Linear regression",
+            text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Nonstaples fraction"),
+         yaxis = list(title = "EJ / PKcal"),
+         title = "Food processing energy use coefficient vs nonstaples fraction, GCAM regions (note aggregation is incomplete)")
+
+# plot_ly(comb_data_sel_12_GCAM_reg_to_plot) %>%
+#     add_trace(y = ~EJ_per_PKcal, 
+#             x = ~nonstaples_frac,
+#             type = "scatter",
+#             mode = "markers",
+#             color = ~region,
+#             text = ~year,
+#             marker = ~list(size = size_to_plot*50)) %>%
+#   add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+#               y = predict(lm_to_plot_ns_frac_sq, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+#               type = "scatter",
+#               mode = "lines",
+#               name = "Linear regression",
+#             text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+#   layout(xaxis = list(title = "Nonstaples fraction"),
+#          yaxis = list(title = "EJ / PKcal"),
+#          title = "Food processing energy use coefficient vs nonstaples fraction")
+```
+
+## Repeat analysis on GCAM region level
+
+Selecting regions using the same criteria for inclusion for regions - fraction in food processing is greater than 1% and fraction in non-specified is less than 50% and year is beyond 1990.
+
+```{r, message = FALSE, warning = FALSE}
+IEA_ind_sectors_GCAM_region_total_en_frac_wider <- IEA_ind_sectors_GCAM_region_total_en %>%
+  dplyr::select(-value) %>%
+  pivot_wider(names_from = FLOW, values_from = frac) %>%
+  left_join(GCAM_region_names)
+
+# get regions and years to include - only where fraction in food processing is greater than 1% and fraction in non-specified is less than 50% and year is beyond 1990
+GCAM_reg_years_incl <- IEA_ind_sectors_GCAM_region_total_en_frac_wider %>%
+  filter(year >= 1990 & INONSPEC < 0.5 & (!is.na(FOODPRO) & FOODPRO > 0.01)) %>%
+  dplyr::select(GCAM_region_ID, year) %>%
+  left_join(GCAM_region_names)
+
+ggplot(IEA_ind_sectors_GCAM_region_fuel %>% filter(FLOW == "FOODPRO") %>% right_join(GCAM_reg_years_incl), 
+       aes(x = year, y = value, fill = fuel)) +
+  geom_col() + 
+  facet_wrap(~region, scale = "free_y") + 
+  scale_fill_manual(values = pal_sel, drop = TRUE, limits = force) + 
+  labs(x = "", y = "EJ", title = "Food processing energy use (IEA)") + 
+  theme(axis.text.x = element_text(size=5)) + 
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) + 
+  theme_classic()
+ggsave(paste0(fig_dir, "/foodpro_energy_use_by_GCAM_region_fuel_hist_IEA_sel_1.png"), width = 35, height = 20)
+
+# filter the food and energy data
+comb_data_sel_cats_GCAM_reg <- comb_data_sel_cats %>%
+  group_by(GCAM_region_ID, year) %>%
+  summarize(energy = sum(energy),
+            PKcal = sum(PKcal),
+            Food_Kt = sum(Food_Kt),
+            Food_Kt_w_calorie = sum(Food_Kt_w_calorie),
+            GDP_total_thous2015USD_FAO = sum(GDP_pcap_thous2015USD_FAO * pop),
+            pop = sum(pop),
+            Feed_Kt = sum(Feed_Kt),
+            nonstaples_animal = sum(nonstaples_animal),
+            nonstaples_other = sum(nonstaples_other),
+            staples = sum(staples)) %>%
+  mutate(GDP_pcap_thous2015USD_FAO = GDP_total_thous2015USD_FAO / pop,
+         staples_frac = staples / PKcal,
+         nonstaples_frac = (nonstaples_animal + nonstaples_other) / PKcal,
+         EJ_per_PKcal = energy / PKcal) %>%
+  ungroup() %>%
+  left_join(GCAM_region_names) %>%
+  # add GTAP data
+  left_join(GTAP_proc_food_trade_prod_imports_share_prod_GCAM_reg_interp %>%
+              filter(sector_agg_detail == "FoodProduct") %>%
+              left_join(GCAM_region_names, by = c("region_GCAM" = "region")) %>%
+              dplyr::select(GCAM_region_ID, year, export_GTAP = export, 
+                            import_GTAP = import, production_GTAP = production, net_import_share,
+                            prod_frac_of_dom_cons)) %>%
+  mutate(prod_PKcal = PKcal * prod_frac_of_dom_cons)
+
+comb_data_sel_1_GCAM_regions <- comb_data_sel_cats_GCAM_reg %>%
+  right_join(GCAM_reg_years_incl) %>%
+  filter(!is.na(PKcal),
+         PKcal > 0)
+
+
+# plot the EJ per PKcal coefficient as a function of GDP per capita for these data
+plot_ly(comb_data_sel_1_GCAM_regions) %>%
+  add_trace(x = ~GDP_pcap_thous2015USD_FAO, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~region,
+            text = ~year) %>%
+  layout(xaxis = list(title = "GDP per capita (thousand $2015)"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs per capita GDP")
+
+# plot the EJ per PKcal coefficient as a function of nonstaples fraction for these data
+plot_ly(comb_data_sel_1_GCAM_regions) %>%
+  add_trace(x = ~nonstaples_frac, 
+            y = ~EJ_per_PKcal,
+            type = "scatter",
+            mode = "markers",
+            color = ~region,
+            text = ~year) %>%
+  layout(xaxis = list(title = "Fraction of calories from nonstaples"),
+         yaxis = list(title = "EJ per PKcal"),
+         title = "Food processing input output coefficient vs nonstaples fraction")
+
+# plot the energy use as a function of calorie consumption
+plot_ly(comb_data_sel_1_GCAM_regions) %>%
+  add_trace(x = ~PKcal, 
+            y = ~energy,
+            type = "scatter",
+            mode = "markers",
+            color = ~region,
+            text = ~year) %>%
+  layout(xaxis = list(title = "PKcal"),
+         yaxis = list(title = "EJ"),
+         title = "Food processing energy use vs calorie consumption")
+
+summary(lm(EJ_per_PKcal ~ 0 + GDP_pcap_thous2015USD_FAO + nonstaples_frac, comb_data_sel_1_GCAM_regions))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac, comb_data_sel_1_GCAM_regions))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac, comb_data_sel_1_GCAM_regions, weights = comb_data_sel_1_GCAM_regions$PKcal))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_1_GCAM_regions))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_1_GCAM_regions, weights = comb_data_sel_1_GCAM_regions$PKcal))
+summary(lm(EJ_per_PKcal ~ 0 + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_1_GCAM_regions, weights = comb_data_sel_1_GCAM_regions$PKcal))
+
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2) + net_import_share, comb_data_sel_1_GCAM_regions))
+summary(lm(EJ_per_PKcal ~ 0 + log(GDP_pcap_thous2015USD_FAO) + nonstaples_frac + I(nonstaples_frac ^ 2) + net_import_share, comb_data_sel_1_GCAM_regions, weights = comb_data_sel_1_GCAM_regions$PKcal))
+
+summary(lm(energy ~ 0 + PKcal, comb_data_sel_1_GCAM_regions))
+summary(lm(energy ~ 0 + staples + nonstaples_animal + nonstaples_other, comb_data_sel_1_GCAM_regions))
+summary(lm(energy ~ 0 + prod_PKcal, comb_data_sel_1_GCAM_regions))
+summary(lm(energy ~ 0 + PKcal:prod_frac_of_dom_cons, comb_data_sel_12))
+summary(lm(energy ~ 0 + PKcal + net_import_share, comb_data_sel_1_GCAM_regions))
+summary(lm(energy ~ 0 + PKcal + GDP_pcap_thous2015USD_FAO + nonstaples_frac, comb_data_sel_1_GCAM_regions))
+summary(lm(energy ~ 0 + PKcal + GDP_pcap_thous2015USD_FAO + nonstaples_frac, comb_data_sel_1_GCAM_regions))
+summary(lm(energy ~ 0 + PKcal + GDP_pcap_thous2015USD_FAO + nonstaples_frac, comb_data_sel_1_GCAM_regions,
+           weights = comb_data_sel_1_GCAM_regions$PKcal))
+
+```
+
+Plotting the coefficients weighted by the consumption of calories in each region and year.
+```{r, message = FALSE, warning = FALSE}
+comb_data_sel_1_GCAM_regions_to_plot <- comb_data_sel_1_GCAM_regions %>%
+  mutate(size_to_plot = case_when(PKcal < 0.05 ~ 0.05,
+                                  PKcal > 0.75 ~ 0.75,
+                                  TRUE ~ PKcal))
+
+
+lm_to_plot_ns_frac_sq <- lm(EJ_per_PKcal ~ 0 + nonstaples_frac + I(nonstaples_frac ^ 2), comb_data_sel_1_GCAM_regions, weights = comb_data_sel_1_GCAM_regions$PKcal)
+lm_to_plot_ns_frac_sq_summary <- summary(lm_to_plot_ns_frac_sq)
+print(lm_to_plot_ns_frac_sq_summary)
+pval <- lm_to_plot_ns_frac_sq_summary$coef[1,4]
+Rsq <- lm_to_plot_ns_frac_sq_summary$adj.r.squared
+x_for_lin_reg_plot <- c(min(comb_data_sel_1_GCAM_regions$nonstaples_frac), max(comb_data_sel_1_GCAM_regions$nonstaples_frac))
+
+plot_ly(comb_data_sel_1_GCAM_regions_to_plot) %>%
+    add_trace(y = ~EJ_per_PKcal, 
+            x = ~nonstaples_frac,
+            type = "scatter",
+            mode = "markers",
+            color = ~region,
+            text = ~paste0(year, "; PKcal = ", PKcal),
+            size = ~size_to_plot,
+            sizes = c(5, 150)) %>%
+            #marker = ~list(size = size_to_plot*50)) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot_ns_frac_sq, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              name = "Linear regression",
+            text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Nonstaples fraction"),
+         yaxis = list(title = "EJ / PKcal"),
+         title = "Food processing energy use coefficient vs nonstaples fraction")
+
+lm_to_plot_ns_frac_sq <- lm(EJ_per_PKcal ~ 0 + nonstaples_frac, comb_data_sel_1_GCAM_regions, weights = comb_data_sel_1_GCAM_regions$PKcal)
+lm_to_plot_ns_frac_sq_summary <- summary(lm_to_plot_ns_frac_sq)
+print(lm_to_plot_ns_frac_sq_summary)
+pval <- lm_to_plot_ns_frac_sq_summary$coef[1,4]
+Rsq <- lm_to_plot_ns_frac_sq_summary$adj.r.squared
+x_for_lin_reg_plot <- c(min(comb_data_sel_1_GCAM_regions$nonstaples_frac), max(comb_data_sel_1_GCAM_regions$nonstaples_frac))
+
+plot_ly(comb_data_sel_1_GCAM_regions_to_plot) %>%
+    add_trace(y = ~EJ_per_PKcal, 
+            x = ~nonstaples_frac,
+            type = "scatter",
+            mode = "markers",
+            color = ~region,
+            text = ~paste0(year, "; PKcal = ", PKcal),
+            size = ~size_to_plot,
+            sizes = c(5, 150)) %>%
+            #marker = ~list(size = size_to_plot*50)) %>%
+  add_trace(x = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10),
+              y = predict(lm_to_plot_ns_frac_sq, data.frame(nonstaples_frac = seq(from = x_for_lin_reg_plot[1], to = x_for_lin_reg_plot[2], length.out = 10))), 
+              type = "scatter",
+              mode = "lines",
+              name = "Linear regression",
+            text = paste0("R squared: ", round(Rsq, 3), ", P value: ", round(pval, 3))) %>%
+  layout(xaxis = list(title = "Nonstaples fraction"),
+         yaxis = list(title = "EJ / PKcal"),
+         title = "Food processing energy use coefficient vs nonstaples fraction")
+
+
+ggplot(comb_data_sel_1_GCAM_regions_to_plot,
+       aes(x = nonstaples_frac, y = EJ_per_PKcal, color = region, size = PKcal)) + 
+  geom_point() + 
+  guides(color = "none", size = "none") +
+  geom_smooth(aes(group = 1), method = "lm", formula = y ~ 0 + x + I(x ^ 2), se = FALSE) + 
+  labs(x = "Nonstaples fraction", y = "EJ / PKcal", title = "Energy coefficient vs fraction of calories consumed from nonstaples") + 
+  theme_classic() + 
+  theme(text = element_text(size=20))
+ggsave(paste0(fig_dir, "/coef_ns_relationship_GCAM_reg_sel_1.png"), width = 12, height = 10)
+
+ggplot(comb_data_sel_1_GCAM_regions_to_plot,
+       aes(x = nonstaples_frac, y = EJ_per_PKcal, color = region, size = PKcal)) + 
+  geom_point() + 
+  guides(color = "none", size = "none") +
+  geom_smooth(aes(group = 1, weight = PKcal), method = "lm", formula = y ~ 0 + x + I(x ^ 2), se = FALSE) + 
+  labs(x = "Nonstaples fraction", y = "EJ / PKcal", title = "Energy coefficient vs fraction of calories consumed from nonstaples") + 
+  theme_classic() + 
+  theme(text = element_text(size=20))
+ggsave(paste0(fig_dir, "/coef_ns_relationship_GCAM_reg_sel_1_weighted.png"), width = 12, height = 10)
+
+ggplot(comb_data_sel_1_GCAM_regions_to_plot,
+       aes(x = nonstaples_frac, y = EJ_per_PKcal, color = region, size = PKcal)) + 
+  geom_point() + 
+  guides(color = "none", size = "none") +
+  geom_smooth(aes(group = 1, weight = PKcal), method = "lm", formula = y ~ 0 + x , se = FALSE) + 
+  labs(x = "Nonstaples fraction", y = "EJ / PKcal", title = "Energy coefficient vs fraction of calories consumed from nonstaples") + 
+  theme_classic() + 
+  theme(text = element_text(size=20))
+ggsave(paste0(fig_dir, "/coef_ns_relationship_GCAM_reg_sel_1_weighted_linear.png"), width = 12, height = 10)
+```
+
