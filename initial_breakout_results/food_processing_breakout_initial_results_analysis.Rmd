@@ -54,7 +54,16 @@ inputs_tech <- getQuery(prj, "inputs by tech")
 costs_tech <- getQuery(prj, "costs by tech")
 costs_tech_input <- getQuery(prj, "costs by tech and input")
 food_demand_prices <- getQuery(prj, "food demand prices")
-water_withdrawals_sector <- getQuery(prj, "water withdrawals by sector")
+food_pro_prod_region <- getQuery(prj, "food processing production by region")
+food_pro_process_heat_prod_tech <- getQuery(prj, "food processing process heat production by tech")
+food_pro_inputs <- getQuery(prj, "inputs to food processing")
+food_pro_inputs_sep <- getQuery(prj, "inputs to food processing (process heat separated)")
+food_pro_prices <- getQuery(prj, "food processing prices")
+total_final_en_sector <- getQuery(prj, "total final energy by sector")
+final_en_sect_fuel <- getQuery(prj, "final energy consumption by sector and fuel")
+industry_final_en_service_fuel <- getQuery(prj, "industry final energy by service and fuel")
+industry_fuel_prices <- getQuery(prj, "fuel prices to industry")
+
 
 # get color palettes
 pal_sel <- jgcricol()$pal_all
@@ -126,6 +135,27 @@ food_pro_costs_tech <- costs_tech %>%
 food_pro_costs_tech_input <- costs_tech_input %>%
   filter(grepl("food processing", sector))
 
+# edit some inputs
+food_pro_inputs_edit <- food_pro_inputs %>%
+   mutate(input_edit = case_when(input == "elect_td_ind" ~ "electricity",
+                                input == "refined liquids industrial" ~ "refined liquids",
+                                input == "delivered biomass" ~ "biomass",
+                                input == "delivered coal" ~ "coal",
+                                input == "wholesale gas" ~ "gas",
+                                input == "global solar resource" ~ "solar",
+                                TRUE ~ input))
+
+food_pro_energy_inputs_edit <- food_pro_inputs_edit %>%
+  filter(!grepl("water", input))
+
+food_pro_inputs_sep_edit <- food_pro_inputs_sep %>%
+   mutate(input_edit = case_when(input == "elect_td_ind" ~ "electricity",
+                                input == "refined liquids industrial" ~ "refined liquids",
+                                input == "delivered biomass" ~ "biomass",
+                                input == "delivered coal" ~ "coal",
+                                input == "wholesale gas" ~ "gas",
+                                input == "global solar resource" ~ "solar",
+                                TRUE ~ input))
 
 ggplot(food_pro_shrwts_subsector %>% filter(scenario == scenario_sel),
        aes(x = year, y = value, color = subsector)) +
@@ -160,6 +190,8 @@ ggplot(food_pro_primary_output %>% filter(scenario == scenario_sel),
         strip.background = element_blank(),
         legend.position = "bottom")
 ggsave(paste0(fig_dir, "/food_pro_primary_output_sector_", scenario_sel_save_name, ".png"), width = 20, height = 15)
+
+# could also use food_pro_prod_region for just calories output from food processing now, and food_pro_process_heat_prod_tech for just process heat output
 
 # plot fuel use
 ggplot(food_pro_final_en_tech_fuel_edit %>% filter(scenario == scenario_sel),
@@ -260,6 +292,7 @@ plot_ly(food_demand_total_food_pro_total_output %>% filter(scenario == scenario_
 # get all inputs, both inputs for process heat and inputs to overall food processing (excluding process heat as an input)
 food_pro_energy_inputs_tech_edit_sel <- food_pro_energy_inputs_tech_edit %>%
   filter(input_edit != "process heat food processing")
+# could also use food_pro_energy_inputs_edit for this now!
 
 # get total primary energy input
 food_pro_total_primary_en <- food_pro_energy_inputs_tech_edit_sel %>%
