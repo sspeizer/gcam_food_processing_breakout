@@ -7,7 +7,7 @@
                         <xPath buildList="true" dataName="Price" group="false" sumAll="false">*[@type='sector' and (@name='industry' or (exists(child::keyword[@final-energy='industry'])))]/
                *[@type='subsector']/share-weight/text()</xPath>
                         <comments/>
-          </supplyDemandQuery>
+                    </supplyDemandQuery>
     </aQuery>
 	<aQuery>
         <all-regions/>
@@ -27,7 +27,7 @@
                         <xPath buildList="true" dataName="output" group="false" sumAll="false">*[@type='sector' and (@name='industry' or (exists(child::keyword[@final-energy='industry'])))]//
                output-primary/physical-output/node()</xPath>
                         <comments/>
-         </supplyDemandQuery>
+                    </supplyDemandQuery>
     </aQuery>
 	<aQuery>
         <all-regions/>
@@ -38,9 +38,14 @@
                *[@type='subsector']/*[@type='technology']/
                *[@type='input' and (@name='delivered biomass' or @name='delivered coal' or @name='district heat' or
                @name='H2 wholesale delivery' or @name='H2 wholesale dispensing' or @name='H2 industrial' or
-               @name='elect_td_ind' or @name='wholesale gas' or
+               @name='elect_td_ind' or @name='wholesale gas' or @name='regional woodpulp for energy' or
                @name='refined liquids industrial' or @name='global solar resource')]/demand-physical/node()</xPath>
-                        <comments/>
+                        <comments>paper technology direct input assigned to electricity</comments>
+                        <labelRewriteList append-values="false">
+                            <level name="technology">
+                                <rewrite from="paper" to="electricity"/>
+                            </level>
+                        </labelRewriteList>
                     </supplyDemandQuery>
     </aQuery>
 	<aQuery>
@@ -51,13 +56,15 @@
                         <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and (@name='industry' or (exists(child::keyword[@final-energy='industry'])))]//
                *[@type='input' and (@name='delivered biomass' or @name='delivered coal' or @name='district heat' or
                @name='H2 wholesale delivery' or @name='H2 wholesale dispensing' or @name='H2 industrial' or
-               @name='elect_td_ind' or @name='wholesale gas' or
+               @name='elect_td_ind' or @name='wholesale gas' or @name='regional woodpulp for energy' or
                @name='refined liquids industrial' or @name='global solar resource')]/demand-physical/node()</xPath>
-                        <comments>process heat cement assigned to cement, process heat food processing assigned to food processing</comments>
+                        <comments>process heat cement assigned to cement, process heat food processing assigned to food processing, process heat paper assigned to paper</comments>
                         <labelRewriteList append-values="false">
                             <level name="sector">
                                 <rewrite from="process heat cement" to="cement"/>
-								<rewrite from="process heat food processing" to="food processing"/>
+				<rewrite from="process heat food processing" to="food processing"/>
+                                <rewrite from="process heat paper" to="paper"/>
+                                <rewrite from="waste biomass for paper" to="paper"/>
                             </level>
                         </labelRewriteList>
                     </supplyDemandQuery>
@@ -70,7 +77,7 @@
                         <xPath buildList="true" dataName="output" group="false" sumAll="false">*[@type='sector']//*[@type='technology']/secondary-output[@name='electricity' and @type='output']/
                physical-output/node()</xPath>
                         <comments/>
-         </supplyDemandQuery>
+                    </supplyDemandQuery>
     </aQuery>
 	<aQuery>
         <all-regions/>
@@ -79,7 +86,7 @@
                         <axis2 name="Year">demand-physical[@vintage]</axis2>
                         <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector']//*[@type='input' and contains(@name,'water_td_ind')]/demand-physical/node()</xPath>
                         <comments/>
-         </supplyDemandQuery>
+                    </supplyDemandQuery>
     </aQuery>
 	<aQuery>
         <all-regions/>
@@ -90,7 +97,7 @@
                @name='delivered biomass' or @name='H2 industrial' or @name='elect_td_ind' or
                @name='refined liquids industrial' or @name='global solar resource')]/cost/text()</xPath>
                         <comments/>
-         </supplyDemandQuery>
+                    </supplyDemandQuery>
     </aQuery>
 	<aQuery>
         <all-regions/>
@@ -111,7 +118,7 @@
                 <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector']//*[@type='input' and
             (@name='regional corn' or @name='regional fibercrop' or @name='regional fruits' or @name='regional legumes'
                or @name='regional misccrop' or @name='regional nuts_seeds' or @name='regional oilcrop' or @name='regional othergrain'
-               or @name='regional palmfruit' or @name='regional rice' or @name='regional root_tuber'
+               or @name='regional oilpalm' or @name='regional rice' or @name='regional root_tuber'
                or @name='regional soybean' or @name='regional sugarcrop' or @name='regional vegetables' or @name='regional wheat'
                or @name='FodderGrass' or @name='FodderHerb' or @name='Forest' or @name='Pasture')]/
                demand-physical/node()</xPath>
@@ -124,7 +131,7 @@
                 <axis1 name="sector">sector</axis1>
                 <axis2 name="Year">demand-physical[@vintage]</axis2>
                 <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector']//*[@type='input' and
-            (@name='Beef' or @name='Pork' or @name='Poultry' or @name='SheepGoat' or @name='OtherMeat_Fish')]/
+            (@name='regional beef' or @name='regional dairy' or @name='regional pork' or @name='regional poultry' or @name='regional sheepgoat' or @name='OtherMeat_Fish')]/
             demand-physical/node()</xPath>
                 <comments/>
             </supplyDemandQuery>
@@ -145,16 +152,16 @@
                 <axis2 name="Year">demand-physical[@vintage]</axis2>
                 <xPath buildList="true" dataName="demand" group="false" sumAll="false">gcam-consumer[@name='FoodDemand']//*[@type='input']/demand-physical/node()</xPath>
                 <comments/>
-          </supplyDemandQuery>
+            </supplyDemandQuery>
     </aQuery>
 	<aQuery>
         <all-regions/>
-        <supplyDemandQuery title="ag regional prices">
-    			<axis1 name="sector">sector</axis1>
-    			<axis2 name="Year">cost</axis2>
-    			<xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and contains(@name, 'regional')]/cost[@unit='1975$/kg' or @unit='1975$/m3']/text()</xPath>
-    			<comments/>
-		</supplyDemandQuery>
+        <supplyDemandQuery title="ag regional prices (weighted average b/t domestic and imported prices)">
+                <axis1 name="sector">sector</axis1>
+                <axis2 name="Year">cost</axis2>
+                <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and contains(@name, 'regional')]/cost[@unit='1975$/kg' or @unit='1975$/m3']/text()</xPath>
+                <comments/>
+            </supplyDemandQuery>
     </aQuery>
 	<aQuery>
         <all-regions/>
@@ -286,6 +293,7 @@
             <PrimaryFuelCO2Coef name="regional natural gas">14.2</PrimaryFuelCO2Coef>,
             <PrimaryFuelCO2Coef name="regional oil">19.6</PrimaryFuelCO2Coef>,
             <PrimaryFuelCO2Coef name="regional sugar for ethanol">19.6</PrimaryFuelCO2Coef>,
+            <PrimaryFuelCO2Coef name="regional woodpulp for energy">23</PrimaryFuelCO2Coef>,
             <PrimaryFuelCO2Coef name="traded unconventional oil">19.6</PrimaryFuelCO2Coef>,
             <PrimaryFuelCO2Coef name="unconventional oil">21.1</PrimaryFuelCO2Coef>,
             <PrimaryFuelCO2Coef name="unconventional oil production">19.6</PrimaryFuelCO2Coef>,
@@ -400,8 +408,8 @@
             $region in $regionsG 	
             let $scenario_split := tokenize($scenario, ' '), 	    
             $currTree := collection($collection)/scenario[@name = $scenario_split[1] and @date = $scenario_split[2]]/world/*[@type='region' and @name=$region],
-            $sector_emiss := $currTree/*[@type='sector' and not(@name='regional biomass' or @name='regional biomassOil' or @name='regional corn for ethanol' or @name='regional sugar for ethanol' or @name='regional sugarbeet for ethanol')]//CO2[@type='GHG' (:collapse:) and @name='CO2']/emissions/text(),
-            $currEmissSectors := $currTree/*[@type='sector' and (@name='regional biomass' or @name='regional biomassOil' or @name='regional corn for ethanol' or @name='regional sugar for ethanol' or @name='regional sugarbeet for ethanol')],
+            $sector_emiss := $currTree/*[@type='sector' and not(@name='regional biomass' or @name='regional biomassOil' or @name='regional corn for ethanol' or @name='regional sugar for ethanol' or @name='regional sugarbeet for ethanol' or @name='regional woodpulp for energy')]//CO2[@type='GHG' (:collapse:) and @name='CO2']/emissions/text(),
+            $currEmissSectors := $currTree/*[@type='sector' and (@name='regional biomass' or @name='regional biomassOil' or @name='regional corn for ethanol' or @name='regional sugar for ethanol' or @name='regional sugarbeet for ethanol' or @name='regional woodpulp for energy')],
             $coefs := local:generate-sector-output-coefs(distinct-values($currEmissSectors/@name), $currTree, (), false()),
             $downstream_emiss := for $sectorName in distinct-values($currEmissSectors/@name)
             return local:append-heirarchy($currTree, local:apply-coefs($sectorName, $currEmissSectors[@name=$sectorName]//CO2[@name='CO2']/emissions, $coefs))//text() 
@@ -443,7 +451,7 @@
     </aQuery>
 	<aQuery>
         <all-regions/>
-        <emissionsQueryBuilder title="CO2 emissions by resource production">
+        <emissionsQueryBuilder title="CO2 emissions by resource production ">
                 <axis1 name="GHG">GHG</axis1>
                 <axis2 name="Year">emissions</axis2>
                 <xPath buildList="true" dataName="emissions" group="false" sumAll="false">*[@type = 'resource']//*[@type = 'GHG' and (@name = "CO2" or @name = "CO2_FUG")]/emissions/node()</xPath>
@@ -525,6 +533,16 @@
     </aQuery>
 	<aQuery>
         <all-regions/>
+        <emissionsQueryBuilder title="other industry nonCO2 emissions by tech (excluding resource production)">
+                <axis1 name="GHG">GHG</axis1>
+                <axis2 name="Year">emissions</axis2>
+                <xPath buildList="true" dataName="emissions" group="false" sumAll="false">*[@type = 'sector' and (@name='other industrial energy use' or @name='other industrial feedstocks')]/*[@type = 'subsector']/*[@type = 'technology']/
+            *[@type = 'GHG' and @name != 'CO2' and @name != 'CO2_FUG']/emissions/node()</xPath>
+                <comments/>
+            </emissionsQueryBuilder>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
         <supplyDemandQuery title="food processing production by region">
                         <axis1 name="sector">sector</axis1>
                         <axis2 name="Year">physical-output[@vintage]</axis2>
@@ -585,7 +603,7 @@
                     <axis2 name="Year">demand-physical[@vintage]</axis2>
                     <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and ((@name='building' or @name='industry' or @name='transportation') or
             (exists(child::keyword/@final-energy)))]//*[@type='input' (:collapse:) and
-            not(@name='limestone' or @name='process heat cement' or @name='process heat food processing' or @name='industrial energy use' or
+            not(@name='limestone' or @name='process heat cement' or @name='process heat food processing' or @name='industrial energy use' or @name='process heat paper' or @name='waste biomass for paper' or 
                 @name='industrial feedstocks' or @name='renewable' or contains(@name, 'trn_') or @name='oil-credits')]/
             demand-physical[@unit='EJ']/node()</xPath>
                     <comments/>
@@ -598,7 +616,7 @@
                     <axis2 name="Year">demand-physical[@vintage]</axis2>
                     <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and ((@name='building' or @name='industry' or @name='transportation') or
             (exists(child::keyword/@final-energy)))]//*[@type='input' and
-            not(@name='limestone' or @name='process heat cement' or @name='process heat food processing' or @name='industrial energy use' or
+            not(@name='limestone' or @name='process heat cement' or @name='process heat food processing' or @name='industrial energy use' or @name='process heat paper' or @name='waste biomass for paper' or 
                 @name='industrial feedstocks' or @name='renewable' or contains(@name, 'trn_') or @name='oil-credits')]/
             demand-physical[@unit='EJ']/node()</xPath>
                     <comments/>
@@ -620,7 +638,8 @@
                             <rewrite from="delivered biomass" to="biomass"/>
                             <rewrite from="refined liquids industrial" to="refined liquids"/>
                             <rewrite from="H2 wholesale delivery" to="hydrogen"/>
-							<rewrite from="global solar resource" to="solar"/>
+			    <rewrite from="global solar resource" to="solar"/>
+			    <rewrite from="regional woodpulp for energy" to="biomass"/>
                         </level>
                     </labelRewriteList>
                 </supplyDemandQuery>
@@ -732,5 +751,32 @@
                     </level>
                 </labelRewriteList>
             </supplyDemandQuery>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <gdpQueryBuilder title="GDP MER by region">
+            <axis1 name="region">region</axis1>
+            <axis2 name="Year">nationalAccount[@year]</axis2>
+            <xPath buildList="true" dataName="gdp-mer" group="false" sumAll="false">nationalAccount/account[@name = 'GDP']/node()</xPath>
+            <comments/>
+        </gdpQueryBuilder>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <query title="National Account">
+            <axis1 name="Account">account[@name]</axis1>
+            <axis2 name="Year">nationalAccount[@year]</axis2>
+            <xPath buildList="true" dataName="all accounts" group="false" sumAll="false">nationalAccount/account/node()</xPath>
+            <comments/>
+        </query>
+    </aQuery>
+	<aQuery>
+        <all-regions/>
+        <marketQuery title="prices of all markets">
+                <axis1 name="market">market</axis1>
+                <axis2 name="Year">market</axis2>
+                <xPath buildList="true" dataName="price" group="false" sumAll="false">Marketplace/market[true()]/price/node()</xPath>
+                <comments/>
+            </marketQuery>
     </aQuery>
 </queries>

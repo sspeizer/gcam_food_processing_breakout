@@ -13,7 +13,8 @@ mining energy use,mining energy use
 N fertilizer,N fertilizer
 other industrial energy use,other industry
 other industrial feedstocks,other industry
-paper and paperboard,paper
+paper,paper
 process heat cement,cement
 process heat food processing,food processing
-process heat paper and paperboard,paper
+process heat paper,paper
+waste biomass for paper,paper
