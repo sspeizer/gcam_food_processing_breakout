@@ -1,4 +1,4 @@
-# Script to esimate the non-energy costs for the overall food processing sector.
+# Script to estimate the non-energy costs for the overall food processing sector.
 # Obtains the current energy costs from electricity and process heat food processing
 # (which incorporates already the non-energy costs for the technologies within process heat food processing)
 # and calculates the difference in those costs from the total food processing sector costs, excluding 
@@ -50,13 +50,6 @@ food_pro_costs_overall_excl_overall_nonenergy_total <- food_pro_costs_overall_ex
   mutate(energy_cost_total_1975USD = Pcal * Pcal_to_Mcal * energy_cost, # convert Pcal to Mcal
          energy_cost_total_bil_2015USD = energy_cost_total_1975USD * gcamdata::gdp_deflator(2015, 1975) * to_bil) # convert to billion 2015$
 
-# # obtain global sum of current total food processing costs
-# food_pro_costs_overall_excl_overall_nonenergy_total_global <- food_pro_costs_overall_excl_overall_nonenergy_total %>%
-#   group_by(scenario, year) %>%
-#   summarize(energy_cost_total_bil_2015USD = sum(energy_cost_total_bil_2015USD),
-#             Pcal = sum(Pcal)) %>%
-#   ungroup()
-
 # Aggregate GTAP costs ----------------------
 # aggregate to summarized cost types
 CostShare_FoodProcessing_GTAP_agg <- CostShare_FoodProcessing_GTAP %>%
@@ -87,13 +80,6 @@ FoodProcessing_GTAP_total_costs_sel <- FoodProcessing_GTAP_total_costs_excl_food
   left_join(FoodProcessing_GTAP_total_costs_cap_en_labor %>%
               rename(cap_en_labor_cost_bil = cost_bil))
 
-# # get global total
-# FoodProcessing_GTAP_total_costs_sel_global <- FoodProcessing_GTAP_total_costs_sel %>%
-#   group_by(year, output) %>%
-#   summarize(all_non_food_input_cost_bil = sum(all_non_food_input_cost_bil),
-#             cap_en_labor_cost_bil = sum(cap_en_labor_cost_bil)) %>%
-#   ungroup()
-
 # Compare current food processing costs to GTAP totals ---------------------
 # we will just compare 2015 in GCAM to 2014 in GTAP, for a rough estimate
 comp_costs <- food_pro_costs_overall_excl_overall_nonenergy_total %>%
@@ -117,18 +103,3 @@ comp_costs_global <- comp_costs %>%
             Pcal = sum(Pcal)) %>%
   mutate(dif_all_non_food_input_cost_1975USD_per_Mcal = dif_all_non_food_input_cost_1975USD / (Pcal * Pcal_to_Mcal),
          dif_cap_en_labor_cost_1975USD_per_Mcal = dif_cap_en_labor_cost_1975_USD / (Pcal * Pcal_to_Mcal))
-
-
-# 
-# comp_costs_global <- food_pro_costs_overall_excl_overall_nonenergy_total_global %>% 
-#   filter(year == 2015) %>%
-#   left_join(FoodProcessing_GTAP_total_costs_sel_global %>%
-#               # just want 2014 and the overall FoodProduct output
-#               filter(year == 2014 & output == "FoodProduct") %>% 
-#               mutate(year = 2015) %>%
-#               dplyr::select(year, all_non_food_input_cost_bil, cap_en_labor_cost_bil)) %>%
-#   mutate(dif_all_non_food_input_cost_bil = all_non_food_input_cost_bil - energy_cost_total_bil_2015USD,
-#          dif_cap_en_labor_cost_bil = cap_en_labor_cost_bil - energy_cost_total_bil_2015USD,
-#          dif_all_non_food_input_cost_1975USD_per_Mcal = dif_all_non_food_input_cost_bil * gcamdata::gdp_deflator(1975, 2015) / (to_bil * Pcal * Pcal_to_Mcal),
-#          dif_cap_en_labor_cost_1975USD_per_Mcal = dif_cap_en_labor_cost_bil * gcamdata::gdp_deflator(1975, 2015) / (to_bil * Pcal * Pcal_to_Mcal))
-
