@@ -28,9 +28,9 @@ library(Polychrome)
 library(rgcam)
 
 # set directories and variables
-database_name <- "database_basexdb_8-3-23"
-run_dir <- "C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_run_8-3-23"
-run_name <- "food_processing_run_8-3-23"
+database_name <- "database_basexdb_8-7-23"
+run_dir <- "C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_run_8-7-23"
+run_name <- "food_processing_run_8-7-23"
 fig_dir <- paste0(run_dir, "/figures")
 if (!dir.exists(fig_dir)) {dir.create(fig_dir)}
 setwd(run_dir)
@@ -921,30 +921,52 @@ ag_regional_total_costs_food_agg <- ag_regional_total_costs_food %>%
             total_cost_bil_2015USD = sum(total_cost_bil_2015USD)) %>%
   ungroup()
 
-# calculate food processing energy use costs
-# subtract out the assumed non-energy cost to get the energy-related costs for the overall food processing sector
-food_pro_costs_overall_excl_overall_nonenergy <- food_pro_costs_tech %>%
+# OLD CODE - from before when the global non-energy costs for the overall food processing sector had been estimated
+# # calculate food processing energy use costs
+# # subtract out the assumed non-energy cost to get the energy-related costs for the overall food processing sector
+# food_pro_costs_overall_excl_overall_nonenergy <- food_pro_costs_tech %>%
+#   filter(sector == "food processing") %>%
+#   left_join(food_pro_costs_tech_input %>%
+#               filter(sector == "food processing" & input == "non-energy") %>%
+#               dplyr::select(scenario, region, sector, subsector, technology, year, Units, non_energy_cost = value)) %>%
+#   mutate(remaining = value - non_energy_cost) %>%
+#   left_join(food_demand_total %>%
+#               ungroup() %>%
+#               dplyr::select(scenario, region, year, Pcal = value)) %>%
+#   mutate(remaining_total_1975USD = Pcal * 10^9 * remaining, # convert Pcal to Mcal
+#          remaining_total_bil_1975USD = remaining_total_1975USD / (10^9),
+#          remaining_total_bil_2015USD = remaining_total_bil_1975USD * gcamdata::gdp_deflator(2015, 1975))
+# 
+# # add food processing costs to food prices
+# food_prices_processing_costs <- food_prices_total %>%
+#   dplyr::select(scenario, region, year, food_cost_bil_2015USD = total_cost_bil_2015USD) %>%
+#   left_join(ag_regional_total_costs_food_agg %>% 
+#               dplyr::select(scenario, region, year, food_cost_bil_2015USD_from_ag = total_cost_bil_2015USD)) %>%
+#   left_join(food_pro_costs_overall_excl_overall_nonenergy %>%
+#               dplyr::select(scenario, region, year, energy_costs_bil_2015USD = remaining_total_bil_2015USD)) %>%
+#   mutate(total_cost_bil_2015USD = food_cost_bil_2015USD + energy_costs_bil_2015USD,
+#          total_cost_bil_2015USD2 = food_cost_bil_2015USD_from_ag + energy_costs_bil_2015USD)
+
+
+# get total food processing overall costs
+food_pro_costs_overall <- food_pro_costs_tech %>%
   filter(sector == "food processing") %>%
-  left_join(food_pro_costs_tech_input %>%
-              filter(sector == "food processing" & input == "non-energy") %>%
-              dplyr::select(scenario, region, sector, subsector, technology, year, Units, non_energy_cost = value)) %>%
-  mutate(remaining = value - non_energy_cost) %>%
   left_join(food_demand_total %>%
               ungroup() %>%
               dplyr::select(scenario, region, year, Pcal = value)) %>%
-  mutate(remaining_total_1975USD = Pcal * 10^9 * remaining, # convert Pcal to Mcal
-         remaining_total_bil_1975USD = remaining_total_1975USD / (10^9),
-         remaining_total_bil_2015USD = remaining_total_bil_1975USD * gcamdata::gdp_deflator(2015, 1975))
+  mutate(total_bil_1975USD = Pcal * 10^9 * value / (10^9), # convert Pcal to Mcal
+         total_bil_2015USD = total_bil_1975USD * gcamdata::gdp_deflator(2015, 1975))
 
-# add food processing costs to food prices
-food_prices_processing_costs <- food_prices_total %>%
-  dplyr::select(scenario, region, year, food_cost_bil_2015USD = total_cost_bil_2015USD) %>%
-  left_join(ag_regional_total_costs_food_agg %>% 
-              dplyr::select(scenario, region, year, food_cost_bil_2015USD_from_ag = total_cost_bil_2015USD)) %>%
-  left_join(food_pro_costs_overall_excl_overall_nonenergy %>%
-              dplyr::select(scenario, region, year, energy_costs_bil_2015USD = remaining_total_bil_2015USD)) %>%
-  mutate(total_cost_bil_2015USD = food_cost_bil_2015USD + energy_costs_bil_2015USD,
-         total_cost_bil_2015USD2 = food_cost_bil_2015USD_from_ag + energy_costs_bil_2015USD)
+# plot
+ggplot(food_pro_costs_overall %>% filter(year >= 2005),
+       aes(x = year, y = value)) + 
+  geom_line(size = 1) + 
+  facet_wrap(~region, nrow = 4) + 
+  labs(x = "", y = "1975$/Mcal", title = paste0("Food processing costs, ", scenario_sel_plot_name)) + 
+  theme_bw() + 
+  theme(text=element_text(size=22),
+        strip.background = element_blank())
+ggsave(paste0(fig_dir, "/food_pro_overall_costs_", scenario_sel_save_name, ".png"), width = 25, height = 20)
 
 # get GTAP costs data
 # calculate shares
@@ -969,27 +991,91 @@ CostShare_FoodProcessing_GTAP_agg_cap_en_labor <- CostShare_FoodProcessing_GTAP_
   summarize(cost_bil = sum(cost_bil)) %>%
   ungroup()
 
-# calculate the difference between the current energy costs for food processing and the total capital, energy, labor costs from GTAP for 2014/2015
-costs_comp_GCAM_GTAP <- food_prices_processing_costs %>%
+# get total costs excluding PrimaryAg and Proc_Food
+FoodProcessing_GTAP_total_costs_excl_food_inputs <- CostShare_FoodProcessing_GTAP_agg %>%
+  filter(input_AGG != "PrimaryAg" & input_AGG != "Proc_Food") %>%
+  group_by(year, output, region_GCAM) %>%
+  summarize(cost_bil = sum(cost_bil)) %>%
+  ungroup()
+
+# get total costs separating out food and non-food inputs
+FoodProcessing_GTAP_total_costs_sep_food_inputs <- CostShare_FoodProcessing_GTAP_agg %>%
+  mutate(cost_type = if_else(input_AGG %in% c("PrimaryAg", "Proc_Food"), "food_GTAP_bil", "food_pro_GTAP_bil")) %>%
+  group_by(year, output, region_GCAM, cost_type) %>%
+  summarize(cost_bil = sum(cost_bil)) %>%
+  ungroup() %>%
+  pivot_wider(names_from = cost_type, values_from = cost_bil)
+
+# # calculate the difference between the current energy costs for food processing and the total capital, energy, labor costs from GTAP for 2014/2015
+# costs_comp_GCAM_GTAP <- food_prices_processing_costs %>%
+#   filter(year == 2015) %>%
+#   left_join(CostShare_FoodProcessing_GTAP_agg_cap_en_labor %>%
+#               filter(year == 2014 & output == "FoodProduct") %>%
+#               dplyr::select(region = region_GCAM, cost_bil_GTAP_cap_en_labor = cost_bil)) %>%
+#   left_join(CostShare_FoodProcessing_GTAP_agg %>%
+#               filter(year == 2014 & output == "FoodProduct" & input_AGG == "PrimaryAg") %>%
+#               dplyr::select(region = region_GCAM, cost_bil_GTAP_primaryag = cost_bil)) %>%
+#   mutate(dif_cost_bil_cap_en_labor = cost_bil_GTAP_cap_en_labor - energy_costs_bil_2015USD,
+#          perc_dif_cost_bil_cap_en_labor = dif_cost_bil_cap_en_labor*100 / cost_bil_GTAP_cap_en_labor,
+#          scale_cost_bil = cost_bil_GTAP_cap_en_labor / energy_costs_bil_2015USD,
+#          dif_cost_bil_food = cost_bil_GTAP_primaryag - food_cost_bil_2015USD_from_ag,
+#          perc_dif_cost_bil_food = dif_cost_bil_food*100 / cost_bil_GTAP_primaryag) %>%
+#   left_join(food_demand_total %>%
+#               ungroup() %>%
+#               filter(year == 2015) %>%
+#               dplyr::select(scenario, region, Pcal = value)) %>%
+#   mutate(energy_costs_bil_2015USD_per_Pcal = energy_costs_bil_2015USD / Pcal,
+#          cost_bil_GTAP_cap_en_labor_per_Pcal = cost_bil_GTAP_cap_en_labor / Pcal,
+#          dif_cost_bil_cap_en_labor_per_Pcal = dif_cost_bil_cap_en_labor / Pcal)
+
+# compare the costs to GTAP data (note that total costs should match on a global level but will differ regionally since the non-energy cost value used in GCAM was calculated globally)
+costs_comp_GCAM_GTAP <- food_pro_costs_overall %>%
   filter(year == 2015) %>%
-  left_join(CostShare_FoodProcessing_GTAP_agg_cap_en_labor %>%
-              filter(year == 2014 & output == "FoodProduct") %>%
-              dplyr::select(region = region_GCAM, cost_bil_GTAP_cap_en_labor = cost_bil)) %>%
-  left_join(CostShare_FoodProcessing_GTAP_agg %>%
-              filter(year == 2014 & output == "FoodProduct" & input_AGG == "PrimaryAg") %>%
-              dplyr::select(region = region_GCAM, cost_bil_GTAP_primaryag = cost_bil)) %>%
-  mutate(dif_cost_bil_cap_en_labor = cost_bil_GTAP_cap_en_labor - energy_costs_bil_2015USD,
-         perc_dif_cost_bil_cap_en_labor = dif_cost_bil_cap_en_labor*100 / cost_bil_GTAP_cap_en_labor,
-         scale_cost_bil = cost_bil_GTAP_cap_en_labor / energy_costs_bil_2015USD,
-         dif_cost_bil_food = cost_bil_GTAP_primaryag - food_cost_bil_2015USD_from_ag,
-         perc_dif_cost_bil_food = dif_cost_bil_food*100 / cost_bil_GTAP_primaryag) %>%
-  left_join(food_demand_total %>%
-              ungroup() %>%
+  dplyr::select(scenario, region, Pcal, food_pro_cost_bil_2015USD = total_bil_2015USD) %>%
+  left_join(ag_regional_total_costs_food_agg %>%
               filter(year == 2015) %>%
-              dplyr::select(scenario, region, Pcal = value)) %>%
-  mutate(energy_costs_bil_2015USD_per_Pcal = energy_costs_bil_2015USD / Pcal,
-         cost_bil_GTAP_cap_en_labor_per_Pcal = cost_bil_GTAP_cap_en_labor / Pcal,
-         dif_cost_bil_cap_en_labor_per_Pcal = dif_cost_bil_cap_en_labor / Pcal)
+              dplyr::select(scenario, region, food_cost_bil_2015USD = total_cost_bil_2015USD)) %>%
+  left_join(FoodProcessing_GTAP_total_costs_sep_food_inputs %>%
+              filter(output == "FoodProduct" & year == 2014) %>%
+              dplyr::select(region = region_GCAM, food_GTAP_bil, food_pro_GTAP_bil)) %>%
+  mutate(perc_dif_food_pro_costs = (food_pro_cost_bil_2015USD - food_pro_GTAP_bil) * 100 / food_pro_GTAP_bil,
+         perc_dif_food_costs = (food_cost_bil_2015USD - food_GTAP_bil) * 100 / food_GTAP_bil)
+
+# check global sums
+costs_comp_GCAM_GTAP_global <- costs_comp_GCAM_GTAP %>%
+  summarize(Pcal = sum(Pcal),
+            food_pro_cost_bil_2015USD = sum(food_pro_cost_bil_2015USD),
+            food_cost_bil_2015USD = sum(food_cost_bil_2015USD),
+            food_GTAP_bil = sum(food_GTAP_bil),
+            food_pro_GTAP_bil = sum(food_pro_GTAP_bil))
+
+# plot
+ggplot(costs_comp_GCAM_GTAP %>%
+         dplyr::select(region, food_pro_GCAM = food_pro_cost_bil_2015USD, food_GCAM = food_cost_bil_2015USD,
+                       food_GTAP = food_GTAP_bil, food_pro_GTAP = food_pro_GTAP_bil) %>% 
+         pivot_longer(-region, names_to = "cost_type", values_to = "value"),
+       aes(x = region, y = value, fill = cost_type)) + 
+  geom_col(position = "dodge") + 
+  scale_fill_manual(values = c("darkblue", "darkgreen", "royalblue", "mediumseagreen")) + 
+  labs(x = "", y = "Billion 2015 USD", title = paste0("Food processing and food costs, 2015/2014, ", scenario_sel_plot_name)) + 
+  theme_bw() + 
+  theme(text=element_text(size=22),
+        strip.background = element_blank(),
+        axis.text.x = element_text(angle=75, vjust = 1, hjust = 1))
+ggsave(paste0(fig_dir, "/food_pro_food_costs_comp_", scenario_sel_save_name, ".png"), width = 15, height = 8)
+
+ggplot(costs_comp_GCAM_GTAP %>%
+         dplyr::select(region, food_pro_GCAM = food_pro_cost_bil_2015USD, food_pro_GTAP = food_pro_GTAP_bil) %>% 
+         pivot_longer(-region, names_to = "cost_type", values_to = "value"),
+       aes(x = region, y = value, fill = cost_type)) + 
+  geom_col(position = "dodge") + 
+  scale_fill_manual(values = c("royalblue", "mediumseagreen")) + 
+  labs(x = "", y = "Billion 2015 USD", title = paste0("Food processing and food costs, 2015/2014, ", scenario_sel_plot_name)) + 
+  theme_bw() + 
+  theme(text=element_text(size=22),
+        strip.background = element_blank(),
+        axis.text.x = element_text(angle=75, vjust = 1, hjust = 1))
+ggsave(paste0(fig_dir, "/food_pro_costs_comp_", scenario_sel_save_name, ".png"), width = 15, height = 8)
 ```
 
 ## Limited regions and/or years
