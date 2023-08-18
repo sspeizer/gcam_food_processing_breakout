@@ -168,6 +168,7 @@ ggplot(food_pro_process_heat_prod_tech_heat_only %>%
   labs(x = "", y = "EJ", title = "Outputs of process heat food processing by technology, reference scenario, food industry branch") +
   theme_bw() +
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_process_heat_outputs_by_tech_ref_food_ind.png"), width = 30, height = 20)
 
@@ -206,6 +207,7 @@ ggplot(food_pro_energy_inputs_edit %>% filter(scenario == ref_scenario_name & br
   labs(x = "", y = "EJ", title = "Energy inputs to food processing and process heat food processing, reference scenario, food industry branch") +
   theme_bw() +
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_total_energy_inputs_ref_food_ind.png"), width = 30, height = 20)
 
@@ -218,6 +220,28 @@ ggplot(food_pro_energy_inputs_edit %>% filter(scenario == ref_scenario_name & br
   theme(text=element_text(size=17),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_total_energy_inputs_ref_food_ind_global.png"), width = 10, height = 8)
+
+# separate by process heat food processing and food processing
+food_pro_inputs_process_heat_sep_edit <- food_pro_inputs_process_heat_sep %>%
+  filter(!grepl("water", input)) %>%
+  mutate(input_edit = case_when(input == "elect_td_ind" ~ "electricity",
+                                input == "refined liquids industrial" ~ "refined liquids",
+                                input == "delivered biomass" ~ "biomass",
+                                input == "delivered coal" ~ "coal",
+                                input == "wholesale gas" ~ "gas",
+                                input == "global solar resource" ~ "solar",
+                                TRUE ~ input))
+
+ggplot(food_pro_inputs_process_heat_sep_edit %>% filter(scenario == ref_scenario_name & branch == food_branch_name & year >= 2005),
+       aes(x = year, y = value, fill = input_edit)) +
+  geom_col() +
+  scale_fill_manual(values = pal_sel_extended, drop = TRUE, limits = force, name = "fuel") +
+  facet_wrap(~sector, ncol = 2) +
+  labs(x = "", y = "EJ", title = "Global energy inputs to food processing and process heat food processing\nReference scenario, food industry branch") +
+  theme_bw() +
+  theme(text=element_text(size=17),
+        strip.background = element_blank())
+ggsave(paste0(fig_dir, "/food_pro_total_energy_inputs_sep_sector_ref_food_ind_global.png"), width = 15, height = 8)
 ```
 
 Food processing overall sector inputs.
@@ -235,6 +259,7 @@ ggplot(food_pro_energy_inputs_overall_sector %>% filter(scenario == ref_scenario
   labs(x = "", y = "EJ", title = "Energy inputs to food processing, reference scenario, food industry branch") +
   theme_bw() +
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_overall_sector_energy_inputs_ref_food_ind.png"), width = 30, height = 20)
 
@@ -252,15 +277,8 @@ ggsave(paste0(fig_dir, "/food_pro_overall_sector_energy_inputs_ref_food_ind_glob
 Process heat food processing energy inputs.
 
 ```{r, message = FALSE, warning = FALSE}
-food_pro_process_heat_energy_inputs_edit <- food_pro_inputs_process_heat_sep %>%
-  filter(!grepl("water", input) & sector == "process heat food processing") %>%
-  mutate(input_edit = case_when(input == "elect_td_ind" ~ "electricity",
-                                input == "refined liquids industrial" ~ "refined liquids",
-                                input == "delivered biomass" ~ "biomass",
-                                input == "delivered coal" ~ "coal",
-                                input == "wholesale gas" ~ "gas",
-                                input == "global solar resource" ~ "solar",
-                                TRUE ~ input))
+food_pro_process_heat_energy_inputs_edit <- food_pro_inputs_process_heat_sep_edit %>%
+  filter(sector == "process heat food processing")
 
 ggplot(food_pro_process_heat_energy_inputs_edit %>% 
          filter(scenario == ref_scenario_name & branch == food_branch_name & year >= 2005),
@@ -271,6 +289,7 @@ ggplot(food_pro_process_heat_energy_inputs_edit %>%
   labs(x = "", y = "EJ", title = "Energy inputs to process heat food processing, reference scenario, food industry branch") +
   theme_bw() +
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_process_heat_energy_inputs_ref_food_ind.png"), width = 30, height = 20)
 
@@ -286,7 +305,7 @@ ggplot(food_pro_process_heat_energy_inputs_edit %>%
 ggsave(paste0(fig_dir, "/food_pro_process_heat_energy_inputs_ref_food_ind_global.png"), width = 10, height = 8)
 ```
 
-Food processing energy use coefficient per calorie consumed.
+Food processing energy use coefficient per calorie consumed. The coefficient based on electricity and process heat is calculated as the sum of electricity + process heat input into overall food processing, while the coefficient based on input energy is calculated as the sum of the energy inputs into process heat food processing and overall food processing.
 
 ```{r, message = FALSE, warning = FALSE}
 # get total energy use
@@ -306,10 +325,10 @@ food_pro_coef <- food_pro_energy_total %>%
   left_join(food_pro_energy_elec_process_total) %>%
   left_join(food_demand_total %>%
               dplyr::select(scenario, branch, policy_type, scenario_type, region, year, Pcal = value)) %>%
-  mutate(coef_primary_energy = EJ / Pcal,
+  mutate(coef_input_energy = EJ / Pcal,
          coef_electricity_process_heat = EJ_elec_process / Pcal) %>%
   dplyr::select(-c(EJ, EJ_elec_process, Pcal)) %>%
-  pivot_longer(c(coef_primary_energy, coef_electricity_process_heat), names_to = "coef_type", values_to = "value")
+  pivot_longer(c(coef_input_energy, coef_electricity_process_heat), names_to = "coef_type", values_to = "value")
 
 ggplot(food_pro_coef %>% filter(scenario == ref_scenario_name & branch == food_branch_name & year >= 2005),
        aes(x = year, y = value, color = coef_type)) +
@@ -318,6 +337,7 @@ ggplot(food_pro_coef %>% filter(scenario == ref_scenario_name & branch == food_b
   labs(x = "", y = "EJ per Pcal", title = "Food processing energy use coefficient, reference scenario, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_energy_use_coef_ref_food_ind.png"), width = 30, height = 20)
 ```
@@ -375,6 +395,7 @@ ggplot(CO2_emis_sector_no_bio %>%
   labs(x = "", y = "Mt CO2", title = "Food processing CO2 emissions (no bio), reference scenario, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/CO2_emissions_no_bio_food_pro_ref_food_ind.png"), width = 30, height = 20)
 
@@ -426,6 +447,7 @@ ggplot(industry_final_en_sector_agg %>% filter(scenario == ref_scenario_name & b
   labs(x = "", y = "EJ", title = "Industry final energy use by sector, reference scenario, food industry branch") +
   theme_bw() +
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/industry_final_en_sector_ref_food_ind.png"), width = 30, height = 20)
 
@@ -479,6 +501,7 @@ ggplot(CO2_emis_sector_no_bio_industry_agg %>% filter(scenario == ref_scenario_n
   labs(x = "", y = "Mt CO2", title = "Industry CO2 emissions (no bio), reference scenario, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/CO2_emissions_no_bio_industry_sector_agg_ref_food_ind.png"), width = 30, height = 20)
 
@@ -537,6 +560,7 @@ ggplot(nonCO2_emis_sector_total_CO2eq_industry_agg %>% filter(scenario == ref_sc
   labs(x = "", y = "Mt CO2e", title = "Industry GHG emissions, reference scenario, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/GHG_emissions_industry_sector_ref_food_ind.png"), width = 30, height = 20)
 
@@ -585,6 +609,7 @@ ggplot(industry_water_withdrawals %>% filter(scenario == ref_scenario_name & bra
   labs(x = "", y = "km^3", title = "Industry water withdrawals, reference scenario, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/industry_water_withdrawals_ref_food_ind.png"), width = 30, height = 20)
 
@@ -610,9 +635,10 @@ ggplot(industry_final_en_sector_agg %>% filter(branch == food_branch_name & year
   geom_line(size = 1) + 
   scale_color_manual(values = pal_scenarios) + 
   facet_wrap(~region, nrow = 4, scales = "free_y") + 
-  labs(x = "", y = "EJ", title = "Food processing final energy use, food processing branch") + 
+  labs(x = "", y = "EJ", title = "Food processing total energy use, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_final_en_scenario_comp.png"), width = 30, height = 20)
 
@@ -621,7 +647,7 @@ ggplot(industry_final_en_sector_agg_global %>% filter(branch == food_branch_name
   geom_line(size = 1) + 
   scale_color_manual(values = pal_scenarios) + 
   facet_wrap(~policy_type, ncol = 2) + 
-  labs(x = "", y = "EJ", title = "Global food processing final energy use, food processing branch") + 
+  labs(x = "", y = "EJ", title = "Global food processing total energy use, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
         strip.background = element_blank())
@@ -653,7 +679,7 @@ ggplot(food_pro_energy_inputs_edit_global %>% filter(branch == food_branch_name 
   geom_line(size = 1) +
   scale_color_manual(values = pal_scenarios) + 
   facet_grid(rows = vars(policy_type), cols = vars(input_edit), scale = "free_y") +
-  labs(x = "", y = "EJ", title = "Global food processing total energy use by fuel") +
+  labs(x = "", y = "EJ", title = "Global food processing total energy use by fuel, food industry branch") +
   theme_bw() +
   theme(text=element_text(size=17),
         axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
@@ -682,9 +708,10 @@ ggplot(food_pro_process_heat_prod_heat_only_total %>% filter(branch == food_bran
   geom_line(size = 1) + 
   scale_color_manual(values = pal_scenarios) + 
   facet_wrap(~region, nrow = 4, scales = "free_y") + 
-  labs(x = "", y = "EJ", title = "Process heat food processing production, food processing branch") + 
+  labs(x = "", y = "EJ", title = "Process heat food processing production, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_process_heat_outputs_total_scenario_comp.png"), width = 30, height = 20)
 
@@ -693,7 +720,7 @@ ggplot(food_pro_process_heat_prod_heat_only_total_global %>% filter(branch == fo
   geom_line(size = 1) + 
   scale_color_manual(values = pal_scenarios) + 
   facet_wrap(~policy_type, ncol = 2) + 
-  labs(x = "", y = "EJ", title = "Global process heat food processing production, food processing branch") + 
+  labs(x = "", y = "EJ", title = "Global process heat food processing production, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
         strip.background = element_blank())
@@ -712,6 +739,7 @@ ggplot(CO2_emis_sector_no_bio %>%
   labs(x = "", y = "Mt CO2", title = "Food processing CO2 emissions (no bio), food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/CO2_emissions_no_bio_food_pro_scenario_comp.png"), width = 30, height = 20)
 
@@ -739,11 +767,12 @@ ggplot(food_pro_prices %>% filter(branch == food_branch_name & year >= 2005 & !g
   labs(x = "", y = "1975$/Mcal", title = "Food processing prices, food industry branch") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_prices_scenario_comp.png"), width = 30, height = 20)
 ```
 
-# Comparison to master branch
+# Comparison with master branch
 
 ## Reference scenario
 
@@ -761,6 +790,7 @@ ggplot(industry_final_en_sector_agg_total %>% filter(scenario == ref_scenario_na
   labs(x = "", y = "EJ", title = "Total industry energy use, reference scenario") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/total_industry_energy_use_ref_comp.png"), width = 30, height = 20)
 
@@ -778,7 +808,7 @@ ggsave(paste0(fig_dir, "/total_industry_energy_use_ref_comp_global.png"), width 
 Industry energy use by sector.
 
 ```{r, message = FALSE, warning = FALSE}
-ggplot(industry_final_en_sector_agg %>% filter(scenario == ref_scenario_name & year >= 2005),
+fig <- ggplot(industry_final_en_sector_agg %>% filter(scenario == ref_scenario_name & year >= 2005),
        aes(x = year, y = value, fill = sector_agg)) + 
   geom_col() +
   facet_grid(rows = vars(region), cols = vars(branch), scales = "free_y") +
@@ -787,7 +817,7 @@ ggplot(industry_final_en_sector_agg %>% filter(scenario == ref_scenario_name & y
   theme_bw() +
   theme(text=element_text(size=17),
         strip.background = element_blank())
-ggsave(paste0(fig_dir, "/industry_final_en_sector_ref_comp.png"), width = 10, height = 30)
+ggsave(paste0(fig_dir, "/industry_final_en_sector_ref_comp.png"), fig, width = 10, height = 30)
 
 ggplot(industry_final_en_sector_agg %>% filter(scenario == ref_scenario_name & year >= 2005),
        aes(x = year, y = value, fill = sector_agg)) + 
@@ -856,6 +886,7 @@ ggplot(CO2_emis_sector_no_bio_industry_agg_total %>% filter(scenario == ref_scen
   labs(x = "", y = "Mt CO2", title = "Total industry CO2 emissions (no bio), reference scenario") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/CO2_emissions_no_bio_industry_total_ref_comp.png"), width = 30, height = 20)
 
@@ -869,7 +900,7 @@ ggplot(CO2_emis_sector_no_bio_industry_agg_total_global %>% filter(scenario == r
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/CO2_emissions_no_bio_industry_total_ref_comp_global.png"), width = 10, height = 8)
 
-ggplot(CO2_emis_sector_no_bio_industry_agg %>% filter(scenario == ref_scenario_name & year >= 2005),
+fig <- ggplot(CO2_emis_sector_no_bio_industry_agg %>% filter(scenario == ref_scenario_name & year >= 2005),
        aes(x = year, y = Mt_CO2, fill = sector_agg)) +
   geom_col() + 
   scale_fill_manual(values = pal_industry_sectors, name = "sector") + 
@@ -878,7 +909,7 @@ ggplot(CO2_emis_sector_no_bio_industry_agg %>% filter(scenario == ref_scenario_n
   theme_bw() + 
   theme(text=element_text(size=17),
         strip.background = element_blank())
-ggsave(paste0(fig_dir, "/CO2_emissions_no_bio_industry_sector_agg_region_ref_comp.png"), width = 10, height = 30)
+ggsave(paste0(fig_dir, "/CO2_emissions_no_bio_industry_sector_agg_region_ref_comp.png"), fig, width = 10, height = 30)
 
 ggplot(CO2_emis_sector_no_bio_industry_agg_global %>% filter(scenario == ref_scenario_name & year >= 2005),
        aes(x = year, y = Mt_CO2, fill = sector_agg)) +
@@ -900,9 +931,10 @@ ggplot(nonCO2_emis_sector_total_CO2eq_industry_agg_total %>% filter(scenario == 
   geom_line(size = 1) + 
   scale_linetype_manual(values = c("dashed", "solid")) + 
   facet_wrap(~region, nrow = 4, scales = "free_y") + 
-  labs(x = "", y = "Mt CO2e", title = "Total industry non-CO2 emissions, reference scenario") + 
+  labs(x = "", y = "Mt CO2e", title = "Total industry GHG emissions, reference scenario") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/GHG_emissions_industry_total_ref_comp.png"), width = 30, height = 20)
 
@@ -910,7 +942,7 @@ ggplot(nonCO2_emis_sector_total_CO2eq_industry_agg_total_global %>% filter(scena
        aes(x = year, y = Mt_CO2e, linetype = branch)) +
   geom_line(size = 1) + 
   scale_linetype_manual(values = c("dashed", "solid")) + 
-  labs(x = "", y = "Mt CO2e", title = "Global total industry non-CO2 emissions, reference scenario") + 
+  labs(x = "", y = "Mt CO2e", title = "Global total industry GHG emissions, reference scenario") + 
   theme_bw() + 
   theme(text=element_text(size=17),
         strip.background = element_blank())
@@ -939,6 +971,7 @@ ggplot(industry_water_withdrawals_total_no_H2 %>% filter(scenario == ref_scenari
   labs(x = "", y = "km^3", title = "Total industry water withdrawals, reference scenario\n(excluding hydrogen sectors)") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/industry_water_withdrawals_total_ref_comp.png"), width = 30, height = 20)
 
@@ -952,7 +985,7 @@ ggplot(industry_water_withdrawals_total_no_H2_global %>% filter(scenario == ref_
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/industry_water_withdrawals_total_ref_comp_global.png"), width = 10, height = 8)
 
-ggplot(industry_water_withdrawals %>% filter(scenario == ref_scenario_name & year >= 2005 & !grepl("H2", sector)),
+fig <- ggplot(industry_water_withdrawals %>% filter(scenario == ref_scenario_name & year >= 2005 & !grepl("H2", sector)),
        aes(x = year, y = value, fill = sector)) +
   geom_col() +
   facet_grid(rows = vars(region), cols = vars(branch), scales = "free_y") +
@@ -961,7 +994,7 @@ ggplot(industry_water_withdrawals %>% filter(scenario == ref_scenario_name & yea
   theme_bw() +
   theme(text=element_text(size=17),
         strip.background = element_blank())
-ggsave(paste0(fig_dir, "/industry_water_withdrawals_ref_comp.png"), width = 10, height = 30)
+ggsave(paste0(fig_dir, "/industry_water_withdrawals_ref_comp.png"), fig, width = 10, height = 30)
 
 ggplot(industry_water_withdrawals %>% filter(scenario == ref_scenario_name & year >= 2005 & !grepl("H2", sector)),
        aes(x = year, y = value, fill = sector)) +
@@ -996,6 +1029,7 @@ ggplot(industry_fuel_prices_edit %>% filter(scenario == ref_scenario_name & year
   labs(x = "", y = "1975$/GJ", title = "Fuel prices to industry, reference scenario") +
   theme_bw() +
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/industry_fuel_prices_ref_comp.png"), width = 30, height = 20)
 ```
@@ -1032,6 +1066,7 @@ ggplot(CO2_emis_region %>%  filter(scenario == ref_scenario_name & year >= 2005)
   labs(x = "", y = "Mt CO2", title = "Total FFI CO2 emissions, reference scenario") +
   theme_bw() +
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/CO2_FFI_ref_comp.png"), width = 30, height = 20)
   
@@ -1051,6 +1086,7 @@ ggplot(industry_final_en_sector_agg_total %>% filter(year >= 2005 & !grepl("USA"
   labs(x = "", y = "EJ", title = "Total industry energy use") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/total_industry_energy_use_scenario_branch_comp.png"), width = 30, height = 20)
 
@@ -1076,7 +1112,7 @@ ggplot(industry_final_en_fuel_global %>%
   scale_linetype_manual(values = c("dashed", "solid")) + 
   scale_color_manual(values = c(pal_sel_extended, "regional woodpulp for energy" = "darkgreen"), drop = TRUE, limits = force, name = "fuel") + 
   facet_grid(rows = vars(policy_type), cols = vars(scenario_type), scale = "free_y") +
-  labs(x = "", y = "EJ", title = "Global industry final energy use by fuel") +
+  labs(x = "", y = "EJ", title = "Global industry total energy use by fuel") +
   theme_bw() +
   theme(text=element_text(size=17),
         axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
@@ -1088,7 +1124,7 @@ ggplot(industry_final_en_sector_agg_global %>% filter(year >= 2005 & !grepl("USA
   geom_col() +
   facet_grid(rows = vars(branch), cols = vars(scenario), scales = "free_y") +
   scale_fill_manual(values = pal_industry_sectors, name = "sector") +
-  labs(x = "", y = "EJ", title = "Global industry final energy use by sector") +
+  labs(x = "", y = "EJ", title = "Global industry total energy use by sector") +
   theme_bw() +
   theme(text=element_text(size=17),
         axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
@@ -1108,6 +1144,7 @@ ggplot(CO2_emis_sector_no_bio_industry_agg_total %>% filter(year >= 2005 & !grep
   labs(x = "", y = "Mt CO2", title = "Total industry CO2 emissions (no bio)") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/CO2_emissions_no_bio_industry_total_scenario_branch_comp.png"), width = 30, height = 20)
 
@@ -1128,7 +1165,7 @@ ggplot(CO2_emis_sector_no_bio_industry_agg_global %>% filter(year >= 2005 & !gre
   geom_col() +
   facet_grid(rows = vars(branch), cols = vars(scenario), scales = "free_y") + 
   scale_fill_manual(values = pal_industry_sectors, name = "sector") + 
-  labs(x = "", y = "Mt CO2", title = "Global industry CO2 emissions (no bio)") + 
+  labs(x = "", y = "Mt CO2", title = "Global industry CO2 emissions (no bio) by sector") + 
   theme_bw() + 
   theme(text=element_text(size=17),
         axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
@@ -1145,9 +1182,10 @@ ggplot(nonCO2_emis_sector_total_CO2eq_industry_agg_total %>% filter(year >= 2005
   scale_linetype_manual(values = c("dashed", "solid")) + 
   scale_color_manual(values = pal_scenarios) + 
   facet_wrap(~region, nrow = 4, scales = "free_y") + 
-  labs(x = "", y = "Mt CO2e", title = "Total industry non-CO2 emissions") + 
+  labs(x = "", y = "Mt CO2e", title = "Total industry GHG emissions") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/GHG_emissions_industry_total_scenario_branch_comp.png"), width = 30, height = 20)
 
@@ -1157,7 +1195,7 @@ ggplot(nonCO2_emis_sector_total_CO2eq_industry_agg_total_global %>% filter(year 
   scale_linetype_manual(values = c("dashed", "solid")) + 
   scale_color_manual(values = pal_scenarios) + 
   facet_wrap(~policy_type, ncol = 2) + 
-  labs(x = "", y = "Mt CO2e", title = "Global total industry non-CO2 emissions") + 
+  labs(x = "", y = "Mt CO2e", title = "Global total industry GHG emissions") + 
   theme_bw() + 
   theme(text=element_text(size=17),
         strip.background = element_blank())
@@ -1176,6 +1214,7 @@ ggplot(industry_water_withdrawals_total_no_H2 %>% filter(year >= 2005 & !grepl("
   labs(x = "", y = "km^3", title = "Total industry water withdrawals (excluding hydrogen sectors)") + 
   theme_bw() + 
   theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/industry_water_withdrawals_total_scenario_branch_comp.png"), width = 30, height = 20)
 
