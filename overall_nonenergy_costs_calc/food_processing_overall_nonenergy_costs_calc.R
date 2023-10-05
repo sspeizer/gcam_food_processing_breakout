@@ -22,11 +22,6 @@ GCAM_reg_abb_map <- CostShare_FoodProcessing_GTAP %>%
   dplyr::select(region_GCAM, region_GCAM_abb) %>%
   unique()
 # current food processing costs data, food demand data, and agriculture costs data - output from GCAM run
-
-# food_demand <- read_csv("C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_run_8-3-23/food_demand.csv")
-# food_pro_costs_tech <- read_csv("C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_run_8-3-23/food_pro_costs_tech.csv")
-# food_pro_costs_tech_input <- read_csv("C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_run_8-3-23/food_pro_costs_tech_input.csv")
-
 prices_all_markets <- read_csv("C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_validation_run_8-21-23/queryoutall_prices_all_markets.csv", skip = 1) %>%
   parse_PIC_data() %>% filter(scenario == "GCAM" & grepl("2023-21-8", date)) # just get reference scenario for food branch
 costs_tech <- read_csv("C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_validation_run_8-21-23/queryoutall_costs_tech.csv", skip = 1) %>%
@@ -56,14 +51,6 @@ to_bil <- 10^-9
 # the non-energy costs associated with the process heat food processing technologies.
 # we want to exclude the current non-energy cost values for the overall food processing sector, since those are currently
 # placeholder assumptions that we are aiming to replace.
-
-# food_pro_costs_overall_excl_overall_nonenergy <- food_pro_costs_tech %>%
-#   filter(sector == "food processing") %>% # just want overall sector costs
-#   # remove the placeholder assumptions for non-energy costs
-#   left_join(food_pro_costs_tech_input %>%
-#               filter(sector == "food processing" & input == "non-energy") %>%
-#               dplyr::select(scenario, region, sector, subsector, technology, year, Units, assumed_nonenergy_cost = value)) %>%
-#   mutate(energy_cost = value - assumed_nonenergy_cost) 
 food_pro_costs_overall_excl_overall_nonenergy <- costs_tech %>%
   filter(sector == "food processing") %>% # just want overall sector costs
   # remove the placeholder assumptions for non-energy costs
@@ -190,7 +177,6 @@ costs_comp_test <- food_pro_costs_overall_excl_overall_nonenergy_total %>%
           left_join(GCAM_reg_abb_map %>% rename(region = region_GCAM)) %>%
           dplyr::select(region, cost_type = sector, value) %>%
           mutate(source = "GTAP")) %>%
-  # mutate(cost_type = factor(cost_type, levels = c("food_pro_GCAM", "food_GCAM", "PrimaryAg", "Proc_Food")))
   mutate(cost_type = factor(cost_type, levels = c("food_pro_GCAM", "food_GCAM", "processed_GTAP", "primary_GTAP"))) %>%
   group_by(source, region) %>%
   mutate(share = value / sum(value)) %>%
@@ -248,7 +234,10 @@ final_foodpro_nonenergy_cost_adder_region <- costs_comp_test_wider %>%
          subsector = "food processing",
          technology = "food processing",
          minicam.non.energy.input = "non-energy") %>%
-  arrange(region, supplysector, subsector, technology, minicam.non.energy.input, cost, units)
+  dplyr::select(region, supplysector, subsector, technology, minicam.non.energy.input, cost, units)
+
+write_csv(final_foodpro_nonenergy_cost_adder_region %>% mutate(cost = round(cost, 4)), 
+          "C:/Users/spei632/Documents/GCAM_industry/food_processing/food_pro_non_energy_adder_regional.csv")
 
 ggplot(final_foodpro_nonenergy_cost_adder_region %>%
          mutate(region = factor(region, levels = final_foodpro_nonenergy_cost_adder_region %>% arrange(cost) %>% pull(region)),
@@ -289,5 +278,28 @@ ggplot(total_food_expenditures_Pcal %>%
         axis.text.x = element_text(hjust = 1, vjust = 1, angle = 60))
 ggsave("C:/Users/spei632/Documents/GCAM_industry/food_processing/total_costs_comp_per_Pcal.png", width = 12, height = 8)
 
-# as a share of GDP
+# look at total food expenditures as a share of GDP
+total_food_expenditures_GDP_share <- total_food_expenditures %>%
+  dplyr::select(region, total_GTAP_bil, total_GCAM_adjusted_bil) %>%
+  left_join(GDP_MER_region %>%
+              filter(year == 2015) %>%
+              mutate(GDP_bil_2014USD = value * gcamdata::gdp_deflator(2014, 1990)/1000) %>%
+              dplyr::select(region, GDP_bil_2014USD)) %>%
+  mutate(total_GTAP_GDP_share = total_GTAP_bil / GDP_bil_2014USD,
+         total_GCAM_adjusted_GDP_share = total_GCAM_adjusted_bil / GDP_bil_2014USD)
 
+total_food_expenditures_GDP_share_longer <- total_food_expenditures_GDP_share %>%
+  dplyr::select(region, total_GTAP_GDP_share, total_GCAM_adjusted_GDP_share) %>%
+  pivot_longer(-region, names_to = "type", values_to = "food_share_of_2015_GCAM_GDP") %>%
+  mutate(source = if_else(grepl("GCAM", type), "GCAM", "GTAP"))
+
+ggplot(total_food_expenditures_GDP_share_longer %>%
+         mutate(region = factor(region, levels = total_food_expenditures_GDP_share_longer %>% filter(source == "GCAM") %>% arrange(food_share_of_2015_GCAM_GDP) %>% pull(region))), 
+       aes(x = region, y = food_share_of_2015_GCAM_GDP, color = source)) +
+  geom_point(size = 2) + 
+  labs(x = "", y = "Share of GDP", title = "GCAM adjusted total food costs (2015) vs GTAP food consumption costs (HHD/GOV) (2014)\nas a share of GCAM 2015 GDP") +
+  theme_bw() +
+  theme(text=element_text(size=14),
+        strip.background = element_blank(),
+        axis.text.x = element_text(hjust = 1, vjust = 1, angle = 60))
+ggsave("C:/Users/spei632/Documents/GCAM_industry/food_processing/total_costs_comp_GDP_share.png", width = 12, height = 8)
