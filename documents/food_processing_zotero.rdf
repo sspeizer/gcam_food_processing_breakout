@@ -1,0 +1,2715 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:z="http://www.zotero.org/namespaces/export#"
+ xmlns:dcterms="http://purl.org/dc/terms/"
+ xmlns:bib="http://purl.org/net/biblio#"
+ xmlns:foaf="http://xmlns.com/foaf/0.1/"
+ xmlns:link="http://purl.org/rss/1.0/modules/link/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:prism="http://prismstandard.org/namespaces/1.2/basic/"
+ xmlns:vcard="http://nwalsh.com/rdf/vCard#">
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S1364032111004497">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1364-0321"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Taibi</foaf:surname>
+                        <foaf:givenName>Emanuele</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Gielen</foaf:surname>
+                        <foaf:givenName>Dolf</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bazilian</foaf:surname>
+                        <foaf:givenName>Morgan</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_394"/>
+        <link:link rdf:resource="#item_395"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Bioenergy</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Heat pumps</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Industrial applications</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Process heat</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Renewable energy</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Solar thermal</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:title>The potential for renewable energy in industrial applications</dc:title>
+        <dcterms:abstract>To date, insufficient attention has been paid to the potential of renewable energy resources in industrial applications. Our analysis suggests that up to 21% of final energy demand and feedstock-use in the manufacturing industry sector could be of renewable origin by 2050, a five-fold increase over current levels in absolute terms. This estimate is considerably higher than other recent global scenario studies. In addition, if a 50% share of renewables in power generation is assumed, the share of direct and indirect renewable energy use rises to 31% in 2050. Our analysis further suggests that bioenergy and biofeedstocks can constitute three-quarters of the direct renewables use in this sector by 2050. The remainder is roughly evenly divided between solar heating and heat pumps. The potential for solar cooling is considered to be limited. While low-temperature solar process heat can reach cost-effectiveness today in locations with good insolation, some bioenergy applications will require a CO2 price even on the longer term. Biomass feedstock for synthetic organic materials will require a CO2 price up to USD 100/t CO2, or even more if embodied carbon is not considered properly in CO2 accounts. Future fossil fuel prices and bioenergy prices in addition to the development of feedstock commodity markets for biomass will be critical. Decision makers are recommended to pay more attention to the potential for renewables in industry. Finally, we propose the development of a detailed technology roadmap to explore this potential further and discuss key issues that need to be elaborated in such a framework.</dcterms:abstract>
+        <dc:date>2012-01-01</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1364032111004497</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:50:50</dcterms:dateSubmitted>
+        <bib:pages>735-744</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1364-0321">
+        <prism:volume>16</prism:volume>
+        <dc:title>Renewable and Sustainable Energy Reviews</dc:title>
+        <dc:identifier>DOI 10.1016/j.rser.2011.08.039</dc:identifier>
+        <prism:number>1</prism:number>
+        <dcterms:alternative>Renewable and Sustainable Energy Reviews</dcterms:alternative>
+        <dc:identifier>ISSN 1364-0321</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_394">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1364032111004497/pdfft?md5=c430ff2ae88b13ca2ea5b2dad5e6529d&amp;pid=1-s2.0-S1364032111004497-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:50:52</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_395">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1364032111004497?via%3Dihub</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:50:57</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S0360544220311907">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:0360-5442"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Schoeneberger</foaf:surname>
+                        <foaf:givenName>Carrie A.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>McMillan</foaf:surname>
+                        <foaf:givenName>Colin A.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kurup</foaf:surname>
+                        <foaf:givenName>Parthiv</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Akar</foaf:surname>
+                        <foaf:givenName>Sertac</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Margolis</foaf:surname>
+                        <foaf:givenName>Robert</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Masanet</foaf:surname>
+                        <foaf:givenName>Eric</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_397"/>
+        <link:link rdf:resource="#item_398"/>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Energy efficiency</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Solar thermal</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Barriers to SIPH</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Industrial process heating</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>PV electric heating</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Solar for industrial process heat: A review of technologies, analysis approaches, and potential applications in the United States</dc:title>
+        <dcterms:abstract>Renewable energy integration in the industrial sector is a key step in achieving low-carbon production systems. Solar for industrial process heat (SIPH) is gaining attention towards this goal and has the potential for significant scale up, particularly in the United States, which combines a large and diverse industrial sector with rich solar resources. Currently, there are knowledge gaps related to a granular understanding of industrial energy use and of technical and economic parameters for evaluating SIPH adoption in the U.S. In this review, we discuss the industrial process heating landscape, the current state of SIPH technologies, their potential applications in the context of U.S. industry, the status of modeling and data for determining potential, known barriers to adoption, and future research paths. This review highlights industries and SIPH technologies for policy recommendation and provides insights on modeling approaches for evaluation of SIPH projects.</dcterms:abstract>
+        <dc:date>2020-09-01</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>Solar for industrial process heat</z:shortTitle>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0360544220311907</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:54:10</dcterms:dateSubmitted>
+        <bib:pages>118083</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:0360-5442">
+        <prism:volume>206</prism:volume>
+        <dc:title>Energy</dc:title>
+        <dc:identifier>DOI 10.1016/j.energy.2020.118083</dc:identifier>
+        <dcterms:alternative>Energy</dcterms:alternative>
+        <dc:identifier>ISSN 0360-5442</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_397">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0360544220311907/pdfft?md5=2f7a46292e1c2309bbc7bc4cbee8c3a8&amp;pid=1-s2.0-S0360544220311907-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:54:13</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_398">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0360544220311907</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:54:20</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S1364032117305610">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <prism:volume>78</prism:volume>
+                <dc:title>Renewable and Sustainable Energy Reviews</dc:title>
+                <dc:identifier>DOI 10.1016/j.rser.2017.04.079</dc:identifier>
+                <dcterms:alternative>Renewable and Sustainable Energy Reviews</dcterms:alternative>
+                <dc:identifier>ISSN 1364-0321</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Sharma</foaf:surname>
+                        <foaf:givenName>Ashish K.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Sharma</foaf:surname>
+                        <foaf:givenName>Chandan</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Mullick</foaf:surname>
+                        <foaf:givenName>Subhash C.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kandpal</foaf:surname>
+                        <foaf:givenName>Tara C.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_400"/>
+        <link:link rdf:resource="#item_401"/>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>SIPH potential, Barriers to SIPH</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Solar collectors</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Solar industrial process heating</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Solar industrial process heating: A review</dc:title>
+        <dcterms:abstract>A significant share of final energy consumption in the industrial sector is used for meeting the process heating applications at low and medium temperatures (up to 250°C). Solar industrial process heating is being considered as one of clean and renewable energy options in many countries of the world. An attempt to present a review of the available published literature on solar industrial process heating has been made in this paper. The aspects included in the review are utilization potential, present status, suitable solar collectors, design and integration aspects, performance evaluation, economic and environmental assessment, barriers to large scale adoption and case studies etc.</dcterms:abstract>
+        <dc:date>2017-10-01</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>Solar industrial process heating</z:shortTitle>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1364032117305610</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:55:08</dcterms:dateSubmitted>
+        <bib:pages>124-137</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_400">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1364032117305610/pdfft?md5=e08b35c3953149fc2a8469707e1f0405&amp;pid=1-s2.0-S1364032117305610-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:55:09</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_401">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1364032117305610#bib61</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:55:16</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Report rdf:about="https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2015/IRENA_ETSAP_Tech_Brief_E21_Solar_Heat_Industrial_2015.pdf?rev=8ac12a0d56b74c27b440f90919f5c7a0">
+        <z:itemType>report</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>IEA-ETSAP</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                   <foaf:Person><foaf:surname>IRENA</foaf:surname></foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_402"/>
+        <dc:title>Solar Heat for Industrial Processes: Technology Brief</dc:title>
+        <dc:date>2015</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>Zotero</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2015/IRENA_ETSAP_Tech_Brief_E21_Solar_Heat_Industrial_2015.pdf?rev=8ac12a0d56b74c27b440f90919f5c7a0</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Report>
+    <z:Attachment rdf:about="#item_402">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Solar Heat for Industrial Processes Technology Bri.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2015/IRENA_ETSAP_Tech_Brief_E21_Solar_Heat_Industrial_2015.pdf?rev=8ac12a0d56b74c27b440f90919f5c7a0</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 16:55:57</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Report rdf:about="https://www.osti.gov/servlets/purl/1762440/">
+        <z:itemType>report</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>McMillan</foaf:surname>
+                        <foaf:givenName>Colin</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Schoeneberger</foaf:surname>
+                        <foaf:givenName>Carrie</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Zhang</foaf:surname>
+                        <foaf:givenName>Jingyi</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kurup</foaf:surname>
+                        <foaf:givenName>Parthiv</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Masanet</foaf:surname>
+                        <foaf:givenName>Eric</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Margolis</foaf:surname>
+                        <foaf:givenName>Robert</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Meyers</foaf:surname>
+                        <foaf:givenName>Steven</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bannister</foaf:surname>
+                        <foaf:givenName>Mike</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rosenlieb</foaf:surname>
+                        <foaf:givenName>Evan</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Xi</foaf:surname>
+                        <foaf:givenName>William</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_404"/>
+        <dc:title>Opportunities for Solar Industrial Process Heat in the United States</dc:title>
+        <dc:date>2021-01-01</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>DOI.org (Crossref)</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.osti.gov/servlets/purl/1762440/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 17:40:23</dcterms:dateSubmitted>
+        <dc:description>DOI: 10.2172/1762440</dc:description>
+        <bib:pages>NREL/TP--6A20-77760, 1762440, MainId:30675</bib:pages>
+        <prism:number>NREL/TP--6A20-77760, 1762440, MainId:30675</prism:number>
+    </bib:Report>
+    <z:Attachment rdf:about="#item_404">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>McMillan et al. - 2021 - Opportunities for Solar Industrial Process Heat in.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.nrel.gov/docs/fy21osti/77760.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 17:40:20</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Report rdf:about="https://energyinnovation.org/wp-content/uploads/2022/10/Decarbonizing-Low-Temperature-Industrial-Heat-In-The-U.S.-Report-1.pdf">
+        <z:itemType>report</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Energy Innovation Policy and Technology LLC</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rissman</foaf:surname>
+                        <foaf:givenName>Jeffrey</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_406"/>
+        <dc:title>Decarbonizing  Low-Temperature Industrial Heat in the U.S.</dc:title>
+        <dc:date>2022</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>Zotero</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://energyinnovation.org/wp-content/uploads/2022/10/Decarbonizing-Low-Temperature-Industrial-Heat-In-The-U.S.-Report-1.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Report>
+    <z:Attachment rdf:about="#item_406">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Rissman - Decarbonizing  Low-Temperature Industrial Heat in .pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://energyinnovation.org/wp-content/uploads/2022/10/Decarbonizing-Low-Temperature-Industrial-Heat-In-The-U.S.-Report-1.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 17:50:29</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S1466856418301917">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1466-8564"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Compton</foaf:surname>
+                        <foaf:givenName>Marc</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Willis</foaf:surname>
+                        <foaf:givenName>Sarah</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rezaie</foaf:surname>
+                        <foaf:givenName>Behnaz</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Humes</foaf:surname>
+                        <foaf:givenName>Karen</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_410"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Energy saving</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Dairy process</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Emerging technologies</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>FEW Nexus</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Food processing industry</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Water consumption</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Food processing industry energy and water consumption in the Pacific northwest</dc:title>
+        <dcterms:abstract>The food processing industry is one of the largest consumers of energy and water in the manufacturing sector. It is vital that conservation measures are taken to reduce the use of electricity, fuel, and water for producers to have long-term, sustainable growth. The Pacific Northwest (PNW) region includes some the largest food processers in the United States, particularly with products such as fruit and vegetable preserves, apples products, potato products, and milk. Energy and water consumption in PNW food processing facilities are quantified as well as techniques to increase efficiency and reduce waste. Mechanical drive systems and refrigeration consumes the most electricity in the industry and the implementation of energy management plans has the largest potential to save electricity in PNW facilities. Heating and cooling process needs are the largest consumers of energy in the food processing industry. Implementing cogeneration/trigeneration technology, replacing of older equipment, capturing waste heat, and reusing wastewater can have significant impacts on both energy and water consumption. Novel, emerging technologies such as membrane separation, high-pressure processing, microwave assist, ultrasound, pulsed high electric fields, ozone, and hydrogen/electricity generation have significant potential to benefit the food processing industry by increasing efficiency and allowing companies to stay competitive in an industry where sustainable practices are becoming increasingly important to the public.</dcterms:abstract>
+        <dc:date>2018-06-01</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1466856418301917</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:01:50</dcterms:dateSubmitted>
+        <bib:pages>371-383</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1466-8564">
+        <prism:volume>47</prism:volume>
+        <dc:title>Innovative Food Science &amp; Emerging Technologies</dc:title>
+        <dc:identifier>DOI 10.1016/j.ifset.2018.04.001</dc:identifier>
+        <dcterms:alternative>Innovative Food Science &amp; Emerging Technologies</dcterms:alternative>
+        <dc:identifier>ISSN 1466-8564</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_410">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S1466856418301917</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:01:57</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Report rdf:about="https://www.energy.gov/sites/prod/files/2013/11/f4/characterization_industrial_commerical_boiler_population.pdf">
+        <z:itemType>report</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Energy and Environmental Analysis, Inc.</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_411"/>
+        <dc:title>Characterization of the U.S. Industrial/Commercial Boiler Population</dc:title>
+        <dc:date>2005</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.energy.gov/sites/prod/files/2013/11/f4/characterization_industrial_commerical_boiler_population.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:03:32</dcterms:dateSubmitted>
+    </bib:Report>
+    <z:Attachment rdf:about="#item_411">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>characterization_industrial_commerical_boiler_population.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.energy.gov/sites/prod/files/2013/11/f4/characterization_industrial_commerical_boiler_population.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:03:32</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Document rdf:about="https://www.tpctraining.com/blogs/news/how-to-extend-boiler-life">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website><dc:title>TPC Training</dc:title></z:Website>
+        </dcterms:isPartOf>
+        <link:link rdf:resource="#item_416"/>
+        <dc:title>How to Extend Boiler Life</dc:title>
+        <dcterms:abstract>The average lifespan for a boiler ranges from twenty to twenty-five years, but it is possible to keep a boiler up and running efficiently for longer. As you might expect, the more effort you put into maintaining your boiler, the longer you can expect it to function. Here’s how to extend boiler life.
+
+
+Regular, Professional Maintenance  A commercial boiler should be inspected and maintained once a year by a certified professional. This inspection should include the motor, with replacements or parts repairs made as needed. The inspector should make a visual inspection of all heat exchange surfaces to look for corrosion, scale, damage, or debris.  Between professional maintenance, make a visual check of the boiler once a month to identify any potential problems. The fuel pump should be inspected once a quarter, and replaced at the first sign of malfunctioning.
+
+Initiate a Water Treatment Plan  The water in your boiler contains a wide range of contaminants that, left unchecked, can reduce the boiler’s lifespan and efficiency. Dissolved minerals, gasses, and particulates contribute to damage and corrosion. To combat this, many organizations now maintain a water treatment plan for their boilers.  Dissolved minerals within the boiler accumulate on heat-transfer surfaces, producing scale—a mineral build up that reduces heat transfer. A thin layer of scale is sufficient to reduce boiler efficiency by more than ten percent. Dissolved gasses may react and cause corrosion, while particulates can worsen either problem.  Proper water treatment uses chemical additives to combine with dissolved impurities, neutralizing them and keeping them suspended. Monitoring water quality is essential, as changes in the chemical balance of boiler feedwater dictate changes in your water treatment plan.
+
+Retrofitting  As boilers age, they lose ground to newer models with more efficient parts and technology. Retrofitting allows you to gain the benefits of advancements in boiler design without investing in a new model.  Retrofitting has numerous advantages. Older boilers can be brought up to the latest certification and approval codes. Safety and efficiency can be improved, and you can lower both energy costs and emissions. And, of course, you extend the life of your boiler. Potential locations for retrofitting include: 
+
+
+
+– Burners
+
+– Combustion controls
+
+– Emission controls
+
+– Flame safeguards
+
+– Fuel trains– Thermostats
+
+
+
+A Clean Environment  Your boiler combusts a combination of air and fuel. Keeping the area around your boiler as dust-free as possible provides your boiler with cleaner burning air. Maintaining an open area around the boiler also reduces the risk of fire.
+
+Learn more about boilers by taking our two-day, instructor-led course about Boiler Operation, Maintenance and Safety. You can also watch our previous webinar about boilers here.</dcterms:abstract>
+        <z:language>en</z:language>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.tpctraining.com/blogs/news/how-to-extend-boiler-life</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:28:57</dcterms:dateSubmitted>
+    </bib:Document>
+    <z:Attachment rdf:about="#item_416">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.tpctraining.com/blogs/news/how-to-extend-boiler-life</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:29:04</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.mdpi.com/1996-1073/11/10/2630">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1996-1073"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Gowreesunker</foaf:surname>
+                        <foaf:givenName>Baboo Lesh</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Tassou</foaf:surname>
+                        <foaf:givenName>Savvas</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Atuonwu</foaf:surname>
+                        <foaf:givenName>James</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_415"/>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>combined heat and power</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>emission reduction</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>energy efficiency</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>UK food manufacturing</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Cost-Energy Optimum Pathway for the UK Food Manufacturing Industry to Meet the UK National Emission Targets</dc:title>
+        <dcterms:abstract>This paper investigates and outlines a cost-energy optimised pathway for the UK food manufacturing industry to attain the national Greenhouse Gas (GHG) emission reduction target of 80%, relative to 1990 levels, by 2050. The paper employs the linear programming platform TIMES, and it models the current and future technology mix of the UK food manufacturing industry. The model considers parameters such as capital costs, operating costs, efficiency and the lifetime of technologies to determine the cheapest pathway to achieve the GHG emission constraints. The model also enables future parametric analyses and can predict the influence of different economic, trade and dietary preferences and the impact of technological investments and policies on emissions. The study showed that for the food manufacturing industry to meet the emission reduction targets by 2050 the use of natural gas as the dominant source of energy in the industry at present, will have to be replaced by decarbonised grid electricity and biogas. This will require investments in Anaerobic Digestion (AD), Combined Heat and Power (CHP) plants driven by biogas and heat pumps powered by decarbonised electricity.</dcterms:abstract>
+        <dc:date>2018/10</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>www.mdpi.com</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.mdpi.com/1996-1073/11/10/2630</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:29:01</dcterms:dateSubmitted>
+        <dc:rights>http://creativecommons.org/licenses/by/3.0/</dc:rights>
+        <dc:description>Number: 10
+Publisher: Multidisciplinary Digital Publishing Institute</dc:description>
+        <bib:pages>2630</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1996-1073">
+        <prism:volume>11</prism:volume>
+        <dc:title>Energies</dc:title>
+        <dc:identifier>DOI 10.3390/en11102630</dc:identifier>
+        <prism:number>10</prism:number>
+        <dc:identifier>ISSN 1996-1073</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_415">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.mdpi.com/1996-1073/11/10/2630/pdf?version=1538408526</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:29:03</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Report rdf:about="https://iea-etsap.org/E-TechDS/PDF/I01-ind_boilers-GS-AD-gct.pdf">
+        <z:itemType>report</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>IEA-ETSAP</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_417"/>
+        <dc:title>Industrial Combustion Boilers</dc:title>
+        <dc:date>2010</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://iea-etsap.org/E-TechDS/PDF/I01-ind_boilers-GS-AD-gct.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:29:06</dcterms:dateSubmitted>
+    </bib:Report>
+    <z:Attachment rdf:about="#item_417">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>I01-ind_boilers-GS-AD-gct.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://iea-etsap.org/E-TechDS/PDF/I01-ind_boilers-GS-AD-gct.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:29:06</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Document rdf:about="https://www.eeca.govt.nz/insights/eeca-insights/biomass-boilers-for-industrial-process-heat/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+            <z:Website>
+               <dc:title>Energy Efficiency and Conservation Authority</dc:title>
+            </z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Energy Efficiency and Conservation Authority of New Zealand</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_420"/>
+        <dc:title>Biomass boilers for industrial process heat</dc:title>
+        <dcterms:abstract>Information for businesses looking for low-carbon alternatives to fossil-fuelled boilers.</dcterms:abstract>
+        <dc:date>April 2023</dc:date>
+        <z:language>en-NZ</z:language>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.eeca.govt.nz/insights/eeca-insights/biomass-boilers-for-industrial-process-heat/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:46:20</dcterms:dateSubmitted>
+    </bib:Document>
+    <z:Attachment rdf:about="#item_420">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.eeca.govt.nz/insights/eeca-insights/biomass-boilers-for-industrial-process-heat/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-06-29 18:46:33</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S2213138817302412">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:2213-1388"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Sharma</foaf:surname>
+                        <foaf:givenName>Ashish K.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Sharma</foaf:surname>
+                        <foaf:givenName>Chandan</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Mullick</foaf:surname>
+                        <foaf:givenName>Subhash C.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kandpal</foaf:surname>
+                        <foaf:givenName>Tara C.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_422"/>
+        <link:link rdf:resource="#item_423"/>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Carbon mitigation</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Solar industrial process heating</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Dairy industry</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Financial viability</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Financial viability of solar industrial process heating and cost of carbon mitigation: A case of dairy industry in India</dc:title>
+        <dcterms:abstract>Dairy industry in India has a substantial demand for process heating at temperatures that can be provided with solar collectors. However, the acceptance and dissemination of solar industrial process heating systems would also be affected by their financial attractiveness for the users. Another attractive feature of SIPH systems is their ability to mitigate environmental emissions. Results of a financial viability analysis including estimation of cost of mitigating carbon emissions with use of SIPH in dairy industry in India are presented in this paper. Seven locations in India with dairy plants have been selected and annual useful thermal energy output of SIPH systems at these locations has been estimated. Further, levelized unit cost of useful thermal energy (LCUTE) delivered by the SIPH systems is estimated and a comparison with the existing process heating options being used in the dairy industry in India have been made. Other measures of financial viability such as discounted payback period, net present value and internal rate of return for an investment in SIPH systems in dairy plants have also been estimated. Finally, the cost of carbon mitigation with use of SIPH in dairy industry in India has been estimated. Results presents that in terms of LCUTE solar industrial of process heating systems doesn’t seems financially viable. Moreover, payback period of the SIPH systems are very higher thus lower value of NPV and IRR, therefore, their use does not seem to be much attractive. Also the cost of carbon emissions likely to be mitigated with use of SIPH is on higher side. Therefore, In view of the long term economic and environmental benefits of using SIPH in dairy industry there is a need of marginal support to ensure their financial viability as compared to fossil fuel based systems, the government may consider providing suitable incentives for the same.</dcterms:abstract>
+        <dc:date>2018-06-01</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>Financial viability of solar industrial process heating and cost of carbon mitigation</z:shortTitle>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S2213138817302412</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 21:57:11</dcterms:dateSubmitted>
+        <bib:pages>1-8</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:2213-1388">
+        <prism:volume>27</prism:volume>
+        <dc:title>Sustainable Energy Technologies and Assessments</dc:title>
+        <dc:identifier>DOI 10.1016/j.seta.2018.03.007</dc:identifier>
+        <dcterms:alternative>Sustainable Energy Technologies and Assessments</dcterms:alternative>
+        <dc:identifier>ISSN 2213-1388</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_422">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S2213138817302412/pdfft?md5=431310c7f41e57634f75c6e331bd6113&amp;pid=1-s2.0-S2213138817302412-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 21:57:14</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_423">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S2213138817302412</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 21:57:18</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S0306261917317798">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:0306-2619"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Meyers</foaf:surname>
+                        <foaf:givenName>Steven</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Schmitt</foaf:surname>
+                        <foaf:givenName>Bastian</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Vajen</foaf:surname>
+                        <foaf:givenName>Klaus</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_425"/>
+        <link:link rdf:resource="#item_426"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Solar thermal</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Economic</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Industrial processes</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Low-carbon</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>PV</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Renewable heat</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Renewable process heat from solar thermal and photovoltaics: The development and application of a universal methodology to determine the more economical technology</dc:title>
+        <dcterms:abstract>Solar energy is an important measure to reduce fossil fuel use and carbon emissions from the energy supply in industries requiring heat below 150 °C. A robust methodology was developed to compare two solar conversion technologies (solar thermal and photovoltaics via resistance heating) to determine which provided lower cost heat, highly flexible for various plant sizes, investments, currencies, locations, and process temperatures. At current PV investments, solar thermal plants must be installed turn-key below 400 €/m2ap in northern European climates and 500 €/m2ap in southern to remain economically competitive. Photovoltaic heat is already the lower cost heat provider for many applications in northern latitudes above 100 °C. In future PV cost scenarios, solar thermal must reduce investments below 250 €/m2ap to remain competitive in Europe and 400 €/m2ap in higher solar resource regions. When opportunity costs are considered, photovoltaics are better utilized to offset local electrical, not thermal, demand. Despite this fact, future efforts must be given to solar thermal cost reduction in order to remain competitive against all other renewable heat producers.</dcterms:abstract>
+        <dc:date>2018-02-15</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>Renewable process heat from solar thermal and photovoltaics</z:shortTitle>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0306261917317798</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 21:58:40</dcterms:dateSubmitted>
+        <bib:pages>1537-1552</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:0306-2619">
+        <prism:volume>212</prism:volume>
+        <dc:title>Applied Energy</dc:title>
+        <dc:identifier>DOI 10.1016/j.apenergy.2017.12.064</dc:identifier>
+        <dcterms:alternative>Applied Energy</dcterms:alternative>
+        <dc:identifier>ISSN 0306-2619</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_425">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0306261917317798/pdfft?md5=d51cd74abf326eb4113ea52d850dab45&amp;pid=1-s2.0-S0306261917317798-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 21:58:43</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_426">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0306261917317798</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 21:58:52</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.mdpi.com/1996-1073/10/3/383">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <prism:volume>10</prism:volume>
+                <dc:title>Energies</dc:title>
+                <dc:identifier>DOI 10.3390/en10030383</dc:identifier>
+                <prism:number>3</prism:number>
+                <dc:identifier>ISSN 1996-1073</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lillo</foaf:surname>
+                        <foaf:givenName>Isidoro</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Pérez</foaf:surname>
+                        <foaf:givenName>Elena</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Moreno</foaf:surname>
+                        <foaf:givenName>Sara</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Silva</foaf:surname>
+                        <foaf:givenName>Manuel</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_428"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>feasibility</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>greenhouse gas emissions</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>heat process</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>solar thermal energy</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Process Heat Generation Potential from Solar Concentration Technologies in Latin America: The Case of Argentina</dc:title>
+        <dcterms:abstract>This paper evaluates the potential of solar concentration technologies—compound parabolic collector (CPC), linear Fresnel collector (LFC) and parabolic trough collector (PTC)—as an alternative to conventional sources of energy for industrial processes in Latin America, where high levels of solar radiation and isolated areas without energy supply exist. The analysis is addressed from energy, economic and environmental perspective. A specific application for Argentina in which fourteen locations are analyzed is considered. Results show that solar concentration technologies can be an economically and environmentally viable alternative. Levelized cost of energy (LCOE) ranges between 2.5 and 16.9 c€/kWh/m2 and greenhouse gas (GHG) emissions avoided range between 33 and 348 kgCO2/(m2·year). CPC technology stands out as the most recommendable technology when the working fluid temperature ranges from 373 K to 423 K. As the working fluid temperature increases the differences between the LCOE values of the CPC and LFC technologies decrease. When 523 K is reached LFC technology is the one which presents the lowest LCOE values for all analyzed sites, while the LCOE values of PTC technology are close to CPC technology values. Results show that solar concentration technologies have reached economic and environmental competitiveness levels under certain scenarios, mainly linked to solar resource available, thermal level requirements and solar technology cost.</dcterms:abstract>
+        <dc:date>2017/3</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>Process Heat Generation Potential from Solar Concentration Technologies in Latin America</z:shortTitle>
+        <z:libraryCatalog>www.mdpi.com</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.mdpi.com/1996-1073/10/3/383</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 21:59:29</dcterms:dateSubmitted>
+        <dc:rights>http://creativecommons.org/licenses/by/3.0/</dc:rights>
+        <dc:description>Number: 3
+Publisher: Multidisciplinary Digital Publishing Institute</dc:description>
+        <bib:pages>383</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_428">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.mdpi.com/1996-1073/10/3/383/pdf?version=1489757611</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 21:59:31</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S0306261917312217">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <prism:volume>206</prism:volume>
+                <dc:title>Applied Energy</dc:title>
+                <dc:identifier>DOI 10.1016/j.apenergy.2017.08.196</dc:identifier>
+                <dcterms:alternative>Applied Energy</dcterms:alternative>
+                <dc:identifier>ISSN 0306-2619</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Allouhi</foaf:surname>
+                        <foaf:givenName>A.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Agrouaz</foaf:surname>
+                        <foaf:givenName>Y.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Benzakour Amine</foaf:surname>
+                        <foaf:givenName>Mohammed</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rehman</foaf:surname>
+                        <foaf:givenName>S.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Buker</foaf:surname>
+                        <foaf:givenName>M. S.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kousksou</foaf:surname>
+                        <foaf:givenName>T.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Jamil</foaf:surname>
+                        <foaf:givenName>A.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Benbassou</foaf:surname>
+                        <foaf:givenName>A.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_430"/>
+        <link:link rdf:resource="#item_431"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>CO emissions</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Industrial process</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Life-cycle savings</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Optimization</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Solar energy</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Design optimization of a multi-temperature solar thermal heating system for an industrial process</dc:title>
+        <dcterms:abstract>Presently, great challenges are being faced by the industrial sector in terms of energy management and environmental protection. Utilization of solar energy to meet a portion of heat demand in various industries constitutes tremendous economic opportunities for developing countries such as Morocco. Therefore, this paper introduces an optimization procedure and simulation of a centralized solar heating system providing hot water to four processes with different temperature levels and load profiles. Asa case study, a Casablanca based Moroccan milk processing company is evaluated and the life cycle cost method is practiced to select the optimal size of the main design parameters for decision-making. It was found that 400m2 of evacuated tube collectors tilted at an angle of 30° and connected to a 2000l storage tank can lead to a maximum life cycle saving cost of 179kUSD for a total annual heat demand of 528.23MWh. In this optimal configuration, the overall annual solar fraction is found to be 41% and the payback period of 12.27years attained. The system has the potential to reduce around 77.23tons of CO2 equivalents of greenhouse gas emissions annually. The economic competitiveness of the solar thermal heating plant can be considerably improved with higher inflation rates and lower initial investments.</dcterms:abstract>
+        <dc:date>2017-11-15</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0306261917312217</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:00:15</dcterms:dateSubmitted>
+        <bib:pages>382-392</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_430">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0306261917312217/pdfft?md5=634816ec3c848a4ed458e0bc7083c4d1&amp;pid=1-s2.0-S0306261917312217-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:00:17</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_431">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0306261917312217</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:00:23</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <rdf:Description rdf:about="urn:isbn:978-3-9820408-1-3">
+        <z:itemType>conferencePaper</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:identifier>ISBN 978-3-9820408-1-3</dc:identifier>
+                <dc:title>Proceedings of the ISES Solar World Congress 2019</dc:title>
+                <dc:identifier>DOI 10.18086/swc.2019.12.08</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <dc:publisher>
+            <foaf:Organization>
+                <vcard:adr>
+                    <vcard:Address>
+                       <vcard:locality>Santiago, Chile</vcard:locality>
+                    </vcard:Address>
+                </vcard:adr>
+                <foaf:name>International Solar Energy Society</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lemos</foaf:surname>
+                        <foaf:givenName>Leonardo F. L.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Werner</foaf:surname>
+                        <foaf:givenName>Lucas</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>De Souza</foaf:surname>
+                        <foaf:givenName>Thiago T. C.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Starke</foaf:surname>
+                        <foaf:givenName>Allan R.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Machado</foaf:surname>
+                        <foaf:givenName>Rubinei D.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Colle</foaf:surname>
+                        <foaf:givenName>Sergio</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_432"/>
+        <dc:title>Solar Heat in the Brazilian Dairy Industry: A Preliminary Economic Assessment</dc:title>
+        <dcterms:abstract>This study assesses the feasibility of using Solar Heating for Industrial Processes (SHIP) in the Brazilian dairy industry, for both preheating and steam generation. Simulations were carried out in TRNSYS for three SHIP integration concepts to a representative dairy plant at several Brazilian locations. The Levelized Cost of Heat (LCOH) for each concept was calculated and compared to the levelized cost of the system operating only with natural gas. Furthermore, a sensitivity analysis was performed to assess the influence of the discount rate and fuel prices in the profitability of SHIP systems, allowing to calculate how much the costs of SHIP systems must be reduced for solar process heat to be profitable. The results of this analysis may be useful for the development of policies to further the use of renewable energy in the Brazilian dairy industry.</dcterms:abstract>
+        <dc:date>2019</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>Solar Heat in the Brazilian Dairy Industry</z:shortTitle>
+        <z:libraryCatalog>DOI.org (Crossref)</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>http://proceedings.ises.org/citation?doi=swc.2019.12.08</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:01:06</dcterms:dateSubmitted>
+        <bib:pages>1-11</bib:pages>
+        <bib:presentedAt>
+            <bib:Conference>
+                <dc:title>ISES Solar World Congress 2019/IEA SHC International Conference on Solar Heating and Cooling for Buildings and Industry 2019</dc:title>
+            </bib:Conference>
+        </bib:presentedAt>
+    </rdf:Description>
+    <z:Attachment rdf:about="#item_432">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Lemos et al. - 2019 - Solar Heat in the Brazilian Dairy Industry A Prel.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>http://proceedings.ises.org/paper/swc2019/swc2019-0057-Lemos.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:01:02</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <rdf:Description rdf:about="http://proceedings.ises.org/citation?doi=swc.2019.12.07">
+        <z:itemType>conferencePaper</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:identifier>ISBN 978-3-9820408-1-3</dc:identifier>
+                <dc:title>Proceedings of the ISES Solar World Congress 2019</dc:title>
+                <dc:identifier>DOI 10.18086/swc.2019.12.07</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <dc:publisher>
+            <foaf:Organization>
+                <vcard:adr>
+                    <vcard:Address>
+                       <vcard:locality>Santiago, Chile</vcard:locality>
+                    </vcard:Address>
+                </vcard:adr>
+                <foaf:name>International Solar Energy Society</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kurup</foaf:surname>
+                        <foaf:givenName>Parthiv</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Turchi</foaf:surname>
+                        <foaf:givenName>Craig</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_434"/>
+        <dc:title>Case Study of a Californian Brewery to Potentially Use Concentrating Solar Power for Renewable Heat Generation</dc:title>
+        <dcterms:abstract>A case study for a proposed concentrating solar power (CSP) integration into an existing Californian brewery is highlighted. Using the System Advisor Model (SAM), the modelled annual thermal yield from the 1 MWth solar field (SF) was approximately 2,636 MWhth. The economics considered the viability of the project where different variables such as the installed SF cost were changed to determine the effect on the Net Present Value (NPV) and payback period. With a 15-year project life, changing the tax rate from 35% to 21% (which occurred in 2018), flips the Base Case from economically viable with an NPV &gt; 0 (i.e. +$9k), to economically unattractive, i.e. with an NPV = -$7k. For the Base Case, without the Investment Tax Credit (ITC), and with a Federal tax rate of 21%, the project’s NPV reached $0 (i.e., the project becomes viable), when the installed SF cost reached $146/m2. The biggest influences on project viability measured by NPV were the project life, Federal tax rate, and the SF cost. For viability, solar industrial process heat (SIPH) projects, need SF costs of $150 to $200/m2 in California.</dcterms:abstract>
+        <dc:date>2019</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>DOI.org (Crossref)</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>http://proceedings.ises.org/citation?doi=swc.2019.12.07</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:06:01</dcterms:dateSubmitted>
+        <bib:pages>1-12</bib:pages>
+        <bib:presentedAt>
+            <bib:Conference>
+                <dc:title>ISES Solar World Congress 2019/IEA SHC International Conference on Solar Heating and Cooling for Buildings and Industry 2019</dc:title>
+            </bib:Conference>
+        </bib:presentedAt>
+    </rdf:Description>
+    <z:Attachment rdf:about="#item_434">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Kurup and Turchi - 2019 - Case Study of a Californian Brewery to Potentially.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>http://proceedings.ises.org/paper/swc2019/swc2019-0056-Kurup.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:05:58</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S019689041500967X">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:0196-8904"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Sturm</foaf:surname>
+                        <foaf:givenName>Barbara</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Meyers</foaf:surname>
+                        <foaf:givenName>Steven</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Zhang</foaf:surname>
+                        <foaf:givenName>Yongjie</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Law</foaf:surname>
+                        <foaf:givenName>Richard</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Siqueiros Valencia</foaf:surname>
+                        <foaf:givenName>Eric J.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bao</foaf:surname>
+                        <foaf:givenName>Huashan</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Wang</foaf:surname>
+                        <foaf:givenName>Yaodong</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Chen</foaf:surname>
+                        <foaf:givenName>Haisheng</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_437"/>
+        <link:link rdf:resource="#item_438"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>China</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Solar thermal</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Cascading systems</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Energetic and economic optimization</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Food manufacturing</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Process integration</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>PV based hot water and steam generation</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>SME</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Process intensification and integration of solar heat generation in the Chinese condiment sector – A case study of a medium sized Beijing based factory</dc:title>
+        <dcterms:abstract>Over the last decade, energy prices in China have risen dramatically. At the same time, extensive use of coal fired energy provision systems in industry has led to serious environmental and economic problems translating to an economic damage of an estimated 10% of the Gross Domestic Product. This has led to increasing awareness in the process industries of the need to save energy whilst replacing conventional energy sources with renewable ones. An energy audit was conducted for a soy sauce production facility in Beijing, which aimed to reduce its thermal energy demand through process intensification and to integrate renewable energy. Their current supply of thermal energy came directly from a district steam network, which was both directly consumed and downgraded via heat exchangers. It was determined that the best two solar integration locations would be in the pre-heating/mixing of raw ingredients to 60°C and the subsequent direct steaming of the mixture to 120°C. Three different systems for supplementing steam were investigated: (1) a traditional solar thermal heating system; (2) a system consisting of mono crystalline photovoltaic panels coupled with either a resistance heater or electric steam generator; and (3) a cascading system consisting of two types of solar thermal collectors, photovoltaic panels, and an electric steam generator. Comparisons of systems 1 and 2 were made for the heating of mixing water, and systems 1, 2, and 3 for saturated steam generation. Results showed that for the heating of process water, flat plate solar collectors performed best with an estimated 20year Levelised Cost of Energy of 0.063€/kWh. Steam generation was most cost effective with a cascade system of photovoltaic and flat plate collectors, with an estimated 20year Levelised Cost of Energy of 0.145€/kWh. The model predicts that integration of this technology would lead to a reduction of 14% in heating utility demand.</dcterms:abstract>
+        <dc:date>2015-12-01</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S019689041500967X</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:07:29</dcterms:dateSubmitted>
+        <bib:pages>1295-1308</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:0196-8904">
+        <prism:volume>106</prism:volume>
+        <dc:title>Energy Conversion and Management</dc:title>
+        <dc:identifier>DOI 10.1016/j.enconman.2015.10.045</dc:identifier>
+        <dcterms:alternative>Energy Conversion and Management</dcterms:alternative>
+        <dc:identifier>ISSN 0196-8904</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_437">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S019689041500967X/pdfft?md5=027b0be1e140a8151e0603d2cdcc1316&amp;pid=1-s2.0-S019689041500967X-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:07:32</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_438">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S019689041500967X</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:07:39</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Report rdf:about="https://arena.gov.au/assets/2019/11/appendices-renewable-energy-options-for-industrial-process-heat.pdf">
+        <z:itemType>report</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Australian Renewable Energy Agency</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lovegrove</foaf:surname>
+                        <foaf:givenName>Keith</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Alexander</foaf:surname>
+                        <foaf:givenName>Dani</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bader</foaf:surname>
+                        <foaf:givenName>Roman</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Edwards</foaf:surname>
+                        <foaf:givenName>Stephen</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lord</foaf:surname>
+                        <foaf:givenName>Michael</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Mojiri</foaf:surname>
+                        <foaf:givenName>Ahmad</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rutovitz</foaf:surname>
+                        <foaf:givenName>Jay</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Saddler</foaf:surname>
+                        <foaf:givenName>Hugh</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Stanley</foaf:surname>
+                        <foaf:givenName>Cameron</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Urkalan</foaf:surname>
+                        <foaf:givenName>Kali</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Watt</foaf:surname>
+                        <foaf:givenName>Muriel</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_441"/>
+        <dc:title>Renewable energy options for industrial process heat: Appendices</dc:title>
+        <dc:date>2019</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>Zotero</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://arena.gov.au/assets/2019/11/appendices-renewable-energy-options-for-industrial-process-heat.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Report>
+    <z:Attachment rdf:about="#item_441">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Street and Act - ITP Thermal Pty Ltd, is a part of the ITP Energise.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://arena.gov.au/assets/2019/11/appendices-renewable-energy-options-for-industrial-process-heat.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-03 22:40:41</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S0360544218305759">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <prism:volume>152</prism:volume>
+                <dc:title>Energy</dc:title>
+                <dc:identifier>DOI 10.1016/j.energy.2018.03.166</dc:identifier>
+                <dcterms:alternative>Energy</dcterms:alternative>
+                <dc:identifier>ISSN 0360-5442</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Arpagaus</foaf:surname>
+                        <foaf:givenName>Cordin</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bless</foaf:surname>
+                        <foaf:givenName>Frédéric</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Uhlmann</foaf:surname>
+                        <foaf:givenName>Michael</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Schiffmann</foaf:surname>
+                        <foaf:givenName>Jürg</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bertsch</foaf:surname>
+                        <foaf:givenName>Stefan S.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_445"/>
+        <link:link rdf:resource="#item_444"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>COP</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>High temperature heat pump</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Market overview</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Refrigerant</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Research status</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>State of the art</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>High temperature heat pumps: Market overview, state of the art, research status, refrigerants, and application potentials</dc:title>
+        <dcterms:abstract>This study reviews the current state of the art and the current research activities of high temperature heat pumps (HTHPs) with heat sink temperatures in the range of 90 to 160 °C. The focus is on the analysis of the heat pump cycles and the suitable refrigerants. More than 20 HTHPs from 13 manufacturers have been identified on the market that are able to provide heat sink temperatures of at least 90 °C. Large application potentials have been recognized particularly in the food, paper, metal and chemical industries. The heating capacities range from about 20 kW to 20 MW. Most cycles are single-stage and differ primarily in the refrigerant (e.g. R245fa, R717, R744, R134a or R1234ze(E)) and compressor type used. The COPs range from 2.4 to 5.8 at a temperature lift of 95 to 40 K. Several research projects push the limits of the achievable COPs and heat sink temperatures to higher levels. COPs of about 5.7 to 6.5 (at 30 K lift) and 2.2 and 2.8 (70 K) are achieved at a sink temperature of 120 °C. The refrigerants investigated are mainly R1336mzz(Z), R718, R245fa, R1234ze(Z), R600, and R601. R1336mzz(Z) enables to achieve exceptionally high heat sink temperatures of up to 160 °C.</dcterms:abstract>
+        <dc:date>2018-06-01</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>High temperature heat pumps</z:shortTitle>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0360544218305759</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-05 15:29:29</dcterms:dateSubmitted>
+        <bib:pages>985-1010</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_445">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0360544218305759/pdfft?md5=78addb39750b81e5f2fc28df05e8c425&amp;pid=1-s2.0-S0360544218305759-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-05 15:29:47</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_444">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0360544218305759</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-05 15:29:47</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S019689042201127X">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <prism:volume>272</prism:volume>
+                <dc:title>Energy Conversion and Management</dc:title>
+                <dc:identifier>DOI 10.1016/j.enconman.2022.116349</dc:identifier>
+                <dcterms:alternative>Energy Conversion and Management</dcterms:alternative>
+                <dc:identifier>ISSN 0196-8904</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Jibran S. Zuberi</foaf:surname>
+                        <foaf:givenName>M.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Hasanbeigi</foaf:surname>
+                        <foaf:givenName>Ali</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Morrow</foaf:surname>
+                        <foaf:givenName>William</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_447"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>CO emissions</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Electrification</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Process heat</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Industrial heat pumps</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Marginal costs</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>United States</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Bottom-up assessment of industrial heat pump applications in U.S. Food manufacturing</dc:title>
+        <dcterms:abstract>Decarbonization of the industrial process heat supply through electrification could contribute significantly to climate change mitigation efforts. In the U.S. industry, thermal processes accounted for more than two-thirds of the total final energy demand in 2021. Cross-cutting electrification technologies like industrial heat pumps are suitable for the process heat supply to several industrial unit operations in a sustainable way while also improving overall energy efficiency. This study employs a bottom-up approach to investigate the techno-enviro-economic potentials of deploying high-temperature and steam-generating heat pumps in the major U.S. food manufacturing sectors in different timeframes. The results show that the annual technical potential energy and CO2 savings by electrifying process heat supply are 325 PJ (or approximately 20% of the total final energy demand in U.S. food manufacturing) and 31 MtCO2 (equivalent to the annual CO2 emissions from over 6 million cars in the U.S.) in 2050, respectively; however, these incur additional costs in each sector. Although there may be individual cost-effective opportunities for electrifying heat supply in specific industrial sites, the overall costs are estimated to be high in the food sectors due to the large disparity between electricity and natural gas prices and low heat source temperatures. To overcome the identified techno-economic barriers, comprehensive action plans for different stakeholders are needed. This study provides novel insights that should inform policymakers’ and executives’ decisions about the electrification of the current and future U.S. industrial heat supply in relevant industrial sectors.</dcterms:abstract>
+        <dc:date>2022-11-15</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S019689042201127X</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-05 22:22:01</dcterms:dateSubmitted>
+        <bib:pages>116349</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_447">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S019689042201127X#b0085</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-05 22:22:11</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S2213138821009516">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <prism:volume>52</prism:volume>
+                <dc:title>Sustainable Energy Technologies and Assessments</dc:title>
+                <dc:identifier>DOI 10.1016/j.seta.2021.101937</dc:identifier>
+                <dcterms:alternative>Sustainable Energy Technologies and Assessments</dcterms:alternative>
+                <dc:identifier>ISSN 2213-1388</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Obrist</foaf:surname>
+                        <foaf:givenName>Michel D.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kannan</foaf:surname>
+                        <foaf:givenName>Ramachandran</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Schmidt</foaf:surname>
+                        <foaf:givenName>Thomas J.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kober</foaf:surname>
+                        <foaf:givenName>Tom</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_450"/>
+        <link:link rdf:resource="#item_449"/>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Energy efficiency</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Deep decarbonization scenario analysis</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>High-temperature heat pumps</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Material flow modeling</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Pulp and paper industry</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Techno-economic bottom-up modeling</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>TIMES</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Long-term energy efficiency and decarbonization trajectories for the Swiss pulp and paper industry</dc:title>
+        <dcterms:abstract>The contribution of the industrial sector is essential to realize long-term energy and climate policy goals. The present research paper explores trajectories improving energy efficiency and reaching net-zero emissions in the Swiss pulp and paper industry by 2050. A techno-economic bottom-up cost optimization model is developed based on the Swiss TIMES Energy system Model (STEM) and applied for a scenario analysis. Establishing an advanced modeling methodology including material and product flows in addition to energy flows, allowed us to assess explicit process improvements and the impact of specific innovative production technologies. Furthermore, this paper demonstrates the value of dividing industrial heat demand into different temperature levels which enables a detailed assessment of high-temperature heat pumps and waste heat recovery as important decarbonization options in industry. The results of the scenario analysis performed with this advanced model show that an energy reduction of 23% and a reduction in the annual CO2 emissions of 71% until 2050 would result from a cost-optimal technology deployment even without major policy intervention, given the assumptions made on technology progress and costs. These improvements are achieved by fuel switching, improvements in the production processes and deployment of efficient technologies, in particular high-temperature heat pumps and efficient motors. Achieving a net-zero goal in the pulp and paper industry by 2050 requires increased amounts of biomass in the short term and additionally high-temperature heat pumps up to 200 °C in the long-term in case of biomass scarcity. On the other hand, this leads to 49% higher energy related costs compared to the baseline development, if all other sectors decarbonize simultaneously to reach net-zero CO2 emissions in Switzerland.</dcterms:abstract>
+        <dc:date>2022-08-01</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S2213138821009516</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-05 22:23:54</dcterms:dateSubmitted>
+        <bib:pages>101937</bib:pages>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_450">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S2213138821009516/pdfft?md5=c15467dbdaca19719361e8c39af50274&amp;pid=1-s2.0-S2213138821009516-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-05 22:24:09</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_449">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S2213138821009516?via%3Dihub</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-05 22:24:02</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S0924224420306348">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:0924-2244"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Atuonwu</foaf:surname>
+                        <foaf:givenName>James</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Tassou</foaf:surname>
+                        <foaf:givenName>Savvas</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_452"/>
+        <link:link rdf:resource="#item_453"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Decarbonisation</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Electro-heating</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Energy-efficiency</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Food processing</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Non-thermal processing</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Process equivalence</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Decarbonisation of food manufacturing by the electrification of heat: A review of developments, technology options and future directions</dc:title>
+        <dcterms:abstract>The increasing global demand for food, places significant sustainability pressures on food manufacturing systems. Given the finite nature of traditional energy supply resources available to drive the ever-growing food manufacturing sector and stringent emission reduction targets, sector decarbonisation is imperative. The increasing global trend of electricity grid decarbonisation creates opportunities for food industry decarbonisation by the electrification of heat. This work analyses for the first time, comparative energy studies between various food processing technologies at different unit operations levels and product categories. The analysis shows that emerging electrified technologies, as extensively described in this work, significantly reduce food processing greenhouse gas emissions, compared to conventional thermal treatment due to the combined effects of electricity grid decarbonisation, end-use energy-efficiency, and time savings. The most significant improvements are found in phase change and structure formation processes on solid foods (e.g. drying, evaporation, thawing, tempering &amp; baking). This is attributable to the fast, volumetric processing and microstructural modification capabilities of electro-heating and nonthermal processing technologies, which circumvent the significant latent heat loads and slow heat transfer dynamics of conventional thermal treatment in these unit operations. Research gaps for future energy studies in the food industry are also identified. To prevent bias in results, it is important in future comparative studies to establish equivalence between the compared technologies not just in terms of the degree of product processing (as has been the case in literature), but also in terms of energy utilisation (scaled energy delivery in kW to the product flow or hold-up).</dcterms:abstract>
+        <dc:date>2021-01-01</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>Decarbonisation of food manufacturing by the electrification of heat</z:shortTitle>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0924224420306348</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-06 17:02:12</dcterms:dateSubmitted>
+        <bib:pages>168-182</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:0924-2244">
+        <prism:volume>107</prism:volume>
+        <dc:title>Trends in Food Science &amp; Technology</dc:title>
+        <dc:identifier>DOI 10.1016/j.tifs.2020.10.011</dc:identifier>
+        <dcterms:alternative>Trends in Food Science &amp; Technology</dcterms:alternative>
+        <dc:identifier>ISSN 0924-2244</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_452">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0924224420306348/pdfft?md5=95cdea8c67a3e8fc16429090530bb964&amp;pid=1-s2.0-S0924224420306348-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-06 17:02:15</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_453">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0924224420306348#bib76</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-06 17:02:23</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Report rdf:about="https://www150.statcan.gc.ca/n1/en/pub/16-401-x/16-401-x2014001-eng.pdf?st=DicOpEI5">
+        <z:itemType>report</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+                <foaf:name>Statistics Canada: Environment, Energy and Transportation Statistics Division</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Cameron</foaf:surname>
+                        <foaf:givenName>Murray</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kemp</foaf:surname>
+                        <foaf:givenName>Laura</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Prescott</foaf:surname>
+                        <foaf:givenName>Matthew</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lavergne</foaf:surname>
+                        <foaf:givenName>Marc</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Zaletel</foaf:surname>
+                        <foaf:givenName>Natasha</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Kuseler</foaf:surname>
+                        <foaf:givenName>Wade</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Zhu</foaf:surname>
+                        <foaf:givenName>Ellen</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Liu</foaf:surname>
+                        <foaf:givenName>Leo</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Chen</foaf:surname>
+                        <foaf:givenName>Seline</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Dubois</foaf:surname>
+                        <foaf:givenName>Shannon</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Fontaine</foaf:surname>
+                        <foaf:givenName>Francine</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Voyer</foaf:surname>
+                        <foaf:givenName>Suzanne</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Tchahou</foaf:surname>
+                        <foaf:givenName>Herbert Nkwimi</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Girard</foaf:surname>
+                        <foaf:givenName>Claude</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Hamel</foaf:surname>
+                        <foaf:givenName>Martin</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_454"/>
+        <dc:title>Industrial Water Use, 2011</dc:title>
+        <dc:date>2014</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>Zotero</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www150.statcan.gc.ca/n1/en/pub/16-401-x/16-401-x2014001-eng.pdf?st=DicOpEI5</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Report>
+    <z:Attachment rdf:about="#item_454">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Cameron et al. - Industrial Water Use.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www150.statcan.gc.ca/n1/en/pub/16-401-x/16-401-x2014001-eng.pdf?st=DicOpEI5</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-11 19:04:43</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S092180091730455X">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:0921-8009"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rehkamp</foaf:surname>
+                        <foaf:givenName>Sarah</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Canning</foaf:surname>
+                        <foaf:givenName>Patrick</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_457"/>
+        <link:link rdf:resource="#item_458"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Sustainability</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Blue water</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Environmental input-output model</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Food policy</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Healthy diet</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>U.S. food system</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Measuring Embodied Blue Water in American Diets: An EIO Supply Chain Approach</dc:title>
+        <dcterms:abstract>Food systems worldwide rely on water resources that are facing demand from a growing population while regional water supplies are increasingly uncertain due to climate change. In this environment, dietary changes may have the potential to reduce water used in food production. At the same time, it is well established that American diets need to change in order to align with Federal healthy eating guidelines. In this article, we examine if there are synergies between healthier diets and blue water conservation in the U.S. food system. We estimate blue water use by supply chain stage using a multi-regional environmental input-output model. Then, we link this blue water to individual food items and use mathematical optimization to model healthy diet scenarios that meet the Dietary Guidelines for Americans. We find that while healthier U.S. diet outcomes and blue water conservation can be synergistic, these goals may also be competing. Making minimal changes from current American consumption to a healthy omnivore or vegetarian diet, blue water use increases by 16%, but the omnivore and vegetarian diets reduce embodied blue water by 63 and 66%, respectively, when the objective is to minimize water use.</dcterms:abstract>
+        <dc:date>2018-05-01</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>Measuring Embodied Blue Water in American Diets</z:shortTitle>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S092180091730455X</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-11 19:08:10</dcterms:dateSubmitted>
+        <bib:pages>179-188</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:0921-8009">
+        <prism:volume>147</prism:volume>
+        <dc:title>Ecological Economics</dc:title>
+        <dc:identifier>DOI 10.1016/j.ecolecon.2017.12.028</dc:identifier>
+        <dcterms:alternative>Ecological Economics</dcterms:alternative>
+        <dc:identifier>ISSN 0921-8009</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_457">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S092180091730455X/pdfft?md5=fbf4ae6931d7b9b802bd06358d764867&amp;pid=1-s2.0-S092180091730455X-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-11 19:08:15</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_458">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S092180091730455X</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-11 19:08:19</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Report rdf:about="https://www.ers.usda.gov/webdocs/publications/101625/err-288.pdf?v=8878.3">
+        <z:itemType>report</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>USDA Economic Research Service</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rehkamp</foaf:surname>
+                        <foaf:givenName>Sarah</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Canning</foaf:surname>
+                        <foaf:givenName>Patrick</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Birney</foaf:surname>
+                        <foaf:givenName>Catherine</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_459"/>
+        <dc:title>Tracking the U.S. Domestic Food Supply Chain’s Freshwater Use Over Time</dc:title>
+        <dcterms:abstract>The U.S. food system uses freshwater from both surface water and groundwater sources (both blue water) throughout the domestic food supply chain, from on-farm irrigation to water used in the home kitchen. In this report, we study water use in the U.S. food system in 1997, 2002, 2007, and 2012 using the most recent benchmark economic datasets and an environmental input-output model. Our results show that blue water use has increased and decreased over the 4 time periods, but surface water is consistently the primary source of food-related water use. The U.S. food system used 34 trillion gallons of blue water in 2012, or 30 percent of the blue water used throughout the U.S. economy. We find that the majority of water use was in the crop and livestock production stages, although supply chain stages downstream from agriculture (processing and packaging, distribution and marketing, energy, and households) used 32 percent of the U.S. food system’s blue water in 2012. This research also considers specific food categories. In 2012, the fresh vegetable category required the most blue water at 5.14 trillion gallons.</dcterms:abstract>
+        <dc:date>July 2021</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>Zotero</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.ers.usda.gov/webdocs/publications/101625/err-288.pdf?v=8878.3</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Report>
+    <z:Attachment rdf:about="#item_459">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Rehkamp - Tracking the U.S. Domestic Food Supply Chain’s Fre.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.ers.usda.gov/webdocs/publications/101625/err-288.pdf?v=8878.3</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-11 19:09:19</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://onlinelibrary.wiley.com/doi/abs/10.1029/2004WR003360">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:1944-7973"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Vassolo</foaf:surname>
+                        <foaf:givenName>Sara</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Döll</foaf:surname>
+                        <foaf:givenName>Petra</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_463"/>
+        <link:link rdf:resource="#item_462"/>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>global-scale gridded estimates</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>manufacturing water use</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>thermal power water use</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>water use</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Global-scale gridded estimates of thermoelectric power and manufacturing water use</dc:title>
+        <dcterms:abstract>New global-scale gridded estimates of industrial water use around 1995 are presented which, for the first time, distinguish between water use for cooling of thermal power stations and for manufacturing. Estimates of annual values of both water withdrawal and consumption are provided with a spatial resolution of 0.5° by 0.5°. Thermoelectric power water use is based on the geographical location of 63,590 thermal power stations. Manufacturing water use is computed by first estimating country-specific water withdrawal values, which are then distributed as a function of city nighttime lights. A comparison to industrial water use in the 50 states of the United States and 89 regions in Russia shows that the developed data set represents thermoelectric power water use satisfactorily, while manufacturing water use remains highly uncertain.</dcterms:abstract>
+        <dc:date>2005</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>Wiley Online Library</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://onlinelibrary.wiley.com/doi/abs/10.1029/2004WR003360</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-11 20:05:13</dcterms:dateSubmitted>
+        <dc:rights>Copyright 2005 by the American Geophysical Union.</dc:rights>
+        <dc:description>_eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1029/2004WR003360</dc:description>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:1944-7973">
+        <prism:volume>41</prism:volume>
+        <dc:title>Water Resources Research</dc:title>
+        <dc:identifier>DOI 10.1029/2004WR003360</dc:identifier>
+        <prism:number>4</prism:number>
+        <dc:identifier>ISSN 1944-7973</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_463">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://onlinelibrary.wiley.com/doi/pdfdirect/10.1029/2004WR003360</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-11 20:05:49</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_462">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2004WR003360</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-07-11 20:05:26</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://jgea.org/ojs/index.php/jgea/article/view/77">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:2377-2999"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Aguiar</foaf:surname>
+                        <foaf:givenName>Angel</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Chepeliev</foaf:surname>
+                        <foaf:givenName>Maksym</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Corong</foaf:surname>
+                        <foaf:givenName>Erwin L.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>McDougall</foaf:surname>
+                        <foaf:givenName>Robert</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Mensbrugghe</foaf:surname>
+                        <foaf:givenName>Dominique van der</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_465"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Global</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Data Base</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>General Equilibrium</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Input- Output Tables</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>International Trade</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>The GTAP Data Base: Version 10</dc:title>
+        <dcterms:abstract>This paper highlights the numerous improvements to the Global Trade, Assistance, and Production (GTAP) Data Base, version 10 (also referred to as GTAP 10). The Data Base describes the world economy for 4 reference years (2004, 2007, 2011, and 2014) and distinguishes 65 sectors, up from 57 in the previous release, in each of the 141 countries/regions. The 121 countries in the Data Base account for 98% of world GDP and 92% of world population. For each country/region, the Data Base reports production, intermediate and final uses, international trade and transport margins, and taxes/subsidies. This Data Base underlies most, if not all, applied global general equilibrium models. We use the time series GTAP 10 Data Base to examine the evolution of carbon dioxide emissions embodied in bilateral merchandise and services trade over the 2004-2014 period.</dcterms:abstract>
+        <dc:date>2019-06-26</dc:date>
+        <z:language>en</z:language>
+        <z:shortTitle>The GTAP Data Base</z:shortTitle>
+        <z:libraryCatalog>jgea.org</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://jgea.org/ojs/index.php/jgea/article/view/77</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-08-07 16:17:14</dcterms:dateSubmitted>
+        <dc:rights>Copyright (c) 2019 Angel Aguiar, Maksym Chepeliev, Erwin Corong, Robert McDougall, Dominique van der Mensbrugghe</dc:rights>
+        <dc:description>Number: 1</dc:description>
+        <bib:pages>1-27</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:2377-2999">
+        <prism:volume>4</prism:volume>
+        <dc:title>Journal of Global Economic Analysis</dc:title>
+        <dc:identifier>DOI 10.21642/JGEA.040101AF</dc:identifier>
+        <prism:number>1</prism:number>
+        <dc:identifier>ISSN 2377-2999</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_465">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://jgea.org/ojs/index.php/jgea/article/download/77/96</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-08-07 16:17:18</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <bib:Article rdf:about="https://www.sciencedirect.com/science/article/pii/S0959652621039342">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf rdf:resource="urn:issn:0959-6526"/>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Worrell</foaf:surname>
+                        <foaf:givenName>Ernst</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Boyd</foaf:surname>
+                        <foaf:givenName>Gale</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_476"/>
+        <link:link rdf:resource="#item_477"/>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Electrification</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Energy efficiency</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Decarbonization</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Climate change mitigation</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+               <rdf:value>Material efficiency</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:subject>
+           <z:AutomaticTag><rdf:value>Renewables</rdf:value></z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Bottom-up estimates of deep decarbonization of U.S. manufacturing in 2050</dc:title>
+        <dcterms:abstract>The world needs to rapidly reduce emissions of carbon dioxide (CO2) emission to stave off the risks of disastrous climate change. In particular, decarbonizing U.S. manufacturing industries is particularly challenging due to the specific process requirements. This study estimates the potential for future CO2 emission reductions in this important sector. The analysis is a detailed accounting exercise that relies on estimates of emission-reduction potential from other studies and applies those potentials to the manufacturing sector using a bottom-up approach. The actions are grouped into four “pillars” that support deep decarbonization of manufacturing (DDM): Energy Efficiency, Material Efficiency, Industry-Specific, and Power Grid. Based on this bottom-up approach, the analysis shows that an 86% reduction in carbon dioxide emissions from the Reference Case is feasible. No single pillar dominates DDM, although opportunities vary widely by sub-sector. The analysis shows that a strategy incorporating a broad set of elements from each pillar can be effective instead of relying on any single pillar. Some pillars, such as Energy Efficiency and Material Efficiency, have wide applicability; others have key niche roles that are Industry-Specific; the Power Grid pillar requires interaction between grid decarbonization and industry action to switch from fossil fuels to zero-carbon electricity where appropriate.</dcterms:abstract>
+        <dc:date>2022-01-01</dc:date>
+        <z:libraryCatalog>ScienceDirect</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0959652621039342</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-09-05 14:14:16</dcterms:dateSubmitted>
+        <bib:pages>129758</bib:pages>
+    </bib:Article>
+    <bib:Journal rdf:about="urn:issn:0959-6526">
+        <prism:volume>330</prism:volume>
+        <dc:title>Journal of Cleaner Production</dc:title>
+        <dc:identifier>DOI 10.1016/j.jclepro.2021.129758</dc:identifier>
+        <dcterms:alternative>Journal of Cleaner Production</dcterms:alternative>
+        <dc:identifier>ISSN 0959-6526</dc:identifier>
+    </bib:Journal>
+    <z:Attachment rdf:about="#item_476">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0959652621039342/pdfft?md5=156c4c51125450d2df16954cf8b8668a&amp;pid=1-s2.0-S0959652621039342-main.pdf&amp;isDTMRedir=Y</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-09-05 14:14:26</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_477">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ScienceDirect Snapshot</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.sciencedirect.com/science/article/pii/S0959652621039342?via%3Dihub</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-09-05 14:14:27</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Report rdf:about="https://www.osti.gov/servlets/purl/1961393/">
+        <z:itemType>report</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Cresko</foaf:surname>
+                        <foaf:givenName>Joe</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rightor</foaf:surname>
+                        <foaf:givenName>Edward</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Carpenter</foaf:surname>
+                        <foaf:givenName>Alberta</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Peretti</foaf:surname>
+                        <foaf:givenName>Kathryn</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Elliott</foaf:surname>
+                        <foaf:givenName>Neal</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Nimbalkar</foaf:surname>
+                        <foaf:givenName>Sachin</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Morrow Iii</foaf:surname>
+                        <foaf:givenName>William</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Hasanbeigi</foaf:surname>
+                        <foaf:givenName>Ali</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Hedman</foaf:surname>
+                        <foaf:givenName>Bruce</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Supekar</foaf:surname>
+                        <foaf:givenName>Sarang</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>McMillan</foaf:surname>
+                        <foaf:givenName>Colin</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Hoffmeister</foaf:surname>
+                        <foaf:givenName>Andrew</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Whitlock</foaf:surname>
+                        <foaf:givenName>Andrew</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Igogo</foaf:surname>
+                        <foaf:givenName>Tsisilile</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Walzberg</foaf:surname>
+                        <foaf:givenName>Julien</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>D'Alessandro</foaf:surname>
+                        <foaf:givenName>Cheryl</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Anderson</foaf:surname>
+                        <foaf:givenName>Sharon</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Atnoorkar</foaf:surname>
+                        <foaf:givenName>Swaroop</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Upsani</foaf:surname>
+                        <foaf:givenName>Shubhankar</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>King</foaf:surname>
+                        <foaf:givenName>Phyllis</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Grgich</foaf:surname>
+                        <foaf:givenName>Jodi</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Ovard</foaf:surname>
+                        <foaf:givenName>Leslie</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Foist</foaf:surname>
+                        <foaf:givenName>Rachel</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Conner</foaf:surname>
+                        <foaf:givenName>Alison</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Meshek</foaf:surname>
+                        <foaf:givenName>Mike</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Hicks</foaf:surname>
+                        <foaf:givenName>Alfred</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Dollinger</foaf:surname>
+                        <foaf:givenName>Caroline</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Liddell</foaf:surname>
+                        <foaf:givenName>Heather</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_478"/>
+        <dc:title>U.S. Department of Energy’s Industrial Decarbonization Roadmap</dc:title>
+        <dc:date>2022-09-01</dc:date>
+        <z:language>en</z:language>
+        <z:libraryCatalog>DOI.org (Crossref)</z:libraryCatalog>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.osti.gov/servlets/purl/1961393/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-09-05 14:24:23</dcterms:dateSubmitted>
+        <dc:description>DOI: 10.2172/1961393</dc:description>
+        <bib:pages>DOE/EE-2635, 1961393</bib:pages>
+        <prism:number>DOE/EE-2635, 1961393</prism:number>
+    </bib:Report>
+    <z:Attachment rdf:about="#item_478">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>Cresko et al. - 2022 - U.S. Department of Energy’s Industrial Decarboniza.pdf</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.energy.gov/sites/default/files/2022-09/Industrial%20Decarbonization%20Roadmap.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-09-05 14:24:18</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+</rdf:RDF>
