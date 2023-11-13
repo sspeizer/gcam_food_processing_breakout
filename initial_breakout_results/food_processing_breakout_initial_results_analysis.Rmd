@@ -28,9 +28,9 @@ library(Polychrome)
 library(rgcam)
 
 # set directories and variables
-database_name <- "database_basexdb_8-7-23"
-run_dir <- "C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_run_8-7-23"
-run_name <- "food_processing_run_8-7-23"
+database_name <- "database_basexdb_10-30-23"
+run_dir <- "C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_run_10-30-23"
+run_name <- "food_processing_run_10-30-23"
 fig_dir <- paste0(run_dir, "/figures")
 if (!dir.exists(fig_dir)) {dir.create(fig_dir)}
 setwd(run_dir)
@@ -896,7 +896,7 @@ ag_regional_total_costs_food <- rbind(demand_balances_crop_commodity,
   filter(sector == "FoodDemand_NonStaples" | sector == "FoodDemand_Staples") %>%
   left_join(ag_regional_prices %>% 
               bind_rows(OtherMeat_Fish_prices %>% 
-                          dplyr::select(-c(market)) %>% 
+                          dplyr::select(-c(market, region)) %>% 
                           mutate(sector = "OtherMeat_Fish") %>%
                           gcamdata::repeat_add_columns(tibble(region = unique(ag_regional_prices$region)))) %>%
               rename(input = sector,

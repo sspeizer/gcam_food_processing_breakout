@@ -120,7 +120,7 @@
                or @name='regional misccrop' or @name='regional nuts_seeds' or @name='regional oilcrop' or @name='regional othergrain'
                or @name='regional oilpalm' or @name='regional rice' or @name='regional root_tuber'
                or @name='regional soybean' or @name='regional sugarcrop' or @name='regional vegetables' or @name='regional wheat'
-               or @name='FodderGrass' or @name='FodderHerb' or @name='Forest' or @name='Pasture')]/
+               or @name='FodderGrass' or @name='FodderHerb' or @name='Forest' or @name='Pasture' or @name='regional sawnwood' or @name='regional woodpulp')]/
                demand-physical/node()</xPath>
                 <comments/>
             </supplyDemandQuery>

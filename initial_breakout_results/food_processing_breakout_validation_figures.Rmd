@@ -27,7 +27,7 @@ library(ggsci)
 library(Polychrome)
 
 # set directories
-run_dir <- "C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_validation_run_8-11-23"
+run_dir <- "C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakout_results/data/food_processing_validation_run_11-9-23"
 fig_dir <- paste0(run_dir,"/figures_validation")
 if (!dir.exists(fig_dir)) {dir.create(fig_dir)}
 results_dir <- fig_dir
@@ -40,11 +40,12 @@ source("C:/Users/spei632/Documents/GCAM_industry/food_processing/initial_breakou
 queries <- list.files(run_dir, pattern = 'queryoutall')
 for (i in queries) {
   filename <- gsub('.csv','', i) %>% gsub('queryoutall_','', .)
-  if (!grepl("food_pro", filename)) {
+  if (!grepl("food_pro", filename) & !grepl("national_account", filename)) {
+  # if (!grepl("food_pro", filename)) {  
     assign(filename, read_csv(paste0(run_dir, "/", i), skip = 1) %>% 
              parse_PIC_data() %>%
              # indicate if master or food processing branch
-             mutate(branch = if_else(grepl("date=2023-11-8", date), "food_industry", "master"),
+             mutate(branch = if_else(grepl("date=2023-9-11", date), "food_industry", "master"),
                     scenario = if_else(scenario == "Reference", "GCAM", scenario),
                     policy_type = case_when(grepl("2p6", scenario) ~"RCP 2p6", 
                                             grepl("Tax25", scenario) ~ "Tax25",
@@ -63,7 +64,7 @@ for (i in queries) {
     assign(filename, read_csv(paste0(run_dir, "/", i), skip = index_start - 1, comment = comment_string) %>% 
              parse_PIC_data() %>%
              # indicate if master or food processing branch
-             mutate(branch = if_else(grepl("date=2023-11-8", date), "food_industry", "master"),
+             mutate(branch = if_else(grepl("date=2023-9-11", date), "food_industry", "master"),
                     scenario = if_else(scenario == "Reference", "GCAM", scenario),
                     policy_type = case_when(grepl("2p6", scenario) ~"RCP 2p6", 
                                             grepl("Tax25", scenario) ~ "Tax25",
@@ -242,6 +243,29 @@ ggplot(food_pro_inputs_process_heat_sep_edit %>% filter(scenario == ref_scenario
   theme(text=element_text(size=17),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_total_energy_inputs_sep_sector_ref_food_ind_global.png"), width = 15, height = 8)
+
+# plot just for 8 largest energy users in 2100
+top_8_energy_users_food_pro_2100_ref <- food_pro_energy_inputs_edit %>%
+  filter(year == 2100 & scenario == "GCAM") %>%
+  group_by(region) %>%
+  summarize(value = sum(value)) %>%
+  arrange(desc(value)) %>%
+  pull(region) %>%
+  head(8)
+  
+ggplot(food_pro_energy_inputs_edit %>% filter(scenario == ref_scenario_name & branch == food_branch_name & year >= 2005 & region %in% top_8_energy_users_food_pro_2100_ref) %>%
+         mutate(region = factor(region, levels = top_8_energy_users_food_pro_2100_ref)),
+       aes(x = year, y = value, fill = input_edit)) +
+  geom_col() +
+  facet_wrap(~region, nrow = 4) +
+  scale_fill_manual(values = pal_sel_extended, drop = TRUE, limits = force, name = "fuel") +
+  labs(x = "", y = "EJ", title = "Food processing energy inputs, reference scenario", 
+       caption = "Top 8 food processing energy consumers in 2100 are shown") +
+  theme_bw() +
+  theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
+        strip.background = element_blank())
+ggsave(paste0(fig_dir, "/food_pro_total_energy_inputs_ref_food_ind_top_8_en_users_2100.png"), width = 8, height = 10)
 ```
 
 Food processing overall sector inputs.
@@ -450,6 +474,18 @@ ggplot(industry_final_en_sector_agg %>% filter(scenario == ref_scenario_name & b
         axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/industry_final_en_sector_ref_food_ind.png"), width = 30, height = 20)
+
+ggplot(industry_final_en_sector_agg %>% filter(scenario == ref_scenario_name & branch == food_branch_name & year >= 2005),
+       aes(x = year, y = value, fill = sector_agg)) +
+  geom_col() +
+  facet_wrap(~region, nrow = 4, scales = "free_y") +
+  scale_fill_manual(values = pal_industry_sectors, name = "sector") +
+  labs(x = "", y = "EJ", title = "Industry final energy use by sector, reference scenario, food industry branch") +
+  theme_bw() +
+  theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
+        strip.background = element_blank())
+ggsave(paste0(fig_dir, "/industry_final_en_sector_ref_food_ind_free_y.png"), width = 30, height = 20)
 
 ggplot(industry_final_en_sector_agg %>% filter(scenario == ref_scenario_name & branch == food_branch_name & year >= 2005),
        aes(x = year, y = value, fill = sector_agg)) +
@@ -685,6 +721,29 @@ ggplot(food_pro_energy_inputs_edit_global %>% filter(branch == food_branch_name 
         axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_total_energy_inputs_by_fuel_scenario_comp_global.png"), width = 18, height = 10)
+
+# plot just for 8 largest energy users in 2100 in 2.6 scenario
+top_8_energy_users_food_pro_2100_2p6 <- food_pro_energy_inputs_edit %>%
+  filter(year == 2100 & scenario == "GCAM_2p6") %>%
+  group_by(region) %>%
+  summarize(value = sum(value)) %>%
+  arrange(desc(value)) %>%
+  pull(region) %>%
+  head(8)
+  
+ggplot(food_pro_energy_inputs_edit %>% filter(scenario == "GCAM_2p6" & branch == food_branch_name & year >= 2005 & region %in% top_8_energy_users_food_pro_2100_2p6) %>%
+         mutate(region = factor(region, levels = top_8_energy_users_food_pro_2100_ref)),
+       aes(x = year, y = value, fill = input_edit)) +
+  geom_col() +
+  facet_wrap(~region, nrow = 4) +
+  scale_fill_manual(values = pal_sel_extended, drop = TRUE, limits = force, name = "fuel") +
+  labs(x = "", y = "EJ", title = "Food processing energy inputs, RCP 2.6 scenario", 
+       caption = "Top 8 food processing energy consumers in 2100 are shown") +
+  theme_bw() +
+  theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
+        strip.background = element_blank())
+ggsave(paste0(fig_dir, "/food_pro_total_energy_inputs_2p6_food_ind_top_8_en_users_2100.png"), width = 8, height = 10)
 ```
 
 ### Process heat food processing outputs by technology
@@ -725,6 +784,22 @@ ggplot(food_pro_process_heat_prod_heat_only_total_global %>% filter(branch == fo
   theme(text=element_text(size=17),
         strip.background = element_blank())
 ggsave(paste0(fig_dir, "/food_pro_process_heat_outputs_total_scenario_comp_global.png"), width = 15, height = 8)
+
+# plot just the main GCAM scenarios
+ggplot(food_pro_process_heat_prod_tech_heat_only %>% 
+         filter(branch == food_branch_name & year >= 2005 & scenario %in% c("GCAM", "GCAM_2p6")) %>%
+         mutate(name = if_else(scenario == "GCAM", "Reference", "RCP 2.6"),
+                name = factor(name, levels = c("Reference", "RCP 2.6"))),
+       aes(x = year, y = value, fill = technology)) +
+  geom_col() +
+  facet_wrap(~name) +
+  scale_fill_manual(values = pal_sel_extended, drop = TRUE, limits = force, name = "technology") +
+  labs(x = "", y = "EJ", title = "Global food processing process heat production by technology") +
+  theme_bw() +
+  theme(text=element_text(size=17),
+        axis.text.x = element_text(angle=55, vjust = 1, hjust = 1),
+        strip.background = element_blank())
+ggsave(paste0(fig_dir, "/food_pro_process_heat_outputs_by_tech_scenario_comp_global_sel.png"), width = 9, height = 6)
 ```
 
 ### Food processing carbon emissions
