@@ -1,0 +1,34 @@
+region,supplysector,subsector,technology,minicam.non.energy.input,cost,units
+Africa_Eastern,food processing,food processing,food processing,non-energy,0.0293,1975$ per Mcal
+Africa_Northern,food processing,food processing,food processing,non-energy,0.0633,1975$ per Mcal
+Africa_Southern,food processing,food processing,food processing,non-energy,0.0705,1975$ per Mcal
+Africa_Western,food processing,food processing,food processing,non-energy,0.0198,1975$ per Mcal
+Argentina,food processing,food processing,food processing,non-energy,0.1261,1975$ per Mcal
+Australia_NZ,food processing,food processing,food processing,non-energy,0.515,1975$ per Mcal
+Brazil,food processing,food processing,food processing,non-energy,0.0955,1975$ per Mcal
+Canada,food processing,food processing,food processing,non-energy,0.3881,1975$ per Mcal
+Central America and Caribbean,food processing,food processing,food processing,non-energy,0.1209,1975$ per Mcal
+Central Asia,food processing,food processing,food processing,non-energy,0.0632,1975$ per Mcal
+China,food processing,food processing,food processing,non-energy,0.0616,1975$ per Mcal
+Colombia,food processing,food processing,food processing,non-energy,0.0879,1975$ per Mcal
+EU-12,food processing,food processing,food processing,non-energy,0.2039,1975$ per Mcal
+EU-15,food processing,food processing,food processing,non-energy,0.3718,1975$ per Mcal
+Europe_Eastern,food processing,food processing,food processing,non-energy,0.0334,1975$ per Mcal
+Europe_Non_EU,food processing,food processing,food processing,non-energy,0.116,1975$ per Mcal
+European Free Trade Association,food processing,food processing,food processing,non-energy,0.3691,1975$ per Mcal
+India,food processing,food processing,food processing,non-energy,0.0145,1975$ per Mcal
+Indonesia,food processing,food processing,food processing,non-energy,0.0522,1975$ per Mcal
+Japan,food processing,food processing,food processing,non-energy,0.4934,1975$ per Mcal
+Mexico,food processing,food processing,food processing,non-energy,0.2154,1975$ per Mcal
+Middle East,food processing,food processing,food processing,non-energy,0.0941,1975$ per Mcal
+Pakistan,food processing,food processing,food processing,non-energy,0.0134,1975$ per Mcal
+Russia,food processing,food processing,food processing,non-energy,0.1226,1975$ per Mcal
+South Africa,food processing,food processing,food processing,non-energy,0.1243,1975$ per Mcal
+South America_Northern,food processing,food processing,food processing,non-energy,0.2655,1975$ per Mcal
+South America_Southern,food processing,food processing,food processing,non-energy,0.118,1975$ per Mcal
+South Asia,food processing,food processing,food processing,non-energy,0.0196,1975$ per Mcal
+South Korea,food processing,food processing,food processing,non-energy,0.1815,1975$ per Mcal
+Southeast Asia,food processing,food processing,food processing,non-energy,0.0633,1975$ per Mcal
+Taiwan,food processing,food processing,food processing,non-energy,0.1128,1975$ per Mcal
+USA,food processing,food processing,food processing,non-energy,0.3258,1975$ per Mcal
+default,food processing,food processing,food processing,non-energy,0.1051,1975$ per Mcal
